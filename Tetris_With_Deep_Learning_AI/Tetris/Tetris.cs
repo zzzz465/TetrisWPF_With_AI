@@ -149,15 +149,4 @@ namespace Tetris
             }
         }
     }
-
-    public struct Current_Hold_Tetromino_Pair
-    {
-        public Tetromino hold;
-        public Tetromino current;
-        public Current_Hold_Tetromino_Pair(Tetromino current = Tetromino.None, Tetromino hold = Tetromino.None)
-        {
-            this.hold = hold;
-            this.current = current;
-        }
-    }
 }

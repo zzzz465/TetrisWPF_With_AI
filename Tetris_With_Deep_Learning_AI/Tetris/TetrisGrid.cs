@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 
 namespace Tetris
 {
@@ -24,41 +25,50 @@ namespace Tetris
                 return false;
         }
     }
-    public class TetrisMatrix
+    public class TetrisGrid
     {
-        public int width { get; private set; }
-        public int height { get; private set; }
+        public int width { get; private set; } = 10;
+        public int maxHeight { get; private set; } // ?
         public IEnumerable<TetrisLine> getLines { get { return board; } }
         protected List<TetrisLine> board;
-        public TetrisMatrix(int height = 20, int width = 10)
+        public TetrisGrid(int maxHeight = 30)
         {
-            this.width = width;
-            this.height = height;
+            this.maxHeight = maxHeight;
             Reset();
         }
 
         public void Reset()
         {
             board = new List<TetrisLine>();
-            for(int i = 0; i < height; i++)
-                board.Add(new TetrisLine(width));
         }
 
-        public ref bool Get(int x, int y)
+        public bool Get(Point point)
         {
-            if(x < width)
-                return ref board[y].line[x];
-            else
-                throw new Exception();
+            return Get(point.X, point.Y);
+        }
+
+        public bool Get(int x, int y)
+        {
+            while(board.Count - 1 < y)
+                board.Add(new TetrisLine());
+
+            return board[y].line[x];
         }
 
         // accepts 4,2 array which takes x, y position of 0, 1, 2, 3 block.
-        public void Set(int[,] mino, Tetromino minoType = Tetromino.None)
+        public void SetMino(IEnumerable<Point> mino, Tetromino minoType = Tetromino.None)
         {
-            for(int i = 0; i < 4; i++)
+            if(mino.Count() != 4 || minoType == Tetromino.None)
+                throw new InvalidOperationException();
+
+            var maxY = mino.Max(i => i.Y);
+            while(board.Count - 1 < maxY)
+                board.Add(new TetrisLine());
+
+            foreach(var point in mino)
             {
-                var x = mino[i,0];
-                var y = mino[i,1];
+                var x = point.X;
+                var y = point.Y;
                 
                 var currentLine = board[y];
                 currentLine.line[x] = true;
@@ -68,7 +78,7 @@ namespace Tetris
         }
         public void UpdateBoard()
         {
-            for(int y = 0; y < height;)
+            for(int y = 0; y < maxHeight;)
             {
                 var current = board[y];
                 if (Enumerable.All(current.line, x => x))

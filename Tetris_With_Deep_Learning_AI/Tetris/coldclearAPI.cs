@@ -12,11 +12,11 @@ namespace Tetris
 {
     public static partial class Converter
     {
-        public static bool[] ToBoolArr(this TetrisMatrix matrix)
+        public static bool[] ToBoolArr(this TetrisGrid tetrisGrid)
         {
-            var lines = matrix.getLines.ToList();
-            int width = matrix.width;
-            int height = matrix.height;
+            var lines = tetrisGrid.getLines.ToList();
+            int width = tetrisGrid.width;
+            int height = tetrisGrid.maxHeight;
             var arr = new bool[width * height];
             for(int y = 0; y < height; y++)
             {
