@@ -11,17 +11,17 @@ namespace Tetris
     public class TetrisGame
     {
         TetrisGrid tetrisGrid;
-        iInputProvider inputProvider;
+        iInputProvider inputManager;
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;
         readonly Point spawnOffset = new Point(4, 20);
         
-        public TetrisGame(iInputProvider inputProvider, TetrominoBag bag = null)
+        public TetrisGame(InputManager inputManager, TetrominoBag bag = null)
         {
             tetrisGrid = new TetrisGrid();
             ResetGame(bag);
-            this.inputProvider = inputProvider;
+            this.inputManager = inputManager;
         }
 
         public void ResetGame(TetrominoBag bag = null)
@@ -36,7 +36,7 @@ namespace Tetris
 
         public void Update(uint curMilliSecond)
         {
-            var currentState = inputProvider.GetInputState();
+            var currentState = inputManager.GetInputState();
             var mino = currentPiece.minoType;
             if(!currentState.isTrue(InputState.HardDrop))
             {
