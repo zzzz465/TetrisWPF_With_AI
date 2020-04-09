@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tetris", "Tetris\Tetris.csproj", "{38E4D5EE-7788-4C2F-AC7A-8DF9D853451B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnitTest_Tetris", "XUnitTest_Tetris\XUnitTest_Tetris.csproj", "{1E652D46-4F12-4BBC-9187-3609E66AEE01}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XUnitTest_Tetris", "XUnitTest_Tetris\XUnitTest_Tetris.csproj", "{1E652D46-4F12-4BBC-9187-3609E66AEE01}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tetris_NetFramework", "Tetris_NetFramework\Tetris_NetFramework.csproj", "{EE3078C0-C0E7-4997-B177-34519EDF31E2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{38E4D5EE-7788-4C2F-AC7A-8DF9D853451B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{38E4D5EE-7788-4C2F-AC7A-8DF9D853451B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{38E4D5EE-7788-4C2F-AC7A-8DF9D853451B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{38E4D5EE-7788-4C2F-AC7A-8DF9D853451B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1E652D46-4F12-4BBC-9187-3609E66AEE01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{1E652D46-4F12-4BBC-9187-3609E66AEE01}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1E652D46-4F12-4BBC-9187-3609E66AEE01}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1E652D46-4F12-4BBC-9187-3609E66AEE01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

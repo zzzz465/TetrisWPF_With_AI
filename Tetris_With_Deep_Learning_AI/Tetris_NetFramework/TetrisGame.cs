@@ -74,10 +74,10 @@ namespace Tetris
             var expectedPos = currentPiece.minoType.GetPos(newOffset, currentPiece.rotState);
             var success = TryShift(currentPiece.GetPos(), expectedPos, currentPiece.minoType);
 
-            if(success)
+            if (success)
                 newOffsetPos = newOffset;
             else
-                new Point();
+                newOffsetPos = new Point();
             
             return success;
         }
@@ -107,9 +107,9 @@ namespace Tetris
             var before = currentPiece.rotState;
             RotationState after;
 
-            if(inputState.isTrue(InputState.CCW))       after = currentPiece.rotState.CCW();
-            else if(inputState.isTrue(InputState.CW))   after = currentPiece.rotState.CW();
-            else                                        return false;
+            if (inputState.isTrue(InputState.CCW))      after = currentPiece.rotState.CCW();
+            else if (inputState.isTrue(InputState.CW))  after = currentPiece.rotState.CW();
+            else                                        { newOffsetPos = new Point(); return false; }
 
             expectedLocalOffsetPos = SRS.Translation(currentPiece.minoType, before, after);
 

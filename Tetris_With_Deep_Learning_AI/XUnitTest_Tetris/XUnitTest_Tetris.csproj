@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Tetris\Tetris.csproj" />
+    <ProjectReference Include="..\Tetris_NetFramework\Tetris_NetFramework.csproj" />
   </ItemGroup>
 
 </Project>
