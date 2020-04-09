@@ -10,6 +10,81 @@ namespace Tetris
         I, T, O, S, Z, L, J, None
     }
 
+    public static class TetrominoExtension
+    {
+        #region Tetris Block Position by offset and rotation data
+        static readonly Dictionary<Tetromino, Dictionary<RotationState, Point[]>> minoData = new Dictionary<Tetromino, Dictionary<RotationState, Point[]>>()
+        {
+            { 
+                Tetromino.I, new Dictionary<RotationState, Point[]>() 
+                {
+                    { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(1, 0), new Point(2, 0) } },
+                    { RotationState.R, new Point[] { new Point(0, 1), new Point(0, -1), new Point(0, -2) } },
+                    { RotationState.Two, new Point[] { new Point(-2, 0), new Point(-1, 0), new Point(1, 0) } },
+                    { RotationState.L, new Point[] { new Point(0, 2), new Point(0, 1), new Point(0, -1) } }
+                }},
+            {
+                Tetromino.J, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(1, 0) } },
+                    { RotationState.R, new Point[] { new Point(0, 1), new Point(1, 1), new Point(0, -1) } },
+                    { RotationState.Two, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(1, -1) } },
+                    { RotationState.L, new Point[] { new Point(-1, -1), new Point(0, 1), new Point(0, -1) } }
+                }},
+            {
+                Tetromino.L, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(1, 0), new Point(1, 1) } },
+                    { RotationState.R, new Point[] { new Point(0, 1), new Point(0, -1), new Point(1, -1) } },
+                    { RotationState.Two, new Point[] { new Point(-1, -1), new Point(-1, 0), new Point(1, 0) } },
+                    { RotationState.L, new Point[] { new Point(-1, 1), new Point(0, 1), new Point(0, -1) } }
+                }},
+            {
+                Tetromino.O, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, 1) } },
+                    { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, 1) } },
+                    { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, 1) } },
+                    { RotationState.L, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, 1) } }
+                }},
+            {
+                Tetromino.S, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(1, 1) } },
+                    { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, -1) } },
+                    { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, -1) } },
+                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(-1, 0) } }
+                }},
+            {
+                Tetromino.T, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(1, 0) } },
+                    { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(0, -1) } },
+                    { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, 0) } },
+                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(0, -1) } }
+                }},
+            {
+                Tetromino.Z, new Dictionary<RotationState, Point[]>()
+                {
+                    { RotationState.Zero, new Point[] { new Point(-1, 1), new Point(0, 1), new Point(1, 0) } },
+                    { RotationState.R, new Point[] { new Point(1, 0), new Point(0, -1), new Point(1, 1) } },
+                    { RotationState.Two, new Point[] { new Point(-1, 0), new Point(0, -1), new Point(1, -1) } },
+                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(-1, -1) } }
+                }
+            }
+        };
+        #endregion
+        public static IEnumerable<Point> GetPos(this Tetromino mino, Point offset, RotationState rotState)
+        {
+            var positionData = minoData[mino][rotState];
+            yield return offset;
+            foreach(var localPos in positionData)
+            {
+                yield return new Point(offset.X + localPos.X, offset.Y + localPos.Y);
+            }
+        }
+    }
+
     public enum Movement
     {
         Left, Right, SoftDrop, HardDrop, CW, CCW
@@ -126,8 +201,8 @@ namespace Tetris
         #endregion
 
         public Tetromino minoType { get; private set; }
-        public Point offset { get; private set; }
-        RotationState rotState = RotationState.None;
+        public Point offset { get; set; }
+        public RotationState rotState { get; private set; } = RotationState.None;
         public CurrentTetrominoPiece(Tetromino minoType, Point offset)
         {
             this.minoType = minoType;
@@ -141,12 +216,7 @@ namespace Tetris
 
         public IEnumerable<Point> GetPos()
         {
-            var positionData = minoData[minoType][rotState];
-            yield return offset;
-            foreach(var localPos in positionData)
-            {
-                yield return new Point(offset.X + localPos.X, offset.Y + localPos.Y);
-            }
+            return minoType.GetPos(offset, rotState);
         }
     }
 }
