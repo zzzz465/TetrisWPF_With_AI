@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XUnitTest_Tetris", "XUnitTe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tetris_NetFramework", "Tetris_NetFramework\Tetris_NetFramework.csproj", "{EE3078C0-C0E7-4997-B177-34519EDF31E2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tetris_WPF_Proj", "Tetris_WPF_Proj\Tetris_WPF_Proj.csproj", "{11D81982-D36A-4E2C-92B3-943CF60B73AB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE3078C0-C0E7-4997-B177-34519EDF31E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11D81982-D36A-4E2C-92B3-943CF60B73AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11D81982-D36A-4E2C-92B3-943CF60B73AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11D81982-D36A-4E2C-92B3-943CF60B73AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11D81982-D36A-4E2C-92B3-943CF60B73AB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
