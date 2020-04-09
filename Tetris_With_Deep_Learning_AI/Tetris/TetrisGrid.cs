@@ -56,7 +56,7 @@ namespace Tetris
         }
 
         // accepts 4,2 array which takes x, y position of 0, 1, 2, 3 block.
-        public void SetMino(IEnumerable<Point> mino, Tetromino minoType = Tetromino.None)
+        public void Set(IEnumerable<Point> mino, bool state, Tetromino minoType = Tetromino.None)
         {
             if(mino.Count() != 4 || minoType == Tetromino.None)
                 throw new InvalidOperationException();
@@ -71,7 +71,7 @@ namespace Tetris
                 var y = point.Y;
                 
                 var currentLine = board[y];
-                currentLine.line[x] = true;
+                currentLine.line[x] = state;
                 currentLine.minoType[x] = minoType;
                 // 여기서 true에 true를 덮어쓰는지 체크를 하는게 좋지않을까
             }
