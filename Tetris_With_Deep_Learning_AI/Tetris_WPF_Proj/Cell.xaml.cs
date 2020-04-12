@@ -16,15 +16,23 @@ using System.Windows.Shapes;
 namespace Tetris_WPF_Proj
 {
     /// <summary>
-    /// MainWindow.xaml에 대한 상호 작용 논리
+    /// Cell.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class Cell : UserControl
     {
-        public MainWindow()
+        public Cell()
         {
             InitializeComponent();
-            var window = new TestKeyInput();
-            window.Show();
+        }
+
+        public Cell(BitmapImage image)
+        {
+            Background = new ImageBrush();
+        }
+
+        public Cell(Color backgroundColor)
+        {
+            Background = new SolidColorBrush(backgroundColor);
         }
     }
 }

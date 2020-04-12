@@ -20,6 +20,7 @@ namespace Tetris
             public Key Left;
             public Key Right;
             public Key Hold;
+            public static readonly Setting Default = new Setting { ARR = 100, DAS = 100, DropDelay = 300, CCW = Key.D, CW = Key.F, HardDrop = Key.I, SoftDrop = Key.K, Left = Key.J, Right = Key.L, Hold = Key.R };
         }
         #region settings
         int ARR_Delay;
