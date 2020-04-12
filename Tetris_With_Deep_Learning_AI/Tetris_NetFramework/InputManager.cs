@@ -8,6 +8,7 @@ namespace Tetris
 {
     public class InputManager : iInputProvider
     {
+        public static InputManager Instance { get; } = new InputManager(Setting.Default);
         public struct Setting
         {
             public int ARR;
@@ -58,7 +59,7 @@ namespace Tetris
         TimeSpan LastSoftDropTime;
         HashSet<Key> LastKeyState = new HashSet<Key>();
         
-        public InputManager(Setting setting)
+        private InputManager(Setting setting)
         {
             this.setting = setting;
             ApplySetting();

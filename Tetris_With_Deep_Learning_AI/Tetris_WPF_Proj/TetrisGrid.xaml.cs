@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Timers;
+using Tetris;
 
 namespace Tetris_WPF_Proj
 {
@@ -20,22 +22,53 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class TetrisGrid : UserControl
     {
-        List<Cell> images = new List<Cell>();
+        static Color BackgroundColor = Color.FromRgb(50, 50, 50);
+        List<Cell> cells = new List<Cell>();
+        TetrisGame tetris = new TetrisGame(Tetris.InputManager.Instance, new TetrominoBag());
+
         public TetrisGrid()
         {
             InitializeComponent();
+            InitializeGrid();
 
+            //테스트
+            var timer = new System.Timers.Timer();
+            timer.Interval = 1;
+            timer.Elapsed += this.OnUpdated;
+        }
+
+        void InitializeGrid()
+        {
             for (int y = 0; y < 20; y++)
             {
                 for (int x = 0; x < 10; x++)
                 {
-                    var cell = new Cell(Color.FromRgb((byte)(x * 10), (byte)(y * 10), (byte)(x * y)));
-                    TetrisGrid_Grid.Children.Add(cell);
+                    var cell = new Cell(BackgroundColor);
+                    Grid_Root.Children.Add(cell);
                     cell.SetValue(Grid.RowProperty, 19 - y);
-                    cell.SetValue(Grid.ColumnProperty, 19 - x);
-                    images.Add(cell);
+                    cell.SetValue(Grid.ColumnProperty, 9 - x);
+                    cells.Add(cell);
                 }
             }
+        }
+
+        public void OnUpdated(object sender, EventArgs e)
+        {
+            uint curTick; // = (e as TickUpdateEventArgs).currentTick;
+            if (e is TickUpdateEventArgs eTick)
+                curTick = eTick.currentTick;
+            else if(e is ElapsedEventArgs ee)
+                CursorType = ee.SignalTime.
+            tetris.Update(curTick);
+        }
+    }
+
+    public class TickUpdateEventArgs : EventArgs
+    {
+        public uint currentTick { get; private set; }
+        public TickUpdateEventArgs(uint currentTick)
+        {
+            this.currentTick = currentTick;
         }
     }
 }

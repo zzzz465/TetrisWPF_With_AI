@@ -23,8 +23,6 @@ namespace Tetris_WPF_Proj
         public MainWindow()
         {
             InitializeComponent();
-            var window = new TestKeyInput();
-            window.Show();
         }
     }
 }

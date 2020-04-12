@@ -61,7 +61,6 @@ namespace Tetris_WPF_Proj
 
             var greenBrush = new SolidColorBrush(green);
             var blackBrush = new SolidColorBrush(black);
-
             CCW_Rect.Fill = curState.isTrue(InputState.CCW) ? greenBrush : blackBrush;
 
             CCW_Rect.Fill = curState.isTrue(InputState.CW) ? greenBrush : blackBrush;
@@ -69,8 +68,18 @@ namespace Tetris_WPF_Proj
             CCW_Rect.Fill = curState.isTrue(InputState.HardDrop) ? greenBrush : blackBrush;
 
             SoftDrop_Rect.Fill = curState.isTrue(InputState.SoftDrop) ? greenBrush : blackBrush;
+            /*
+            if(curState.isTrue(InputState.LeftPressed))
+                Left_Rect.Fill = Left_Rect.Fill == greenBrush ? blackBrush : greenBrush;
+
+            if (curState.isTrue(InputState.RightPressed))
+                Right_Rect.Fill = Right_Rect.Fill == greenBrush ? blackBrush : greenBrush;
+                */
+            
             Left_Rect.Fill = curState.isTrue(InputState.LeftPressed) ? greenBrush : blackBrush;
             Right_Rect.Fill = curState.isTrue(InputState.RightPressed) ? greenBrush : blackBrush;
+            
+
             Hold_Rect.Fill = curState.isTrue(InputState.Hold) ? greenBrush : blackBrush;
 
             lastUpdateTime = sw.Elapsed;

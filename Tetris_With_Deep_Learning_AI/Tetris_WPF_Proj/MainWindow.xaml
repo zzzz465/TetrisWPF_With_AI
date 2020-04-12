@@ -7,8 +7,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Rectangle Fill="#FF00FF3C" HorizontalAlignment="Left" Height="100" Margin="345,146,0,0" Stroke="Black" VerticalAlignment="Top" Width="100"/>
-        <TextBox HorizontalAlignment="Left" Height="23" Margin="434,196,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="120"/>
-        <local:TetrisGrid Width="300" Height="300"/>
+        <local:TetrisGrid Width="200" Height="400"/>
     </Grid>
 </Window>
