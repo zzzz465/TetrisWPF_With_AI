@@ -24,17 +24,12 @@ namespace Tetris_WPF_Proj
     {
         static Color BackgroundColor = Color.FromRgb(50, 50, 50);
         List<Cell> cells = new List<Cell>();
-        TetrisGame tetris = new TetrisGame(Tetris.InputManager.Instance, new TetrominoBag());
+        TetrisGame tetrisGame = new TetrisGame(new UserInputManager(), InputSetting.Default, new TetrominoBag());
 
         public TetrisGrid()
         {
             InitializeComponent();
             InitializeGrid();
-
-            //테스트
-            var timer = new System.Timers.Timer();
-            timer.Interval = 1;
-            timer.Elapsed += this.OnUpdated;
         }
 
         void InitializeGrid()
@@ -52,23 +47,44 @@ namespace Tetris_WPF_Proj
             }
         }
 
-        public void OnUpdated(object sender, EventArgs e)
+        public void ResetGame()
         {
-            uint curTick; // = (e as TickUpdateEventArgs).currentTick;
-            if (e is TickUpdateEventArgs eTick)
-                curTick = eTick.currentTick;
-            else if(e is ElapsedEventArgs ee)
-                CursorType = ee.SignalTime.
-            tetris.Update(curTick);
+            this.tetrisGame.ResetGame();
+        }
+
+        public void OnUpdated(object sender, TickUpdateEventArgs e)
+        {
+            this.tetrisGame.Update(TimeSpan.FromMilliseconds(e.currentMilliSecond));
+
+            var lines = this.tetrisGame.Lines.ToList();
+
+            for(int y = 0; y < 20; y++)
+            {
+                var curLine = lines.Count - 1 <= y ? lines[y] : new TetrisLine();
+                for(int x = 0; x < 10; x++)
+                {
+                    var cell = cells[y * 10 + x];
+                    if(curLine.line[x])
+                    {
+                        cell.SetColor(Color.FromRgb(150, 150, 150));
+                    }
+                    else
+                    {
+                        cell.SetColor(Color.FromRgb(50, 50, 50));
+                    }
+                }
+            }
         }
     }
 
+    public delegate void TickUpdateEvent(object sender, TickUpdateEventArgs e);
+
     public class TickUpdateEventArgs : EventArgs
     {
-        public uint currentTick { get; private set; }
-        public TickUpdateEventArgs(uint currentTick)
+        public double currentMilliSecond { get; private set; }
+        public TickUpdateEventArgs(double currentMilliSecond)
         {
-            this.currentTick = currentTick;
+            this.currentMilliSecond = currentMilliSecond;
         }
     }
 }

@@ -23,6 +23,8 @@ namespace Tetris_WPF_Proj
         public MainWindow()
         {
             InitializeComponent();
+
+            new TestGameWindow().Show();
         }
     }
 }

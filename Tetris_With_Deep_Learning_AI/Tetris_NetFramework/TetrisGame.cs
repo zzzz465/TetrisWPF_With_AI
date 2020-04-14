@@ -21,6 +21,7 @@ namespace Tetris
         InputSetting KeySetting;
 
         TetrisGrid tetrisGrid;
+        public IEnumerable<TetrisLine> Lines { get { return tetrisGrid.getLines; } }
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;
