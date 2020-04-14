@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
+using System.Windows.Input;
 
 namespace Tetris
 {
@@ -10,20 +11,40 @@ namespace Tetris
     */
     public class TetrisGame
     {
+        enum GameState
+        {
+            Idle,
+            Playing,
+            Paused
+        }
+        iInputProvider InputProvider;
+        InputSetting KeySetting;
+
         TetrisGrid tetrisGrid;
-        iInputProvider inputManager;
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;
         readonly Point spawnOffset = new Point(4, 20);
+
+        #region Time data about mino movement
+        TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
+        TimeSpan DASDelay = TimeSpan.FromMilliseconds(250);
+        TimeSpan lastMinoMoveTime = TimeSpan.Zero;
+        TimeSpan lastDropTime = TimeSpan.Zero;
+        TimeSpan LastSoftDropTime = TimeSpan.Zero;
+        TimeSpan DropDelay = TimeSpan.FromMilliseconds(16);
+        bool isContinousMoving = false; // 이게 True면, ARR에 의해 영향을 받는다는 뜻, 꾹누른 상태임
+        #endregion
+
+        GameState gameState = GameState.Idle;
         
-        public TetrisGame(InputManager inputManager, TetrominoBag bag = null)
+        public TetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrominoBag bag = null)
         {
+            this.KeySetting = keySetting;
+            this.InputProvider = inputProvider;
             tetrisGrid = new TetrisGrid();
             ResetGame(bag);
-            this.inputManager = inputManager;
         }
-
         public void ResetGame(TetrominoBag bag = null)
         {
             this.tetrominoBag = bag ?? new TetrominoBag();
@@ -34,37 +55,111 @@ namespace Tetris
                 next.Enqueue(tetrominoBag.GetNext());
         }
 
-        public void Update(uint curMilliSecond)
+        public void StartGame()
         {
-            var currentState = inputManager.GetInputState();
+            if(this.gameState == GameState.Playing)
+                throw new Exception();
+        }
+
+        public void PauseGame()
+        {
+            this.gameState = GameState.Paused;
+        }
+
+        public void ResumeGame(long curTick)
+        {
+            this.gameState = GameState.Playing;
+        }
+
+        public void Update(TimeSpan curTime)
+        {
+            if(this.gameState != GameState.Playing)
+                return;
+
             var mino = currentPiece.minoType;
-            if(!currentState.isTrue(InputState.HardDrop))
+            //if(!currentState.isTrue(InputState.HardDrop))
+            if(InputProvider.GetState(KeySetting.HardDrop) == KeyState.StateDown)
             {
-                if(currentState.isTrue(InputState.CCW) || currentState.isTrue(InputState.CW))
+                //if(currentState.isTrue(InputType.CCW) || currentState.isTrue(InputType.CW))
+                if(InputProvider.GetState(KeySetting.CCW) == KeyState.StateDown)
                 {
-                    if(TrySpin(currentState, out var newOffsetPos))
+                    if(TrySpin(InputType.CCW, out var newOffsetPos))
+                        currentPiece.offset = newOffsetPos;
+                }
+                else if(InputProvider.GetState(KeySetting.CW) == KeyState.StateDown)
+                {
+                    if(TrySpin(InputType.CW, out var newOffsetPos))
                         currentPiece.offset = newOffsetPos;
                 }
 
-                if(currentState.isTrue(InputState.LeftPressed))
+                //if(currentState.isTrue(InputType.LeftPressed))
+                var leftState = InputProvider.GetState(KeySetting.Left);
+                var rightState = InputProvider.GetState(KeySetting.Right);
+
+                if(leftState == KeyState.StateDown)
                 {
                     if(TryMove(new Point(-1, 0), out var newOffsetPos))
+                    {
                         currentPiece.offset = newOffsetPos;
+                        lastMinoMoveTime = curTime;
+                    }
                 }
-                else if(currentState.isTrue(InputState.RightPressed))
+                else if(rightState == KeyState.StateDown)
                 {
                     if(TryMove(new Point(1, 0), out var newOffsetPos))
+                    {
                         currentPiece.offset = newOffsetPos;
+                        lastMinoMoveTime = curTime;
+                    }
+                }
+                else if((leftState == KeyState.Down || rightState == KeyState.Down) && !(leftState == KeyState.Down && rightState == KeyState.Down))
+                { // 꾹눌렀을때
+                    if(leftState == KeyState.Down)
+                    {
+                        if(isContinousMoving)
+                        { // ARR에 의해 결정
+                            if(ARRDelay < curTime - lastMinoMoveTime && TryMove(new Point(-1, 0), out var newOffsetPos))
+                            {
+                                currentPiece.offset = newOffsetPos;
+                                lastMinoMoveTime = curTime;
+                                isContinousMoving = true;
+                            }
+                        }
+                        else
+                        { // 아직 연속 이동상태가 아님
+                            if(DASDelay < curTime - lastMinoMoveTime && TryMove(new Point(1, 0), out var newOffsetPos))
+                            {
+                                currentPiece.offset = newOffsetPos;
+                                lastMinoMoveTime = curTime;
+                                isContinousMoving = true;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    isContinousMoving = false;
                 }
                 
-                if(currentState.isTrue(InputState.SoftDrop))
+                if(InputProvider.GetState(KeySetting.SoftDrop) == KeyState.Down)
                 {
-
+                    if(curTime - lastDropTime > DropDelay)
+                    {
+                        if(TryMove(new Point(0, -1), out var newOffsetPos))
+                        {
+                            currentPiece.offset = newOffsetPos;
+                            LastSoftDropTime = curTime;
+                        }
+                    }
                 }
             }
             else
             {
-
+                while(TryMove(new Point(0, -1), out var newOffsetPos))
+                    currentPiece.offset = newOffsetPos;
+                
+                LastSoftDropTime = curTime;
+                tetrisGrid.UpdateBoard();
             }
         }
 
@@ -95,11 +190,11 @@ namespace Tetris
                 return false;
         }
 
-        bool TrySpin(InputState inputState, out Point newOffsetPos)
+        bool TrySpin(InputType inputState, out Point newOffsetPos)
         {
             var mino = currentPiece.minoType;
 
-            if(inputState.isTrue(InputState.CCW) && inputState.isTrue(InputState.CW))
+            if(inputState.isTrue(InputType.CCW) && inputState.isTrue(InputType.CW))
                 throw new InvalidOperationException("Cannot have CCW and CW at the same time!");
 
             IEnumerable<Point> expectedLocalOffsetPos;
@@ -107,8 +202,8 @@ namespace Tetris
             var before = currentPiece.rotState;
             RotationState after;
 
-            if (inputState.isTrue(InputState.CCW))      after = currentPiece.rotState.CCW();
-            else if (inputState.isTrue(InputState.CW))  after = currentPiece.rotState.CW();
+            if (inputState.isTrue(InputType.CCW))      after = currentPiece.rotState.CCW();
+            else if (inputState.isTrue(InputType.CW))  after = currentPiece.rotState.CW();
             else                                        { newOffsetPos = new Point(); return false; }
 
             expectedLocalOffsetPos = SRS.Translation(currentPiece.minoType, before, after);
@@ -126,6 +221,11 @@ namespace Tetris
             }
             newOffsetPos = new Point();
             return false;
+        }
+
+        bool canMove(TimeSpan lastMoveTime, TimeSpan curTime, double delay)
+        {
+            return (curTime - lastMoveTime).TotalMilliseconds > delay;
         }
     }
 }
