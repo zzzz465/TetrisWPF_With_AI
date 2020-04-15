@@ -9,7 +9,8 @@ namespace Tetris
         [STAThread]
         static void Main(string[] args)
         {
-            
+            Tetris.Renderer.BoardRenderer renderer = new Renderer.BoardRenderer();
+            renderer.InfiniteUpdate();
         }
     }
 }   

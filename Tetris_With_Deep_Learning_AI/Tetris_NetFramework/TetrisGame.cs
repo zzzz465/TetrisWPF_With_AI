@@ -30,6 +30,8 @@ namespace Tetris
         #region Time data about mino movement
         TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
         TimeSpan DASDelay = TimeSpan.FromMilliseconds(250);
+        TimeSpan minoSpawnDelay = TimeSpan.FromMilliseconds(50);
+        TimeSpan lastMinoPlaced = TimeSpan.Zero;
         TimeSpan lastMinoMoveTime = TimeSpan.Zero;
         TimeSpan lastDropTime = TimeSpan.Zero;
         TimeSpan LastSoftDropTime = TimeSpan.Zero;
@@ -49,8 +51,6 @@ namespace Tetris
         public void ResetGame(TetrominoBag bag = null)
         {
             this.tetrominoBag = bag ?? new TetrominoBag();
-            var firstPiece = tetrominoBag.GetNext();
-            currentPiece = new CurrentTetrominoPiece(firstPiece, spawnOffset);
             next = new Queue<Tetromino>(5);
             while(next.Count < 5)
                 next.Enqueue(tetrominoBag.GetNext());
@@ -58,8 +58,20 @@ namespace Tetris
 
         public void StartGame()
         {
-            if(this.gameState == GameState.Playing)
+            ResetGame();
+            var firstPiece = tetrominoBag.GetNext();
+            currentPiece = new CurrentTetrominoPiece(firstPiece, spawnOffset);
+            var expectedPos = currentPiece.minoType.GetPos(currentPiece.offset, currentPiece.rotState);
+            if(!expectedPos.Any(p => tetrisGrid.Get(p)))
+            { // can place
+                tetrisGrid.Set(expectedPos, true, currentPiece.minoType);
+            }
+            else
+            {
                 throw new Exception();
+            }
+            
+            this.gameState = GameState.Playing;
         }
 
         public void PauseGame()
@@ -77,9 +89,41 @@ namespace Tetris
             if(this.gameState != GameState.Playing)
                 return;
 
+            if (currentPiece == null)
+            {
+                if (curTime - lastMinoPlaced > minoSpawnDelay)
+                {
+                    currentPiece = new CurrentTetrominoPiece(tetrominoBag.GetNext(), spawnOffset);
+                    var expectedPos = currentPiece.minoType.GetPos(currentPiece.offset, currentPiece.rotState);
+                    if(!expectedPos.Any(p => tetrisGrid.Get(p)))
+                    { // can place
+                        tetrisGrid.Set(expectedPos, true, currentPiece.minoType);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
+                }
+                else
+                {
+                    return;
+                }
+            }
+
             var mino = currentPiece.minoType;
             //if(!currentState.isTrue(InputState.HardDrop))
             if(InputProvider.GetState(KeySetting.HardDrop) == KeyState.StateDown)
+            {
+                while(TryMove(new Point(0, -1), out var newOffsetPos))
+                    currentPiece.offset = newOffsetPos;
+                
+                LastSoftDropTime = curTime;
+                lastMinoPlaced = curTime;
+                tetrisGrid.UpdateBoard();
+
+                currentPiece = null;
+            }
+            else
             {
                 //if(currentState.isTrue(InputType.CCW) || currentState.isTrue(InputType.CW))
                 if(InputProvider.GetState(KeySetting.CCW) == KeyState.StateDown)
@@ -154,14 +198,6 @@ namespace Tetris
                     }
                 }
             }
-            else
-            {
-                while(TryMove(new Point(0, -1), out var newOffsetPos))
-                    currentPiece.offset = newOffsetPos;
-                
-                LastSoftDropTime = curTime;
-                tetrisGrid.UpdateBoard();
-            }
         }
 
         bool TryMove(Point localMoveOffset, out Point newOffsetPos)
@@ -180,15 +216,29 @@ namespace Tetris
 
         bool TryShift(IEnumerable<Point> before, IEnumerable<Point> after, Tetromino mino)
         {
+            if (!after.All(p => isValidPosition(p)))
+                return false;
+
             var canMove = !after.Any(p => tetrisGrid.Get(p));
             if(canMove)
             {
-                tetrisGrid.Set(before, false);
+                tetrisGrid.Set(before, false, mino);
                 tetrisGrid.Set(after, true, mino);
                 return true;
             }
             else
                 return false;
+        }
+
+        bool isValidPosition(Point point)
+        {
+            if (point.X < 0 || point.X > 9)
+                return false;
+
+            if (point.Y < 0 || point.Y > 23)
+                return false;
+
+            return true;
         }
 
         bool TrySpin(InputType inputState, out Point newOffsetPos)

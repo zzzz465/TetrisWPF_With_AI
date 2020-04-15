@@ -18,13 +18,15 @@ namespace Tetris
     }
     public enum KeyState : uint
     {
-        Up = 0,
-        Down = 1,
-        StateDown = 2,
-        StateUp = 4
+        NotAvailable = 0,
+        Up = 1,
+        Down = 2,
+        StateDown = 4,
+        StateUp = 8,
     }
     public interface iInputProvider
     {
+        void Update();
         KeyState GetState(Key key);
     }
 

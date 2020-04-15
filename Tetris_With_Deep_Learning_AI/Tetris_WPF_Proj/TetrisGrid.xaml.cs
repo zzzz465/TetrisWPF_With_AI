@@ -24,12 +24,14 @@ namespace Tetris_WPF_Proj
     {
         static Color BackgroundColor = Color.FromRgb(50, 50, 50);
         List<Cell> cells = new List<Cell>();
-        TetrisGame tetrisGame = new TetrisGame(new UserInputManager(), InputSetting.Default, new TetrominoBag());
+        TetrisGame tetrisGame;
+        iInputProvider inputProvider;
 
         public TetrisGrid()
         {
             InitializeComponent();
             InitializeGrid();
+            InitializeGame();
         }
 
         void InitializeGrid()
@@ -47,6 +49,26 @@ namespace Tetris_WPF_Proj
             }
         }
 
+        void InitializeGame()
+        {
+            UserInputManager userInputManager = new UserInputManager();
+            InputSetting inputSetting = InputSetting.Default;
+            userInputManager.ObserveKey(inputSetting.CCW);
+            userInputManager.ObserveKey(inputSetting.CW);
+            userInputManager.ObserveKey(inputSetting.Left);
+            userInputManager.ObserveKey(inputSetting.Right);
+            userInputManager.ObserveKey(inputSetting.Hold);
+            userInputManager.ObserveKey(inputSetting.HardDrop);
+            userInputManager.ObserveKey(inputSetting.SoftDrop);
+            inputProvider = userInputManager;
+            tetrisGame = new TetrisGame(userInputManager, inputSetting, new TetrominoBag());
+        }
+
+        public void StartGame()
+        {
+            this.tetrisGame.StartGame();
+        }
+
         public void ResetGame()
         {
             this.tetrisGame.ResetGame();
@@ -54,13 +76,14 @@ namespace Tetris_WPF_Proj
 
         public void OnUpdated(object sender, TickUpdateEventArgs e)
         {
+            inputProvider.Update();
             this.tetrisGame.Update(TimeSpan.FromMilliseconds(e.currentMilliSecond));
 
             var lines = this.tetrisGame.Lines.ToList();
 
             for(int y = 0; y < 20; y++)
             {
-                var curLine = lines.Count - 1 <= y ? lines[y] : new TetrisLine();
+                var curLine = lines.Count - 1 >= y ? lines[y] : new TetrisLine();
                 for(int x = 0; x < 10; x++)
                 {
                     var cell = cells[y * 10 + x];

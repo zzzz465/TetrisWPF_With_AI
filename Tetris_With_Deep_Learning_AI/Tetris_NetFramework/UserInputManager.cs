@@ -31,6 +31,12 @@ namespace Tetris
         {
             ObservedKeys.Add(key);
         }
+
+        public void ObserveKey(params Key[] keys)
+        {
+            foreach(var key in keys)
+                ObserveKey(key);
+        }
         
         public void DeObserveKey(Key key)
         {
@@ -70,7 +76,10 @@ namespace Tetris
 
         public KeyState GetState(Key key)
         {
-            return currentKeyState[key];
+            if (currentKeyState.TryGetValue(key, out var value))
+                return value;
+            else
+                return KeyState.NotAvailable;
         }
     }
 

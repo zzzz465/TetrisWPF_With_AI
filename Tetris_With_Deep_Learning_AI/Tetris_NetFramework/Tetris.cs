@@ -202,7 +202,7 @@ namespace Tetris
 
         public Tetromino minoType { get; private set; }
         public Point offset { get; set; }
-        public RotationState rotState { get; private set; } = RotationState.None;
+        public RotationState rotState { get; private set; } = RotationState.Zero;
         public CurrentTetrominoPiece(Tetromino minoType, Point offset)
         {
             this.minoType = minoType;

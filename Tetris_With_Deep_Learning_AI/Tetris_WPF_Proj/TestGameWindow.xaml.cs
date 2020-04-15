@@ -30,6 +30,8 @@ namespace Tetris_WPF_Proj
         {
             InitializeComponent();
             ResetGame();
+
+            StartGame();
         }
 
         public void ResetGame()
@@ -51,6 +53,7 @@ namespace Tetris_WPF_Proj
             Log.Info("Game started!");
             globalGameTimer.Start();
             sw.Start();
+            Player1Grid.StartGame();
         }
 
         void OnUpdate(object sender, EventArgs e)

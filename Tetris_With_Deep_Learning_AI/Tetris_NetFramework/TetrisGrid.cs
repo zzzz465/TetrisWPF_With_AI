@@ -5,11 +5,11 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public struct TetrisLine
+    public class TetrisLine
     {
         public bool[] line;
         public Tetromino[] minoType;
-        public TetrisLine(int width)
+        public TetrisLine(int width = 10)
         {
             line = new bool[width];
             minoType = new Tetromino[width];
@@ -49,7 +49,7 @@ namespace Tetris
 
         public bool Get(int x, int y)
         {
-            while(board.Count - 1 < y)
+            while(board.Count - 1 <= y)
                 board.Add(new TetrisLine());
 
             return board[y].line[x];
@@ -78,7 +78,7 @@ namespace Tetris
         }
         public void UpdateBoard()
         {
-            for(int y = 0; y < maxHeight;)
+            for(int y = 0; y < board.Count;)
             {
                 var current = board[y];
                 if (Enumerable.All(current.line, x => x))
