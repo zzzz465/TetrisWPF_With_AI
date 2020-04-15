@@ -48,12 +48,12 @@ namespace Tetris
                     { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(1, 1) } },
                     { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, -1) } },
                     { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, -1) } },
-                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(-1, 0) } }
+                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(0, -1) } }
                 }},
             {
                 Tetromino.T, new Dictionary<RotationState, Point[]>()
                 {
-                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(1, 0) } },
+                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(0, 1) } },
                     { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(0, -1) } },
                     { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, 0) } },
                     { RotationState.L, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(0, -1) } }
@@ -70,7 +70,7 @@ namespace Tetris
         };
         #endregion
 
-        Tetromino minoType;
+        public Tetromino minoType { get; private set; }
         TetrisGrid tetrisGrid;
         Point offset;
         public RotationState rotState { get; private set; } = RotationState.Zero;

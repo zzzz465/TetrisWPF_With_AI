@@ -19,7 +19,7 @@ namespace Tetris.Renderer
         UserInputManager inputManager;
         public BoardRenderer()
         {
-            image = new Mat(720, 1280, MatType.CV_8U);
+            image = new Mat(720, 1280, MatType.CV_8UC3);
             window = new Window("Window", image);
             inputManager = new UserInputManager();
             var setting = InputSetting.Default;
@@ -44,7 +44,8 @@ namespace Tetris.Renderer
             while (true)
             {
                 inputManager.Update();
-                Draw();
+                DrawBoard();
+                DrawCurrentPiece();
                 window.ShowImage(image);
                 tetrisGame.Update(sw.Elapsed);
                 Cv2.WaitKey(3);
@@ -58,11 +59,13 @@ namespace Tetris.Renderer
                 Console.WriteLine($"{x} {y}");
         }
 
-        void Draw()
+        void DrawBoard()
         {
             // 1 box = 25 * 25
             // width = 250, height = 500
             // x 390 ~ x 640, y 110 ~ y 610
+
+            Cv2.Rectangle(image, new Rect(0, 0, 720, 1280), Scalar.Black, -1);
 
             var leftTop = new Point(390, 110);
             var rightBottom = new Point(640, 610);
@@ -74,25 +77,44 @@ namespace Tetris.Renderer
 
             // draw grid
             for(int y = 0; y <= 20; y++) // row
-                Cv2.Line(image, new Point(leftTop.X, leftTop.Y + rectSize.height * y), new Point(rightBottom.X, leftTop.Y + rectSize.height * y), Scalar.White, 2);
+                Cv2.Line(image, new Point(leftTop.X, leftTop.Y + rectSize.height * y), new Point(rightBottom.X, leftTop.Y + rectSize.height * y), new Scalar(10 * y, 10 * y, 200), 2);
 
             for(int x = 0; x <= 10; x++) // column
-                Cv2.Line(image, new Point(leftTop.X + rectSize.width * x, leftTop.Y), new Point(leftTop.X + rectSize.width * x, rightBottom.Y), Scalar.White, 2);
+                Cv2.Line(image, new Point(leftTop.X + rectSize.width * x, leftTop.Y), new Point(leftTop.X + rectSize.width * x, rightBottom.Y), new Scalar(200, 10 * x, 10 * x), 2);
 
             var lines = tetrisGame.Lines;
 
-            for(int y = 19; y >= 0; y--)
+            for(int y = 0; y < 20; y++)
             { // 좌측 하단부터 시작해서, 우측 상단으로 올라감
                 var line = lines.ElementAt(y);
                 for(int x = 0; x < 10; x++)
                 {
                     var blockExist = line.line[x];
-                    Rect cell = new Rect(leftTop.X + rectSize.width * x + 1, leftTop.Y + rectSize.height * y - 1, rectSize.width - 1, rectSize.height - 1);
+                    Rect cell = new Rect( (leftTop.X + rectSize.width * x + 1), (rightBottom.Y - rectSize.height * y - 1), rectSize.width - 1, rectSize.height - 1);
                     if(blockExist)
                         Cv2.Rectangle(image, cell, Scalar.Green, -1);
                     else
                         Cv2.Rectangle(image, cell, Scalar.Black, -1);
                 }
+            }
+        }
+
+        void DrawCurrentPiece()
+        {
+            var posOfCurMinoBlocks = tetrisGame.PosOfCurMinoBlocks;
+            if(posOfCurMinoBlocks == null)
+                return;
+
+            (int width, int height) rectSize = (25, 25);
+            var leftTop = new Point(390, 110);
+            var rightBottom = new Point(640, 610);
+            var leftBottom = new Point(leftTop.X, rightBottom.Y);
+
+            foreach(var BlockPos in posOfCurMinoBlocks)
+            {
+                var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
+                Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
+                Cv2.Rectangle(image, cell, Scalar.Aqua, -1);
             }
         }
     }

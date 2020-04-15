@@ -115,25 +115,28 @@ namespace XUnitTest_Tetris
             var tetrisGrid = CreateTestGrid();
 
             var offset1 = new Point(6, 6);
-            var piece1 = new CurrentTetrominoPiece(tetrisGrid, Tetromino.J, offset1); // 5,6, 6,6 7,6 7,7
-            Assert.True(piece1.TrySpin(InputType.CW));
-
-            var actualPos1 = piece1.GetPosOfBlocks();
-            Point[] expectedPos1 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(6, 5), new Point(7, 5) };
-            Assert.Equal(actualPos1, expectedPos1);
+            var piece1 = new CurrentTetrominoPiece(tetrisGrid, Tetromino.J, offset1); // (5, 7) (5, 6) (6, 6) (7, 6)
+            Point[] expectedPos0 = new Point[] { new Point(5, 7), new Point(5, 6), new Point(6, 6), new Point(7, 6) };
+            var actualPos0 = piece1.GetPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder(expectedPos0, actualPos0);
 
             Assert.True(piece1.TrySpin(InputType.CW));
-            var actualPos2 = piece1.GetPosOfBlocks();
-            Point[] expectedPos2 = new Point[] { new Point(6, 6), new Point(5, 6), new Point(5, 5), new Point(7, 6) };
-            Assert.Equal(expectedPos2, actualPos2);
+            var actualPos1 = piece1.GetPosOfBlocks(); // R
+            Point[] expectedPos1 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(6, 5), new Point(7, 7) };
+            CollectionAssert.CollectionSameWithoutOrder<Point>(actualPos1, expectedPos1);
+
+            Assert.True(piece1.TrySpin(InputType.CW));
+            var actualPos2 = piece1.GetPosOfBlocks(); // Two
+            Point[] expectedPos2 = new Point[] { new Point(6, 6), new Point(5, 6), new Point(7, 6), new Point(7, 5) };
+            CollectionAssert.CollectionSameWithoutOrder<Point>(expectedPos2, actualPos2);
 
             Assert.True(piece1.TrySpin(InputType.CCW));
             Assert.True(piece1.TrySpin(InputType.CCW));
             Assert.True(piece1.TrySpin(InputType.CCW));
-            var actualPos3 = piece1.GetPosOfBlocks();
-            Point[] expectedPos3 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(5, 7), new Point(6, 5) };
-            Assert.Equal(expectedPos3, actualPos3);
-        }
+            var actualPos3 = piece1.GetPosOfBlocks(); // L
+            Point[] expectedPos3 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(6, 5), new Point(5, 5) };
+            CollectionAssert.CollectionSameWithoutOrder<Point>(expectedPos3, actualPos3);
+        } 
 
         TetrisGrid CreateComplexGrid()
         {

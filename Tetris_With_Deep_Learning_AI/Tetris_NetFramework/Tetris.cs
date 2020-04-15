@@ -53,12 +53,12 @@ namespace Tetris
                     { RotationState.Zero, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(1, 1) } },
                     { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(1, -1) } },
                     { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, -1) } },
-                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(-1, 0) } }
+                    { RotationState.L, new Point[] { new Point(-1, 0), new Point(-1, 1), new Point(0, -1) } }
                 }},
             {
                 Tetromino.T, new Dictionary<RotationState, Point[]>()
                 {
-                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(1, 0) } },
+                    { RotationState.Zero, new Point[] { new Point(1, 0), new Point(-1, 0), new Point(0, 1) } },
                     { RotationState.R, new Point[] { new Point(1, 0), new Point(0, 1), new Point(0, -1) } },
                     { RotationState.Two, new Point[] { new Point(1, 0), new Point(0, -1), new Point(-1, 0) } },
                     { RotationState.L, new Point[] { new Point(-1, 0), new Point(0, 1), new Point(0, -1) } }
@@ -80,7 +80,7 @@ namespace Tetris
             yield return offset;
             foreach(var localPos in positionData)
             {
-                yield return new Point(offset.X + localPos.X, offset.Y + localPos.Y);
+                yield return offset.Add(localPos);
             }
         }
     }
@@ -124,14 +124,14 @@ namespace Tetris
             if(_state == RotationState.L)
                 return RotationState.Zero;
             else
-                return _state++;
+                return ++_state;
         }
         public static RotationState CCW(this RotationState _state)
         {
             if(_state == RotationState.Zero)
                 return RotationState.L;
             else
-                return _state--;
+                return --_state;
         }
     }
 }

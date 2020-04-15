@@ -23,6 +23,7 @@ namespace Tetris
 
         TetrisGrid tetrisGrid;
         public IEnumerable<TetrisLine> Lines { get { return tetrisGrid.getLines; } }
+        public IEnumerable<Point> PosOfCurMinoBlocks { get { return currentPiece?.GetPosOfBlocks(); } }
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;
@@ -31,12 +32,12 @@ namespace Tetris
         #region Time data about mino movement
         TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
         TimeSpan DASDelay = TimeSpan.FromMilliseconds(250);
-        TimeSpan minoSpawnDelay = TimeSpan.FromMilliseconds(50);
+        TimeSpan minoSpawnDelay = TimeSpan.FromMilliseconds(400);
         TimeSpan lastMinoPlaced = TimeSpan.Zero;
         TimeSpan lastMinoMoveTime = TimeSpan.Zero;
         TimeSpan lastDropTime = TimeSpan.Zero;
         TimeSpan LastSoftDropTime = TimeSpan.Zero;
-        TimeSpan DropDelay = TimeSpan.FromMilliseconds(16);
+        TimeSpan DropDelay = TimeSpan.FromMilliseconds(150);
         bool isContinousMoving = false; // 이게 True면, ARR에 의해 영향을 받는다는 뜻, 꾹누른 상태임
         #endregion
 
@@ -111,9 +112,8 @@ namespace Tetris
                 
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
+                lockCurrentMinoToPlace();
                 tetrisGrid.UpdateBoard();
-
-                currentPiece = null;
             }
             else
             {
@@ -158,6 +158,25 @@ namespace Tetris
                         }
                         else
                         { // 아직 연속 이동상태가 아님
+                            if(DASDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(-1, 0)))
+                            {
+                                lastMinoMoveTime = curTime;
+                                isContinousMoving = true;
+                            }
+                        }
+                    }
+                    else if(rightState == KeyState.Down)
+                    {
+                        if(isContinousMoving)
+                        { // ARR에 의해 결정
+                            if(ARRDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(1, 0)))
+                            {
+                                lastMinoMoveTime = curTime;
+                                isContinousMoving = true;
+                            }
+                        }
+                        else
+                        { // 아직 연속 이동상태가 아님
                             if(DASDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(1, 0)))
                             {
                                 lastMinoMoveTime = curTime;
@@ -182,93 +201,21 @@ namespace Tetris
                     }
                 }
             }
-            
-        }
 
-        bool TryMove(Point localMoveOffset, out Point newOffsetPos)
-        {
-            throw new NotImplementedException();
-            /*
-            var newOffset = new Point(localMoveOffset.X + currentPiece.offset.X, localMoveOffset.Y + currentPiece.offset.Y);
-            var expectedPos = currentPiece.minoType.GetPos(newOffset, currentPiece.rotState);
-            var success = TryShift(currentPiece.GetPos(), expectedPos, currentPiece.minoType);
-
-            if (success)
-                newOffsetPos = newOffset;
-            else
-                newOffsetPos = new Point();
-            
-            return success;
-            */
-        }
-
-        bool TryShift(IEnumerable<Point> before, IEnumerable<Point> after, Tetromino mino)
-        {
-            throw new NotImplementedException();
-            /*
-            if (!after.All(p => isValidPosition(p)))
-                return false;
-
-            var canMove = !after.Any(p => tetrisGrid.Get(p));
-            if(canMove)
+            void lockCurrentMinoToPlace()
             {
-                tetrisGrid.Set(before, false, mino);
-                tetrisGrid.Set(after, true, mino);
-                return true;
+                if(currentPiece == null)
+                    throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
+
+                var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
+                var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
+                if(!isValid)
+                    throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
+
+                tetrisGrid.Set(PosOfCurrentPiece, true, currentPiece.minoType);
+
+                currentPiece = null;
             }
-            else
-                return false;
-                */
-        }
-
-        bool isValidPosition(Point point)
-        {
-            throw new NotImplementedException();
-            /*
-            if (point.X < 0 || point.X > 9)
-                return false;
-
-            if (point.Y < 0 || point.Y > 23)
-                return false;
-
-            return true;
-            */
-        }
-
-        bool TrySpin(InputType inputState, out Point newOffsetPos)
-        {
-            throw new NotImplementedException();
-            /*
-            var mino = currentPiece.minoType;
-
-            if(inputState.isTrue(InputType.CCW) && inputState.isTrue(InputType.CW))
-                throw new InvalidOperationException("Cannot have CCW and CW at the same time!");
-
-            IEnumerable<Point> expectedLocalOffsetPos;
-
-            var before = currentPiece.rotState;
-            RotationState after;
-
-            if (inputState.isTrue(InputType.CCW))      after = currentPiece.rotState.CCW();
-            else if (inputState.isTrue(InputType.CW))  after = currentPiece.rotState.CW();
-            else                                        { newOffsetPos = new Point(); return false; }
-
-            expectedLocalOffsetPos = SRS.Translation(currentPiece.minoType, before, after);
-
-            foreach(var offsetPos in expectedLocalOffsetPos)
-            {
-                var expectedPos = mino.GetPos(offsetPos, currentPiece.rotState.CCW());
-                bool success = TryShift(currentPiece.GetPos(), expectedPos, currentPiece.minoType);
-
-                if(success)
-                {
-                    newOffsetPos = offsetPos;
-                    return true;
-                }
-            }
-            newOffsetPos = new Point();
-            return false;
-            */
         }
     }
 }
