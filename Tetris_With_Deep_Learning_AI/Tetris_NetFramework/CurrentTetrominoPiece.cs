@@ -70,23 +70,70 @@ namespace Tetris
         };
         #endregion
 
-        public Tetromino minoType { get; private set; }
-        public Point offset { get; set; }
+        Tetromino minoType;
+        TetrisGrid tetrisGrid;
+        Point offset;
         public RotationState rotState { get; private set; } = RotationState.Zero;
-        public CurrentTetrominoPiece(Tetromino minoType, Point offset)
+        public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point offset)
         {
+            this.tetrisGrid = curGrid;
             this.minoType = minoType;
             this.offset = offset;
         }
 
-        public CurrentTetrominoPiece(Tetromino minoType, Point offset, RotationState rotState) : this(minoType, offset)
+        public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point offset, RotationState rotState) : this(curGrid, minoType, offset)
         {
             this.rotState = rotState;
         }
 
-        public IEnumerable<Point> GetPos()
+        public IEnumerable<Point> GetPosOfBlocks()
         {
             return minoType.GetPos(offset, rotState);
+        }
+
+        public bool TrySpin(InputType spin)
+        {
+            if(spin != InputType.CCW && spin != InputType.CW)
+                throw new InvalidOperationException("spin value must be CCW or CW");
+
+            var before = rotState;
+            RotationState after;
+
+            if (spin == InputType.CCW) after = before.CCW();
+            else if (spin == InputType.CW) after = before.CW();
+            else return false;
+
+            var expectedLocalOffsetPos = SRS.Translation(minoType, before, after);
+
+            foreach(var localOffsetPos in expectedLocalOffsetPos)
+            {
+                var expectedPos = minoType.GetPos(localOffsetPos.Add(this.offset), after);
+                bool canBlockExistAtOffset = tetrisGrid.CanMinoExistHere(expectedPos);
+
+                if(canBlockExistAtOffset)
+                {
+                    this.offset = this.offset.Add(localOffsetPos);
+                    this.rotState = after;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool TryShift(Point localShiftPoint)
+        {
+            var newOffsetPos = offset.Add(localShiftPoint);
+            var expectedBlockPos = minoType.GetPos(newOffsetPos, rotState);
+
+            if(tetrisGrid.CanMinoExistHere(expectedBlockPos))
+            {
+                offset = newOffsetPos;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }

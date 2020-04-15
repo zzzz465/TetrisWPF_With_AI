@@ -25,7 +25,7 @@ namespace XUnitTest_Tetris
         {
             
             var minoPiece = new CurrentTetrominoPiece(new TetrisGrid(), mino, offset, rotState);
-            var expectedPos = minoPiece.GetPos();
+            var expectedPos = minoPiece.GetPosOfBlocks();
             foreach(var pos in expectedPos)
             {
                 Assert.Contains(pos, points);
@@ -118,19 +118,19 @@ namespace XUnitTest_Tetris
             var piece1 = new CurrentTetrominoPiece(tetrisGrid, Tetromino.J, offset1); // 5,6, 6,6 7,6 7,7
             Assert.True(piece1.TrySpin(InputType.CW));
 
-            var actualPos1 = piece1.GetPos();
+            var actualPos1 = piece1.GetPosOfBlocks();
             Point[] expectedPos1 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(6, 5), new Point(7, 5) };
             Assert.Equal(actualPos1, expectedPos1);
 
             Assert.True(piece1.TrySpin(InputType.CW));
-            var actualPos2 = piece1.GetPos();
+            var actualPos2 = piece1.GetPosOfBlocks();
             Point[] expectedPos2 = new Point[] { new Point(6, 6), new Point(5, 6), new Point(5, 5), new Point(7, 6) };
             Assert.Equal(expectedPos2, actualPos2);
 
             Assert.True(piece1.TrySpin(InputType.CCW));
             Assert.True(piece1.TrySpin(InputType.CCW));
             Assert.True(piece1.TrySpin(InputType.CCW));
-            var actualPos3 = piece1.GetPos();
+            var actualPos3 = piece1.GetPosOfBlocks();
             Point[] expectedPos3 = new Point[] { new Point(6, 6), new Point(6, 7), new Point(5, 7), new Point(6, 5) };
             Assert.Equal(expectedPos3, actualPos3);
         }
@@ -163,10 +163,10 @@ namespace XUnitTest_Tetris
         {
             var testGrid = CreateComplexGrid();
             var currentPiece = new CurrentTetrominoPiece(testGrid, Tetromino.J, new Point(4, 4), RotationState.Zero);
-            Assert.True(currentPiece.TrySpin(InputType.CCW));
+            Assert.True(currentPiece.TrySpin(InputType.CCW), "it should spin in this specific case but somehow it failed to spin...");
             var expectedPos = new Point[] { new Point(4, 1), new Point(5, 1), new Point(5, 2), new Point(5, 3) };
-            var actualPos = currentPiece.GetPos();
-            Assert.Equal(expectedPos, actualPos);
+            var actualPos = currentPiece.GetPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder<Point>(expectedPos, actualPos);
         }
         
         [Fact]
@@ -186,5 +186,19 @@ namespace XUnitTest_Tetris
             builder.Append("=== End of Grid Visual ===");
             output.WriteLine(builder.ToString());
         }
+
+        /*
+        [Theory]
+        [MemberData(nameof(GetPos_Test_Case), MemberType = typeof(Test_CurrentTetromino))]
+        public void GetPos_Method_Should_return_valid_values(Tetromino minoType, Point offset, IEnumerable<Point> expectedPos)
+        {
+            // minoType.GetPos();
+        }
+
+        public static IEnumerable<object[]> GetPos_Test_Case()
+        {
+
+        }
+        */
     }
 }
