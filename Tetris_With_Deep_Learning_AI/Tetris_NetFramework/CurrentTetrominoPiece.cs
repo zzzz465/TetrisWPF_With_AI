@@ -5,12 +5,7 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public enum Tetromino
-    {
-        I, T, O, S, Z, L, J, None
-    }
-
-    public static class TetrominoExtension
+    public class CurrentTetrominoPiece
     {
         #region Tetris Block Position by offset and rotation data
         static readonly Dictionary<Tetromino, Dictionary<RotationState, Point[]>> minoData = new Dictionary<Tetromino, Dictionary<RotationState, Point[]>>()
@@ -74,64 +69,24 @@ namespace Tetris
             }
         };
         #endregion
-        public static IEnumerable<Point> GetPos(this Tetromino mino, Point offset, RotationState rotState)
+
+        public Tetromino minoType { get; private set; }
+        public Point offset { get; set; }
+        public RotationState rotState { get; private set; } = RotationState.Zero;
+        public CurrentTetrominoPiece(Tetromino minoType, Point offset)
         {
-            var positionData = minoData[mino][rotState];
-            yield return offset;
-            foreach(var localPos in positionData)
-            {
-                yield return new Point(offset.X + localPos.X, offset.Y + localPos.Y);
-            }
+            this.minoType = minoType;
+            this.offset = offset;
         }
-    }
 
-    public enum Movement
-    {
-        Left, Right, SoftDrop, HardDrop, CW, CCW
-    }
-    
-    public interface iMinoPlacementResult
-    {
-        int[,] GetPos();
-    }
-
-    public interface iMinoPath
-    {
-        IEnumerable<Movement> movements { get; }
-    }
-
-    public struct MinoControlSequence : iMinoPath
-    {
-        public IEnumerable<Movement> movements { get; private set; }
-        public MinoControlSequence(IEnumerable<Movement> movements)
+        public CurrentTetrominoPiece(Tetromino minoType, Point offset, RotationState rotState) : this(minoType, offset)
         {
-            this.movements = movements;
+            this.rotState = rotState;
         }
-    }
 
-    public enum RotationState
-    {
-        None = -1,
-        Zero = 0,
-        R = 1,
-        Two = 2,
-        L = 3
-    }
-    public static class RotationStateMethod
-    {
-        public static RotationState CW(this RotationState _state)
+        public IEnumerable<Point> GetPos()
         {
-            if(_state == RotationState.L)
-                return RotationState.Zero;
-            else
-                return _state++;
-        }
-        public static RotationState CCW(this RotationState _state)
-        {
-            if(_state == RotationState.Zero)
-                return RotationState.L;
-            else
-                return _state--;
+            return minoType.GetPos(offset, rotState);
         }
     }
 }
