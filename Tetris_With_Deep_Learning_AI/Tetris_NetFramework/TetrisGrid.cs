@@ -104,6 +104,21 @@ namespace Tetris
             return true;
         }
 
+        public bool CanMinoExistHere(Point point)
+        {
+            if(point.X < 0 || point.X >= width)
+                return false;
+            
+            if(point.Y < 0 || point.Y >= maxHeight)
+                return false;
+                
+            return !Get(point);
+        }
+
+        public bool CanMinoExistHere(params Point[] points) => points.All(p => CanMinoExistHere(p));
+
+        public bool CanMinoExistHere(IEnumerable<Point> points) => points.All(p => CanMinoExistHere(p));
+
         bool isFloating(Point p)
         {
             if(p.Y == 0)

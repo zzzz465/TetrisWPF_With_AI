@@ -9,7 +9,7 @@ namespace XUnitTest_Tetris
 {
     public class Test_TetrisGrid
     {
-        TetrisGrid CreateTestGrid()
+        TetrisGrid CreateTestGrid(int maxAllowedHeight = 20)
         {
                         /*
               
@@ -32,7 +32,7 @@ namespace XUnitTest_Tetris
             };
             
 
-            var grid = new TetrisGrid();
+            var grid = new TetrisGrid(maxAllowedHeight);
             grid.Set(points, true);
 
             Point[] A = new Point[] { new Point(4, 2), new Point(5, 2), new Point(6, 2), new Point(5, 3) };
@@ -120,6 +120,22 @@ namespace XUnitTest_Tetris
             Assert.Equal(lines[0].line, new bool[] { false, false, false, true, true, true, true, true, true, true });
             Assert.Equal(lines[1].line, new bool[] { false, false, false, true, true, true, false, false, false, true });
             Assert.Equal(lines[2].line, new bool[] { true, true, true, true, false, false, false, false, false, false });
+        }
+
+        [Fact]
+        public void Grid_Should_Disallow_Block_Out_Of_Grid()
+        {
+            var testGrid = CreateTestGrid(20);
+            Point[] outOfBorderGrid = new Point[]
+            {
+                new Point(0, -1), new Point(-1, 0), new Point(-1, -1), new Point(10, 0),
+                new Point(11, 1), new Point(5, -4), new Point(8, -1), new Point(9, 24)
+            };
+
+            foreach(var point in outOfBorderGrid)
+            {
+                Assert.False(testGrid.CanMinoExistHere(point));
+            }
         }
     }
 }

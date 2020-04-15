@@ -59,14 +59,14 @@ namespace Tetris
                     if(LastKeyState[key])
                         curKeyState = KeyState.Down;
                     else
-                        curKeyState = KeyState.StateDown;
+                        curKeyState = KeyState.ToggledDown;
                 }
                 else
                 {
                     if(!LastKeyState[key])
                         curKeyState = KeyState.Up;
                     else
-                        curKeyState = KeyState.StateUp;
+                        curKeyState = KeyState.ToggledUp;
                 }
 
                 currentKeyState[key] = curKeyState;

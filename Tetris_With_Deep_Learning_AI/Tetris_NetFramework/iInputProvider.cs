@@ -21,8 +21,8 @@ namespace Tetris
         NotAvailable = 0,
         Up = 1,
         Down = 2,
-        StateDown = 4,
-        StateUp = 8,
+        ToggledDown = 4,
+        ToggledUp = 8,
     }
     public interface iInputProvider
     {

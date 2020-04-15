@@ -29,7 +29,7 @@ namespace Tetris.Renderer
             _mouseCallback = mouseCallBack;
             Cv2.SetMouseCallback("Window", _mouseCallback);
         }
-        public void InfiniteUpdate()
+        public void syncUpdateLoop()
         {
             var enumerator = UpdateOnce();
             while(true)
