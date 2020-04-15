@@ -58,9 +58,6 @@ namespace Tetris
         // accepts 4,2 array which takes x, y position of 0, 1, 2, 3 block.
         public void Set(IEnumerable<Point> mino, bool state, Tetromino minoType = Tetromino.None)
         {
-            if(mino.Count() != 4 || minoType == Tetromino.None)
-                throw new InvalidOperationException();
-
             var maxY = mino.Max(i => i.Y);
             while(board.Count - 1 < maxY)
                 board.Add(new TetrisLine());
@@ -90,6 +87,32 @@ namespace Tetris
                 else
                     y++;
             }
+        }
+
+        public bool TryPlace(IEnumerable<Point> points, Tetromino minoType)
+        {
+            if(points.Any(p => Get(p)))
+                return false;
+
+            var arePointsFloating = points.All(p => isFloating(p));
+
+            if(arePointsFloating)
+                return false;
+
+            Set(points, true, minoType);
+
+            return true;
+        }
+
+        bool isFloating(Point p)
+        {
+            if(p.Y == 0)
+                return false;
+
+            if(Get(p.X, p.Y - 1) == false)
+                return true;
+            else
+                return false;
         }
     }
 }
