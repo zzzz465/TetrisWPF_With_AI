@@ -15,7 +15,8 @@ namespace Tetris
         {
             Idle,
             Playing,
-            Paused
+            Paused,
+            Dead
         }
         iInputProvider InputProvider;
         InputSetting KeySetting;
@@ -58,17 +59,14 @@ namespace Tetris
 
         public void StartGame()
         {
+
             ResetGame();
             var firstPiece = tetrominoBag.GetNext();
-            currentPiece = new CurrentTetrominoPiece(firstPiece, spawnOffset);
-            var expectedPos = currentPiece.minoType.GetPos(currentPiece.offset, currentPiece.rotState);
-            if(!expectedPos.Any(p => tetrisGrid.Get(p)))
-            { // can place
-                tetrisGrid.Set(expectedPos, true, currentPiece.minoType);
-            }
-            else
+            currentPiece = new CurrentTetrominoPiece(tetrisGrid, firstPiece, spawnOffset);
+            var expectedPos = currentPiece.GetPosOfBlocks();
+            if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
             {
-                throw new Exception();
+                throw new InvalidOperationException("Game is initialized but cannot spawn the first mino to the spawn offset!");
             }
             
             this.gameState = GameState.Playing;
@@ -93,29 +91,23 @@ namespace Tetris
             {
                 if (curTime - lastMinoPlaced > minoSpawnDelay)
                 {
-                    currentPiece = new CurrentTetrominoPiece(tetrominoBag.GetNext(), spawnOffset);
-                    var expectedPos = currentPiece.minoType.GetPos(currentPiece.offset, currentPiece.rotState);
-                    if(!expectedPos.Any(p => tetrisGrid.Get(p)))
-                    { // can place
-                        tetrisGrid.Set(expectedPos, true, currentPiece.minoType);
-                    }
-                    else
+                    currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
+                    var expectedPos = currentPiece.GetPosOfBlocks();
+                    if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
                     {
-                        throw new Exception();
+                        this.gameState = GameState.Dead;
                     }
                 }
-                else
-                {
+
+                if(currentPiece == null)
                     return;
-                }
             }
 
-            var mino = currentPiece.minoType;
-            //if(!currentState.isTrue(InputState.HardDrop))
-            if(InputProvider.GetState(KeySetting.HardDrop) == KeyState.StateDown)
+            // 업데이트당 한번의 이동, 또는 스핀만 해야함?
+
+            if(InputProvider.GetState(KeySetting.HardDrop) == KeyState.ToggledDown)
             {
-                while(TryMove(new Point(0, -1), out var newOffsetPos))
-                    currentPiece.offset = newOffsetPos;
+                while(currentPiece.TryShift(new Point(0, -1))); // 가능한 밑까지 쭉 보냄
                 
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
@@ -125,35 +117,30 @@ namespace Tetris
             }
             else
             {
-                //if(currentState.isTrue(InputType.CCW) || currentState.isTrue(InputType.CW))
-                if(InputProvider.GetState(KeySetting.CCW) == KeyState.StateDown)
+                if(InputProvider.GetState(KeySetting.CCW) == KeyState.ToggledDown)
                 {
-                    if(TrySpin(InputType.CCW, out var newOffsetPos))
-                        currentPiece.offset = newOffsetPos;
+                    var success = currentPiece.TrySpin(InputType.CCW);
                 }
-                else if(InputProvider.GetState(KeySetting.CW) == KeyState.StateDown)
+                else if(InputProvider.GetState(KeySetting.CW) == KeyState.ToggledDown)
                 {
-                    if(TrySpin(InputType.CW, out var newOffsetPos))
-                        currentPiece.offset = newOffsetPos;
+                    var success = currentPiece.TrySpin(InputType.CW);
                 }
 
                 //if(currentState.isTrue(InputType.LeftPressed))
                 var leftState = InputProvider.GetState(KeySetting.Left);
                 var rightState = InputProvider.GetState(KeySetting.Right);
 
-                if(leftState == KeyState.StateDown)
+                if(leftState == KeyState.ToggledDown)
                 {
-                    if(TryMove(new Point(-1, 0), out var newOffsetPos))
+                    if(currentPiece.TryShift(new Point(-1, 0)))
                     {
-                        currentPiece.offset = newOffsetPos;
                         lastMinoMoveTime = curTime;
                     }
                 }
-                else if(rightState == KeyState.StateDown)
+                else if(rightState == KeyState.ToggledDown)
                 {
-                    if(TryMove(new Point(1, 0), out var newOffsetPos))
+                    if(currentPiece.TryShift(new Point(1, 0)))
                     {
-                        currentPiece.offset = newOffsetPos;
                         lastMinoMoveTime = curTime;
                     }
                 }
@@ -163,18 +150,16 @@ namespace Tetris
                     {
                         if(isContinousMoving)
                         { // ARR에 의해 결정
-                            if(ARRDelay < curTime - lastMinoMoveTime && TryMove(new Point(-1, 0), out var newOffsetPos))
+                            if(ARRDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(-1, 0)))
                             {
-                                currentPiece.offset = newOffsetPos;
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
                             }
                         }
                         else
                         { // 아직 연속 이동상태가 아님
-                            if(DASDelay < curTime - lastMinoMoveTime && TryMove(new Point(1, 0), out var newOffsetPos))
+                            if(DASDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(1, 0)))
                             {
-                                currentPiece.offset = newOffsetPos;
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
                             }
@@ -190,18 +175,20 @@ namespace Tetris
                 {
                     if(curTime - lastDropTime > DropDelay)
                     {
-                        if(TryMove(new Point(0, -1), out var newOffsetPos))
+                        if(currentPiece.TryShift(new Point(0, -1)))
                         {
-                            currentPiece.offset = newOffsetPos;
                             LastSoftDropTime = curTime;
                         }
                     }
                 }
             }
+            
         }
 
         bool TryMove(Point localMoveOffset, out Point newOffsetPos)
         {
+            throw new NotImplementedException();
+            /*
             var newOffset = new Point(localMoveOffset.X + currentPiece.offset.X, localMoveOffset.Y + currentPiece.offset.Y);
             var expectedPos = currentPiece.minoType.GetPos(newOffset, currentPiece.rotState);
             var success = TryShift(currentPiece.GetPos(), expectedPos, currentPiece.minoType);
@@ -212,10 +199,13 @@ namespace Tetris
                 newOffsetPos = new Point();
             
             return success;
+            */
         }
 
         bool TryShift(IEnumerable<Point> before, IEnumerable<Point> after, Tetromino mino)
         {
+            throw new NotImplementedException();
+            /*
             if (!after.All(p => isValidPosition(p)))
                 return false;
 
@@ -228,10 +218,13 @@ namespace Tetris
             }
             else
                 return false;
+                */
         }
 
         bool isValidPosition(Point point)
         {
+            throw new NotImplementedException();
+            /*
             if (point.X < 0 || point.X > 9)
                 return false;
 
@@ -239,10 +232,13 @@ namespace Tetris
                 return false;
 
             return true;
+            */
         }
 
         bool TrySpin(InputType inputState, out Point newOffsetPos)
         {
+            throw new NotImplementedException();
+            /*
             var mino = currentPiece.minoType;
 
             if(inputState.isTrue(InputType.CCW) && inputState.isTrue(InputType.CW))
@@ -272,11 +268,7 @@ namespace Tetris
             }
             newOffsetPos = new Point();
             return false;
-        }
-
-        bool canMove(TimeSpan lastMoveTime, TimeSpan curTime, double delay)
-        {
-            return (curTime - lastMoveTime).TotalMilliseconds > delay;
+            */
         }
     }
 }
