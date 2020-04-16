@@ -34,7 +34,7 @@ namespace Tetris.Renderer
             window = new Window("Window", image);
             inputManager = new UserInputManager();
             var setting = InputSetting.Default;
-            tetrisGame = new TetrisGame(inputManager, InputSetting.Default, new TetrominoBag());
+            tetrisGame = new TetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag());
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             tetrisGame.StartGame();
             _mouseCallback = mouseCallBack;

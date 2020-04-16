@@ -46,12 +46,21 @@ namespace Tetris
 
         GameState gameState = GameState.Idle;
         
-        public TetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrominoBag bag = null)
+        public TetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting, TetrominoBag bag = null)
         {
             this.KeySetting = keySetting;
             this.InputProvider = inputProvider;
             tetrisGrid = new TetrisGrid();
             ResetGame(bag);
+        }
+
+        public void ApplySetting(TetrisGameSetting setting)
+        {
+            this.ARRDelay = setting.ARRDelay;
+            this.DASDelay = setting.DASDelay;
+            this.minoSpawnDelay = setting.minoSpawnDelay;
+            this.SoftDropDelay = setting.softDropDelay;
+            this.autoDropDelay = setting.autoDropDelay;
         }
         public void ResetGame(TetrominoBag bag = null)
         {

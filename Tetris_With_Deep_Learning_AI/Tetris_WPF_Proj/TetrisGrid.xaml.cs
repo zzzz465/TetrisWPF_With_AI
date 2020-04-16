@@ -61,7 +61,7 @@ namespace Tetris_WPF_Proj
             userInputManager.ObserveKey(inputSetting.HardDrop);
             userInputManager.ObserveKey(inputSetting.SoftDrop);
             inputProvider = userInputManager;
-            tetrisGame = new TetrisGame(userInputManager, inputSetting, new TetrominoBag());
+            tetrisGame = new TetrisGame(userInputManager, inputSetting, TetrisGameSetting.Default, new TetrominoBag());
         }
 
         public void StartGame()
