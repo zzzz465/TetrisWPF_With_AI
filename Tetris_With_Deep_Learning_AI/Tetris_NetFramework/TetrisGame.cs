@@ -25,6 +25,7 @@ namespace Tetris
         public IEnumerable<TetrisLine> Lines { get { return tetrisGrid.getLines; } }
         public IEnumerable<Point> PosOfCurMinoBlocks { get { return currentPiece?.GetPosOfBlocks(); } }
         public IEnumerable<Point> PosOfGhostMinoBlocks { get { return currentPiece?.GetExpectedHardDropPosOfBlocks(); } }
+        public Tetromino curMinoType { get { return currentPiece?.minoType ?? Tetromino.None; } }
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;

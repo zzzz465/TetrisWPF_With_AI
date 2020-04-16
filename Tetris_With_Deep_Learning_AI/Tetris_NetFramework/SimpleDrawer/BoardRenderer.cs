@@ -11,7 +11,18 @@ namespace Tetris.Renderer
 {
     public class BoardRenderer
     {
-
+        static Dictionary<Tetromino, Scalar> minoColor = new Dictionary<Tetromino, Scalar>()
+        {
+            { Tetromino.I, new Scalar(170, 210, 15) },
+            { Tetromino.T, new Scalar(180, 30, 170) },
+            { Tetromino.O, new Scalar(10, 200, 220) },
+            { Tetromino.S, new Scalar(30, 200, 50) },
+            { Tetromino.Z, new Scalar(40, 50, 200) },
+            { Tetromino.L, new Scalar(200, 150, 15) },
+            { Tetromino.J, new Scalar(190, 40, 40) },
+            { Tetromino.Garbage, Scalar.Gray },
+            { Tetromino.None, new Scalar(0, 0, 0) }
+        };
         Window window;
         Mat image;
         TetrisGame tetrisGame;
@@ -92,10 +103,8 @@ namespace Tetris.Renderer
                 {
                     var blockExist = line.line[x] != 0;
                     Rect cell = new Rect( (leftTop.X + rectSize.width * x + 1), (rightBottom.Y - rectSize.height * y - 1), rectSize.width - 1, rectSize.height - 1);
-                    if(blockExist)
-                        Cv2.Rectangle(image, cell, Scalar.Green, -1);
-                    else
-                        Cv2.Rectangle(image, cell, Scalar.Black, -1);
+                    var cellColor = minoColor[line.line[x]];
+                    Cv2.Rectangle(image, cell, cellColor, -1);
                 }
             }
         }
@@ -115,7 +124,8 @@ namespace Tetris.Renderer
             {
                 var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
                 Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
-                Cv2.Rectangle(image, cell, Scalar.Aqua, -1);
+                var cellColor = minoColor[tetrisGame.curMinoType];
+                Cv2.Rectangle(image, cell, cellColor, -1);
             }
         }
 
@@ -135,7 +145,8 @@ namespace Tetris.Renderer
             {
                 var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
                 Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
-                Cv2.Rectangle(image, cell, Scalar.YellowGreen, 1);
+                var cellColor = minoColor[tetrisGame.curMinoType];
+                Cv2.Rectangle(image, cell, cellColor, 1);
             }
         }
 
