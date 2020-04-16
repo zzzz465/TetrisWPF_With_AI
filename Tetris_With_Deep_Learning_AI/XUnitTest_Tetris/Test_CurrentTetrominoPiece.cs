@@ -23,7 +23,6 @@ namespace XUnitTest_Tetris
         [MemberData(nameof(MinoOffset))]
         public void GetPos_Should_Return_valid_offset_per_tetromino(Tetromino mino, Point offset, RotationState rotState, Point[] points)
         {
-            
             var minoPiece = new CurrentTetrominoPiece(new TetrisGrid(), mino, offset, rotState);
             var expectedPos = minoPiece.GetPosOfBlocks();
             foreach(var pos in expectedPos)

@@ -145,5 +145,47 @@ namespace XUnitTest_Tetris
             Point[] alreadyExistingPoints = new Point[] { new Point(2, 4) };
             Assert.False(testGrid.TryPlace(alreadyExistingPoints, Tetromino.None));
         }
+
+        [Fact]
+        public void Add_Trash_Line_Should_Push_Default_Grid_To_Up()
+        {
+            /*
+              
+              0 1 2 3 4 5 6 7 8 9
+            9
+            8
+            7 D D D D
+            6       C C A       B
+            5       C A A A B B B
+            4 F F F C F F T T F F
+            3 F F F F T T T T T T
+            2 T T T T F T T T T T
+            1 T T T T F T T T T T
+            0 T T T T F T T T T T
+            */
+            var testGrid = CreateTestGrid();
+            testGrid.AddTrashLine(3, 4);
+
+            Point[] shouldExist = new Point[] 
+            {
+                new Point(0, 0), new Point(2, 2), new Point(2, 1), new Point(2, 0),
+                new Point(0, 1), new Point(1, 1), new Point(2, 1), new Point(3, 1),
+                new Point(5, 1), new Point(6, 1), new Point(7, 1), new Point(8, 1),
+                new Point(9, 1)
+            };
+
+            Point[] shouldNotExist = new Point[]
+            {
+                new Point(4, 0),
+                new Point(4, 1),
+                new Point(4, 2),
+            };
+
+            foreach(var candidate in shouldExist)
+                Assert.True(testGrid.Get(candidate));
+
+            foreach(var candidate in shouldNotExist)
+                Assert.False(testGrid.Get(candidate));
+        }
     }
 }

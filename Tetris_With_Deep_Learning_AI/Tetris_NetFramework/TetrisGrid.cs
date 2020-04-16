@@ -104,6 +104,19 @@ namespace Tetris
             return true;
         }
 
+        public void AddTrashLine(int garbageLineCount, int x_of_empty_line)
+        {
+            if(garbageLineCount < 1)
+                throw new ArgumentOutOfRangeException("trashLine parameter should be more than 1 !");
+
+            while(garbageLineCount-- > 0)
+            {
+                var garbageLine = new TetrisLine() { line = Enumerable.Repeat<bool>(true, 10).ToArray() };
+                garbageLine.line[x_of_empty_line] = false;
+                board.Insert(0, garbageLine);
+            }
+        }
+
         public bool CanMinoExistHere(Point point)
         {
             if(point.X < 0 || point.X >= width)
