@@ -116,8 +116,8 @@ namespace XUnitTest_Tetris
 
             var offset1 = new Point(6, 6);
             var piece1 = new CurrentTetrominoPiece(tetrisGrid, Tetromino.J, offset1); // (5, 7) (5, 6) (6, 6) (7, 6)
-            Point[] expectedPos0 = new Point[] { new Point(5, 7), new Point(5, 6), new Point(6, 6), new Point(7, 6) };
             var actualPos0 = piece1.GetPosOfBlocks();
+            Point[] expectedPos0 = new Point[] { new Point(5, 7), new Point(5, 6), new Point(6, 6), new Point(7, 6) };
             CollectionAssert.CollectionSameWithoutOrder(expectedPos0, actualPos0);
 
             Assert.True(piece1.TrySpin(InputType.CW));
@@ -176,9 +176,21 @@ namespace XUnitTest_Tetris
         public void Print_Complex_Grid_To_Output()
         {
             var testGrid = CreateComplexGrid();
+            Print_Grid(testGrid);
+        }
+
+        [Fact]
+        public void Print_Simple_Grid_To_Output()
+        {
+            var testGrid = CreateTestGrid();
+            Print_Grid(testGrid);
+        }
+
+        public void Print_Grid(TetrisGrid grid)
+        {
             StringBuilder builder = new StringBuilder();
             builder.AppendLine("==== Grid Visual ===");
-            foreach(var line in testGrid.getLines.Reverse())
+            foreach(var line in grid.getLines.Reverse())
             {
                 foreach(var x in line.line)
                 {
@@ -188,6 +200,46 @@ namespace XUnitTest_Tetris
             }
             builder.Append("=== End of Grid Visual ===");
             output.WriteLine(builder.ToString());
+        }
+
+        [Fact]
+        public void Current_Piece_Should_return_valid_ghost_HardDrop_Positions()
+        {
+            /*
+              
+              0 1 2 3 4 5 6 7 8 9
+            9
+            8 
+            7
+            6   T T T
+            5     T
+            4 D D D D
+            3       C C A       B
+            2       C A A A B B B
+            1 F F F C F F T T F F
+            0 F F F F T T T T T T
+            */
+            var testGrid = CreateTestGrid();
+            var curPiece1 = new CurrentTetrominoPiece(testGrid, Tetromino.T, new Point(4, 7), RotationState.Two);
+            Assert.True(curPiece1.TryShift(new Point(-2, 0)), "moving to blank position should work.."); // move to 2, 7, rotState Two
+            var expectedGhostPos = new Point[] { new Point(2, 5), new Point(2, 6), new Point(1, 6), new Point(3, 6) };
+            var actualGhostPos = curPiece1.GetExpectedHardDropPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder(expectedGhostPos, actualGhostPos);
+
+            Assert.True(curPiece1.TrySpin(InputType.CW));
+            var expectedGhostPos2 = new Point[] { new Point(2, 6), new Point(2, 5), new Point(2, 7), new Point(1, 6) };
+            var actualGhostPos2 = curPiece1.GetExpectedHardDropPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder(expectedGhostPos2, actualGhostPos2);
+
+            var curPiece2 = new CurrentTetrominoPiece(testGrid, Tetromino.J, new Point(6, 6), RotationState.Zero);
+            var expectedGhostPos3 = new Point[] { new Point(6, 4), new Point(5, 4), new Point(7, 4), new Point(5, 5) };
+            var actualGhostPos3 = curPiece2.GetExpectedHardDropPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder(expectedGhostPos3, actualGhostPos3);
+
+            Assert.True(curPiece2.TrySpin(InputType.CW));
+            var expectedGhostPos4 = new Point[] { new Point(6, 4), new Point(6, 5), new Point(7, 5), new Point(6, 3) };
+            var actualGhostPos4 = curPiece2.GetExpectedHardDropPosOfBlocks();
+            CollectionAssert.CollectionSameWithoutOrder(expectedGhostPos4, actualGhostPos4);
         }
 
         /*

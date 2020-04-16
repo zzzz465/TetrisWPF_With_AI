@@ -45,6 +45,7 @@ namespace Tetris.Renderer
             {
                 inputManager.Update();
                 DrawBoard();
+                DrawGhostMino();
                 DrawCurrentPiece();
                 window.ShowImage(image);
                 tetrisGame.Update(sw.Elapsed);
@@ -116,6 +117,31 @@ namespace Tetris.Renderer
                 Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
                 Cv2.Rectangle(image, cell, Scalar.Aqua, -1);
             }
+        }
+
+        void DrawGhostMino()
+        {
+            var ghostMino = tetrisGame.PosOfGhostMinoBlocks;
+
+            if(ghostMino == null)
+                return;
+
+            (int width, int height) rectSize = (25, 25);
+            var leftTop = new Point(390, 110);
+            var rightBottom = new Point(640, 610);
+            var leftBottom = new Point(leftTop.X, rightBottom.Y);
+
+            foreach(var BlockPos in ghostMino)
+            {
+                var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
+                Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
+                Cv2.Rectangle(image, cell, Scalar.YellowGreen, 1);
+            }
+        }
+
+        void DrawNext()
+        {
+            
         }
     }
 }

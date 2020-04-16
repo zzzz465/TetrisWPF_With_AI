@@ -135,5 +135,26 @@ namespace Tetris
                 return false;
             }
         }
+
+        public IEnumerable<Point> GetExpectedHardDropPosOfBlocks()
+        {
+            var expectedBlockPos = minoType.GetPos(offset, rotState);
+            if(tetrisGrid.CanMinoExistHere(expectedBlockPos) == false)
+                throw new Exception($"Unexpected exception on {nameof(this.GetExpectedHardDropPosOfBlocks)}");
+
+            bool canPlaceMino = true;
+            
+            for(int i = -1; canPlaceMino; i--)
+            {
+                Point newOffsetPos = this.offset.Add(new Point(0, i));
+                var newExpectedBlockPos = minoType.GetPos(newOffsetPos, rotState);
+                canPlaceMino = tetrisGrid.CanMinoExistHere(newExpectedBlockPos);
+
+                if(canPlaceMino)
+                    expectedBlockPos = newExpectedBlockPos;
+            }
+
+            return expectedBlockPos;
+        }
     }
 }

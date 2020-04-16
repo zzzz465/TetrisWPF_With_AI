@@ -17,7 +17,7 @@ namespace XUnitTest_Tetris
             9
             8 
             7
-            6
+            6   
             5
             4 D D D D
             3       C C A       B
@@ -136,6 +136,14 @@ namespace XUnitTest_Tetris
             {
                 Assert.False(testGrid.CanMinoExistHere(point));
             }
+        }
+
+        [Fact]
+        public void Grid_Should_Disallow_BlockPlacement_To_Existing_Point()
+        {
+            var testGrid = CreateTestGrid();
+            Point[] alreadyExistingPoints = new Point[] { new Point(2, 4) };
+            Assert.False(testGrid.TryPlace(alreadyExistingPoints, Tetromino.None));
         }
     }
 }

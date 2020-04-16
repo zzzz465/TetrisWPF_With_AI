@@ -24,6 +24,7 @@ namespace Tetris
         TetrisGrid tetrisGrid;
         public IEnumerable<TetrisLine> Lines { get { return tetrisGrid.getLines; } }
         public IEnumerable<Point> PosOfCurMinoBlocks { get { return currentPiece?.GetPosOfBlocks(); } }
+        public IEnumerable<Point> PosOfGhostMinoBlocks { get { return currentPiece?.GetExpectedHardDropPosOfBlocks(); } }
         CurrentTetrominoPiece currentPiece;
         TetrominoBag tetrominoBag;
         Queue<Tetromino> next;
@@ -209,21 +210,21 @@ namespace Tetris
                         LastSoftDropTime = curTime;
                 }
             }
+        }
 
-            void lockCurrentMinoToPlace()
-            {
-                if(currentPiece == null)
-                    throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
+        void lockCurrentMinoToPlace()
+        {
+            if(currentPiece == null)
+                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
 
-                var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
-                var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
-                if(!isValid)
-                    throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
+            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
+            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
+            if(!isValid)
+                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
 
-                tetrisGrid.Set(PosOfCurrentPiece, true, currentPiece.minoType);
+            tetrisGrid.Set(PosOfCurrentPiece, true, currentPiece.minoType);
 
-                currentPiece = null;
-            }
+            currentPiece = null;
         }
     }
 }
