@@ -37,7 +37,8 @@ namespace Tetris
         TimeSpan lastMinoMoveTime = TimeSpan.Zero;
         TimeSpan lastDropTime = TimeSpan.Zero;
         TimeSpan LastSoftDropTime = TimeSpan.Zero;
-        TimeSpan DropDelay = TimeSpan.FromMilliseconds(150);
+        TimeSpan SoftDropDelay = TimeSpan.FromMilliseconds(70);
+        TimeSpan autoDropDelay = TimeSpan.FromMilliseconds(750);
         bool isContinousMoving = false; // 이게 True면, ARR에 의해 영향을 받는다는 뜻, 꾹누른 상태임
         #endregion
 
@@ -78,9 +79,10 @@ namespace Tetris
             this.gameState = GameState.Paused;
         }
 
-        public void ResumeGame(long curTick)
+        public void ResumeGame(TimeSpan curTime)
         {
             this.gameState = GameState.Playing;
+            LastSoftDropTime = curTime;
         }
 
         public void Update(TimeSpan curTime)
@@ -192,13 +194,19 @@ namespace Tetris
                 
                 if(InputProvider.GetState(KeySetting.SoftDrop) == KeyState.Down)
                 {
-                    if(curTime - lastDropTime > DropDelay)
+                    if(curTime - LastSoftDropTime > SoftDropDelay)
                     {
                         if(currentPiece.TryShift(new Point(0, -1)))
                         {
                             LastSoftDropTime = curTime;
                         }
                     }
+                }
+
+                if(curTime - LastSoftDropTime > autoDropDelay)
+                {
+                    if (currentPiece.TryShift(new Point(0, -1)))
+                        LastSoftDropTime = curTime;
                 }
             }
 
