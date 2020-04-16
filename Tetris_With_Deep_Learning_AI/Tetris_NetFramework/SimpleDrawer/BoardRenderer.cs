@@ -32,7 +32,7 @@ namespace Tetris.Renderer
         {
             image = new Mat(720, 1280, MatType.CV_8UC3);
             window = new Window("Window", image);
-            inputManager = new UserInputManager();
+            inputManager = new UserInputManager(InputSetting.Default);
             var setting = InputSetting.Default;
             tetrisGame = new TetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag());
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);

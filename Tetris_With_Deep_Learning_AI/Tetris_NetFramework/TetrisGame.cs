@@ -119,7 +119,9 @@ namespace Tetris
 
             // 업데이트당 한번의 이동, 또는 스핀만 해야함?
 
-            if(InputProvider.GetState(KeySetting.HardDrop) == KeyState.ToggledDown)
+            // TODO : 홀드 추가하기
+
+            if(InputProvider.GetState(InputType.HardDrop) == KeyState.ToggledDown)
             {
                 while(currentPiece.TryShift(new Point(0, -1))); // 가능한 밑까지 쭉 보냄
                 
@@ -130,18 +132,18 @@ namespace Tetris
             }
             else
             {
-                if(InputProvider.GetState(KeySetting.CCW) == KeyState.ToggledDown)
+                if(InputProvider.GetState(InputType.CCW) == KeyState.ToggledDown)
                 {
                     var success = currentPiece.TrySpin(InputType.CCW);
                 }
-                else if(InputProvider.GetState(KeySetting.CW) == KeyState.ToggledDown)
+                else if(InputProvider.GetState(InputType.CW) == KeyState.ToggledDown)
                 {
                     var success = currentPiece.TrySpin(InputType.CW);
                 }
 
                 //if(currentState.isTrue(InputType.LeftPressed))
-                var leftState = InputProvider.GetState(KeySetting.Left);
-                var rightState = InputProvider.GetState(KeySetting.Right);
+                var leftState = InputProvider.GetState(InputType.LeftPressed);
+                var rightState = InputProvider.GetState(InputType.RightPressed);
 
                 if(leftState == KeyState.ToggledDown)
                 {
@@ -203,7 +205,7 @@ namespace Tetris
                     isContinousMoving = false;
                 }
                 
-                if(InputProvider.GetState(KeySetting.SoftDrop) == KeyState.Down)
+                if(InputProvider.GetState(InputType.SoftDrop) == KeyState.Down)
                 {
                     if(curTime - LastSoftDropTime > SoftDropDelay)
                     {

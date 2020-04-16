@@ -22,9 +22,19 @@ namespace Tetris
         Dictionary<Key, bool> LastKeyState = new Dictionary<Key, bool>();
         Dictionary<Key, KeyState> currentKeyState = new Dictionary<Key, KeyState>();
         HashSet<Key> ObservedKeys = new HashSet<Key>();
-        public UserInputManager()
+        InputSetting inputSetting;
+        public UserInputManager(InputSetting inputSetting)
         {
-            
+            ObserveKey(
+                inputSetting.CCW,
+                inputSetting.CW,
+                inputSetting.SoftDrop,
+                inputSetting.HardDrop,
+                inputSetting.Hold,
+                inputSetting.Left,
+                inputSetting.Right);
+
+            this.inputSetting = inputSetting;
         }
 
         public void ObserveKey(Key key)
@@ -74,9 +84,9 @@ namespace Tetris
             }
         }
 
-        public KeyState GetState(Key key)
+        public KeyState GetState(InputType inputType)
         {
-            if (currentKeyState.TryGetValue(key, out var value))
+            if (currentKeyState.TryGetValue(inputSetting.ConvertInputToKey(inputType), out var value))
                 return value;
             else
                 return KeyState.NotAvailable;

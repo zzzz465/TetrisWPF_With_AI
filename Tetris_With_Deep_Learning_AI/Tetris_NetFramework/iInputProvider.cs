@@ -16,6 +16,38 @@ namespace Tetris
         CW = 32,
         Hold = 64
     }
+    public static class InputTypeExtension
+    {
+        public static Key ConvertInputToKey(this InputSetting inputSetting, InputType inputType)
+        {
+            switch(inputType)
+            {
+                case InputType.CCW:
+                    return inputSetting.CCW;
+                
+                case InputType.CW:
+                    return inputSetting.CW;
+
+                case InputType.SoftDrop:
+                    return inputSetting.SoftDrop;
+
+                case InputType.HardDrop:
+                    return inputSetting.HardDrop;
+
+                case InputType.Hold:
+                    return inputSetting.Hold;
+                
+                case InputType.LeftPressed:
+                    return inputSetting.Left;
+                
+                case InputType.RightPressed:
+                    return inputSetting.Right;
+
+                default:
+                    return Key.None;
+            }
+        }
+    }
     public enum KeyState : uint
     {
         NotAvailable = 0,
@@ -27,7 +59,7 @@ namespace Tetris
     public interface iInputProvider
     {
         void Update();
-        KeyState GetState(Key key);
+        KeyState GetState(InputType inputType);
     }
 
     public static class iInputProviderExtension

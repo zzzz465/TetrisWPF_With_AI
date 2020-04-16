@@ -51,7 +51,7 @@ namespace Tetris_WPF_Proj
 
         void InitializeGame()
         {
-            UserInputManager userInputManager = new UserInputManager();
+            UserInputManager userInputManager = new UserInputManager(InputSetting.Default);
             InputSetting inputSetting = InputSetting.Default;
             userInputManager.ObserveKey(inputSetting.CCW);
             userInputManager.ObserveKey(inputSetting.CW);
