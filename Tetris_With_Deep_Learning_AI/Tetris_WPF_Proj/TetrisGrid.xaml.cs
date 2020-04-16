@@ -87,6 +87,8 @@ namespace Tetris_WPF_Proj
                 for(int x = 0; x < 10; x++)
                 {
                     var cell = cells[y * 10 + x];
+                    throw new NotImplementedException("미노 타입에 맞는 색 반환 딕셔너리 추가하기");
+                    /*
                     if(curLine.line[x])
                     {
                         cell.SetColor(Color.FromRgb(150, 150, 150));
@@ -95,6 +97,7 @@ namespace Tetris_WPF_Proj
                     {
                         cell.SetColor(Color.FromRgb(50, 50, 50));
                     }
+                    */
                 }
             }
         }

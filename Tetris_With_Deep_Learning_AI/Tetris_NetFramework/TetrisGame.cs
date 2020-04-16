@@ -222,7 +222,7 @@ namespace Tetris
             if(!isValid)
                 throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
 
-            tetrisGrid.Set(PosOfCurrentPiece, true, currentPiece.minoType);
+            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
 
             currentPiece = null;
         }

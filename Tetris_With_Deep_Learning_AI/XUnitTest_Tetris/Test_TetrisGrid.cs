@@ -33,19 +33,19 @@ namespace XUnitTest_Tetris
             
 
             var grid = new TetrisGrid(maxAllowedHeight);
-            grid.Set(points, true);
+            grid.Set(points, Tetromino.Garbage);
 
             Point[] A = new Point[] { new Point(4, 2), new Point(5, 2), new Point(6, 2), new Point(5, 3) };
-            grid.Set(A, true);
+            grid.Set(A, Tetromino.T);
 
             Point[] B = new Point[] { new Point(7, 2), new Point(8, 2), new Point(9, 2), new Point(9, 3) };
-            grid.Set(B, true);
+            grid.Set(B, Tetromino.L);
 
             Point[] C = new Point[] { new Point(3, 1), new Point(3, 2), new Point(3, 3), new Point(4, 3) };
-            grid.Set(C, true);
+            grid.Set(C, Tetromino.J);
 
             Point[] D = new Point[] { new Point(0, 4), new Point(1, 4), new Point(2, 4), new Point(3, 4) };
-            grid.Set(D, true);
+            grid.Set(D, Tetromino.I);
 
             return grid;
         }
@@ -75,29 +75,29 @@ namespace XUnitTest_Tetris
             
 
             var grid = new TetrisGrid();
-            grid.Set(points, true);
+            grid.Set(points, Tetromino.Garbage);
 
             Point[] wrong = new Point[] { new Point(4, 0), new Point(4, 1), new Point(5,0), new Point(5, 1) };
-            Assert.False(grid.TryPlace(wrong, Tetromino.None));
+            Assert.False(grid.TryPlace(wrong, Tetromino.None), "failure at test case wrong");
 
             Point[] A = new Point[] { new Point(4, 2), new Point(5, 2), new Point(6, 2), new Point(5, 3) };
             Assert.True(grid.TryPlace(A, Tetromino.T), "failure at test case A"); // can place on blank place
             Assert.False(grid.TryPlace(A, Tetromino.T), "failure at test case A"); // cannot place if the block already exists
 
             Point[] B = new Point[] { new Point(7, 2), new Point(8, 2), new Point(9, 2), new Point(9, 3) };
-            Assert.True(grid.TryPlace(B, Tetromino.None), "failure at test case B");
-            Assert.False(grid.TryPlace(B, Tetromino.None), "failure at test case B");
+            Assert.True(grid.TryPlace(B, Tetromino.L), "failure at test case B - true");
+            Assert.False(grid.TryPlace(B, Tetromino.L), "failure at test case B - false");
 
             Point[] C = new Point[] { new Point(3, 1), new Point(3, 2), new Point(3, 3), new Point(4, 3) };
-            Assert.True(grid.TryPlace(C, Tetromino.None), "Failure at tast case C - true");
-            Assert.False(grid.TryPlace(C, Tetromino.None), "Failure at tast case C - false");
+            Assert.True(grid.TryPlace(C, Tetromino.J), "Failure at tast case C - true");
+            Assert.False(grid.TryPlace(C, Tetromino.J), "Failure at tast case C - false");
 
             Point[] D = new Point[] { new Point(0, 4), new Point(1, 4), new Point(2, 4), new Point(3, 4) };
-            Assert.True(grid.TryPlace(D, Tetromino.None), "Failure at D");
-            Assert.False(grid.TryPlace(D, Tetromino.None), "Failure at D");
+            Assert.True(grid.TryPlace(D, Tetromino.I), "Failure at D");
+            Assert.False(grid.TryPlace(D, Tetromino.I), "Failure at D");
 
             Point[] FloatingBlock = new Point[] { new Point(4, 6), new Point(4, 7), new Point(5, 6), new Point(5, 7) };
-            Assert.False(grid.TryPlace(FloatingBlock, Tetromino.None), "FloatingBlockCheck failed");
+            Assert.False(grid.TryPlace(FloatingBlock, Tetromino.Garbage), "FloatingBlockCheck failed");
         }
 
         [Fact]
@@ -106,20 +106,28 @@ namespace XUnitTest_Tetris
             var testGrid = CreateTestGrid();
 
             Point[] FillTwoLine = new Point[] 
-            { 
+            { // 0번째 줄, 1번째 줄을 채움
                 new Point(0, 0), new Point(0, 1), new Point(1, 0), 
                 new Point(1, 1), new Point(2, 0), new Point(2, 1), 
                 new Point(3, 0), new Point(4, 1), new Point(5, 1), 
                 new Point(8, 1), new Point(9, 1)
             };
 
-            testGrid.Set(FillTwoLine, true, Tetromino.None);
+            testGrid.Set(FillTwoLine, Tetromino.Garbage);
             testGrid.UpdateBoard();
 
             var lines = testGrid.getLines.ToList();
-            Assert.Equal(lines[0].line, new bool[] { false, false, false, true, true, true, true, true, true, true });
-            Assert.Equal(lines[1].line, new bool[] { false, false, false, true, true, true, false, false, false, true });
-            Assert.Equal(lines[2].line, new bool[] { true, true, true, true, false, false, false, false, false, false });
+
+            var T = Tetromino.T;
+            var L = Tetromino.L;
+            var J = Tetromino.J;
+            var I = Tetromino.I;
+            var None = Tetromino.None;
+            
+            Assert.Equal(lines[0].line, new Tetromino[] { None, None, None, J, T, T, T, L, L, L });
+            Assert.Equal(lines[1].line, new Tetromino[] { None, None, None, J, J, T, None, None, None, L });
+            Assert.Equal(lines[2].line, new Tetromino[] { I, I, I, I, None, None, None, None, None, None });
+            
         }
 
         [Fact]

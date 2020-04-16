@@ -5,9 +5,17 @@ using System.Drawing;
 
 namespace Tetris
 {
-    public enum Tetromino
+    public enum Tetromino : int
     {
-        I, T, O, S, Z, L, J, None
+        None = 0,
+        I = 1,
+        T = 2, 
+        O = 4, 
+        S = 8, 
+        Z = 16, 
+        L = 32, 
+        J = 64,
+        Garbage = 128
     }
 
     public static class TetrominoExtension

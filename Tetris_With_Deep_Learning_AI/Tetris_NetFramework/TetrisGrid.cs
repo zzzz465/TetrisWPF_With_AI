@@ -7,22 +7,19 @@ namespace Tetris
 {
     public class TetrisLine
     {
-        public bool[] line;
-        public Tetromino[] minoType;
+        public Tetromino[] line;
         public TetrisLine(int width = 10)
         {
-            line = new bool[width];
-            minoType = new Tetromino[width];
-            for(int i = 0; i < width; i++)
-                minoType[i] = Tetromino.None;
+            line = new Tetromino[width];
         }
 
-        public bool isBlankLine()
+        public bool isLineFilled()
         {
-            if(Enumerable.All(line, x => !x))
-                return true;
-            else
-                return false;
+            foreach(var x in line)
+                if(x == Tetromino.None)
+                    return false;
+            
+            return true;
         }
     }
     public class TetrisGrid
@@ -52,11 +49,11 @@ namespace Tetris
             while(board.Count - 1 <= y)
                 board.Add(new TetrisLine());
 
-            return board[y].line[x];
+            return board[y].line[x] != Tetromino.None;
         }
 
         // accepts 4,2 array which takes x, y position of 0, 1, 2, 3 block.
-        public void Set(IEnumerable<Point> mino, bool state, Tetromino minoType = Tetromino.None)
+        public void Set(IEnumerable<Point> mino, Tetromino minoType = Tetromino.None)
         {
             var maxY = mino.Max(i => i.Y);
             while(board.Count - 1 < maxY)
@@ -68,8 +65,7 @@ namespace Tetris
                 var y = point.Y;
                 
                 var currentLine = board[y];
-                currentLine.line[x] = state;
-                currentLine.minoType[x] = minoType;
+                currentLine.line[x] = minoType;
                 // 여기서 true에 true를 덮어쓰는지 체크를 하는게 좋지않을까
             }
         }
@@ -78,7 +74,7 @@ namespace Tetris
             for(int y = 0; y < board.Count;)
             {
                 var current = board[y];
-                if (Enumerable.All(current.line, x => x))
+                if (current.isLineFilled())
                 {
                     this.board.Remove(current);
                     this.board.Add(new TetrisLine(width));
@@ -99,7 +95,7 @@ namespace Tetris
             if(arePointsFloating)
                 return false;
 
-            Set(points, true, minoType);
+            Set(points, minoType);
 
             return true;
         }
@@ -111,8 +107,8 @@ namespace Tetris
 
             while(garbageLineCount-- > 0)
             {
-                var garbageLine = new TetrisLine() { line = Enumerable.Repeat<bool>(true, 10).ToArray() };
-                garbageLine.line[x_of_empty_line] = false;
+                var garbageLine = new TetrisLine() { line = Enumerable.Repeat<Tetromino>(Tetromino.Garbage, 10).ToArray() };
+                garbageLine.line[x_of_empty_line] = (int)Tetromino.None;
                 board.Insert(0, garbageLine);
             }
         }

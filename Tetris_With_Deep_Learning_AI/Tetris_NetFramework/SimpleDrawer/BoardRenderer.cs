@@ -90,7 +90,7 @@ namespace Tetris.Renderer
                 var line = lines.ElementAt(y);
                 for(int x = 0; x < 10; x++)
                 {
-                    var blockExist = line.line[x];
+                    var blockExist = line.line[x] != 0;
                     Rect cell = new Rect( (leftTop.X + rectSize.width * x + 1), (rightBottom.Y - rectSize.height * y - 1), rectSize.width - 1, rectSize.height - 1);
                     if(blockExist)
                         Cv2.Rectangle(image, cell, Scalar.Green, -1);

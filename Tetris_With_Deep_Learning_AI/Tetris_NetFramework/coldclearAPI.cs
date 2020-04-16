@@ -24,7 +24,7 @@ namespace ColdClear
                 for(int x = 0; x < width; x++)
                 {
                     var coord = width * y + x;
-                    arr[coord] = curLine.line[x];
+                    arr[coord] = curLine.line[x] != 0;
                 }
             }
 

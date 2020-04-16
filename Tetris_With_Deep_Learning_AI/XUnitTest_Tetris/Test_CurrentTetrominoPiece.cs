@@ -91,19 +91,19 @@ namespace XUnitTest_Tetris
             
 
             var grid = new TetrisGrid(maxAllowedHeight);
-            grid.Set(points, true);
+            grid.Set(points, Tetromino.Garbage);
 
             Point[] A = new Point[] { new Point(4, 2), new Point(5, 2), new Point(6, 2), new Point(5, 3) };
-            grid.Set(A, true);
+            grid.Set(A, Tetromino.T);
 
             Point[] B = new Point[] { new Point(7, 2), new Point(8, 2), new Point(9, 2), new Point(9, 3) };
-            grid.Set(B, true);
+            grid.Set(B, Tetromino.L);
 
             Point[] C = new Point[] { new Point(3, 1), new Point(3, 2), new Point(3, 3), new Point(4, 3) };
-            grid.Set(C, true);
+            grid.Set(C, Tetromino.J);
 
             Point[] D = new Point[] { new Point(0, 4), new Point(1, 4), new Point(2, 4), new Point(3, 4) };
-            grid.Set(D, true);
+            grid.Set(D, Tetromino.I);
 
             return grid;
         }
@@ -155,7 +155,7 @@ namespace XUnitTest_Tetris
             };
 
             TetrisGrid testGrid = new TetrisGrid();
-            testGrid.Set(Points, true);
+            testGrid.Set(Points, Tetromino.Garbage);
 
             return testGrid;
         }
@@ -193,7 +193,39 @@ namespace XUnitTest_Tetris
             {
                 foreach(var x in line.line)
                 {
-                    builder.Append(x ? "1" : "0");
+                    char c;
+                    switch(x)
+                    {
+                        case Tetromino.J:
+                            c = 'J';
+                            break;
+                        case Tetromino.I:
+                            c = 'I';
+                            break;
+                        case Tetromino.L:
+                            c = 'L';
+                            break;
+                        case Tetromino.O:
+                            c = 'O';
+                            break;
+                        case Tetromino.S:
+                            c = 'S';
+                            break;
+                        case Tetromino.T:
+                            c = 'T';
+                            break;
+                        case Tetromino.Z:
+                            c = 'Z';
+                            break;
+                        case Tetromino.Garbage:
+                            c = 'G';
+                            break;
+                        default:
+                            c = '0';
+                            break;
+                    }
+
+                    builder.Append(c);
                 }
                 builder.AppendLine();
             }
