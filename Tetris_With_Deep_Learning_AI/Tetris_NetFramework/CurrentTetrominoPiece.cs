@@ -73,17 +73,24 @@ namespace Tetris
         public Tetromino minoType { get; private set; }
         TetrisGrid tetrisGrid;
         Point offset;
+        Point spawnOffset;
         public RotationState rotState { get; private set; } = RotationState.Zero;
-        public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point offset)
+        public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point initialOffsetPos)
         {
             this.tetrisGrid = curGrid;
             this.minoType = minoType;
-            this.offset = offset;
+            this.offset = initialOffsetPos;
+            this.spawnOffset = initialOffsetPos;
         }
 
         public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point offset, RotationState rotState) : this(curGrid, minoType, offset)
         {
             this.rotState = rotState;
+        }
+
+        public void ResetOffsetToSpawnOffset()
+        {
+            this.offset = spawnOffset;
         }
 
         public IEnumerable<Point> GetPosOfBlocks()
@@ -134,6 +141,11 @@ namespace Tetris
             {
                 return false;
             }
+        }
+
+        public bool isHovering()
+        {
+            throw new NotImplementedException();
         }
 
         public IEnumerable<Point> GetExpectedHardDropPosOfBlocks()

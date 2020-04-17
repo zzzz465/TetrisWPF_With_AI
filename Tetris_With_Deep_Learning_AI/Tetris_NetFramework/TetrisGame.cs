@@ -9,47 +9,49 @@ namespace Tetris
     /*
     테트리스는 60프레임 게임 -> 프레임당 약 16.6ms
     */
-    public class TetrisGame
+    public abstract class TetrisGame
     {
-        enum GameState
+        protected enum GameState
         {
             Idle,
             Playing,
             Paused,
             Dead
         }
-        iInputProvider InputProvider;
-        InputSetting KeySetting;
-
-        TetrisGrid tetrisGrid;
+        protected TetrisGrid tetrisGrid;
         public IEnumerable<TetrisLine> Lines { get { return tetrisGrid.getLines; } }
         public IEnumerable<Point> PosOfCurMinoBlocks { get { return currentPiece?.GetPosOfBlocks(); } }
         public IEnumerable<Point> PosOfGhostMinoBlocks { get { return currentPiece?.GetExpectedHardDropPosOfBlocks(); } }
         public Tetromino curMinoType { get { return currentPiece?.minoType ?? Tetromino.None; } }
-        CurrentTetrominoPiece currentPiece;
-        TetrominoBag tetrominoBag;
-        Queue<Tetromino> next;
-        readonly Point spawnOffset = new Point(4, 20);
+        public Tetromino HoldMinoType { get { return Hold?.minoType ?? Tetromino.None; } }
+        protected TetrominoBag tetrominoBag;
+        protected readonly Point spawnOffset = new Point(4, 20);
 
         #region Time data about mino movement
-        TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
-        TimeSpan DASDelay = TimeSpan.FromMilliseconds(250);
-        TimeSpan minoSpawnDelay = TimeSpan.FromMilliseconds(400);
-        TimeSpan lastMinoPlaced = TimeSpan.Zero;
-        TimeSpan lastMinoMoveTime = TimeSpan.Zero;
-        TimeSpan lastDropTime = TimeSpan.Zero;
-        TimeSpan LastSoftDropTime = TimeSpan.Zero;
-        TimeSpan SoftDropDelay = TimeSpan.FromMilliseconds(70);
-        TimeSpan autoDropDelay = TimeSpan.FromMilliseconds(750);
-        bool isContinousMoving = false; // 이게 True면, ARR에 의해 영향을 받는다는 뜻, 꾹누른 상태임
+        protected TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
+        protected TimeSpan DASDelay = TimeSpan.FromMilliseconds(250);
+        protected TimeSpan minoSpawnDelay = TimeSpan.FromMilliseconds(400);
+        protected TimeSpan lastMinoPlaced = TimeSpan.Zero;
+        protected TimeSpan lastMinoMoveTime = TimeSpan.Zero;
+        protected TimeSpan lastDropTime = TimeSpan.Zero;
+        protected TimeSpan LastSoftDropTime = TimeSpan.Zero;
+        protected TimeSpan SoftDropDelay = TimeSpan.FromMilliseconds(70);
+        protected TimeSpan autoDropDelay = TimeSpan.FromMilliseconds(750);
+        protected bool isContinousMoving = false; // 이게 True면, ARR에 의해 영향을 받는다는 뜻, 꾹누른 상태임
+        #endregion
+        #region Current & Hold Piece Data
+        protected CurrentTetrominoPiece currentPiece;
+        protected CurrentTetrominoPiece Hold;
+        protected bool canHold = true;
         #endregion
 
-        GameState gameState = GameState.Idle;
+        #region TetrisGame Events
+        // public event Action 
+        #endregion
+        protected GameState gameState = GameState.Idle;
         
-        public TetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting, TetrominoBag bag = null)
+        public TetrisGame(TetrisGameSetting gameSetting, TetrominoBag bag = null)
         {
-            this.KeySetting = keySetting;
-            this.InputProvider = inputProvider;
             tetrisGrid = new TetrisGrid();
             ResetGame(bag);
         }
@@ -62,17 +64,14 @@ namespace Tetris
             this.SoftDropDelay = setting.softDropDelay;
             this.autoDropDelay = setting.autoDropDelay;
         }
-        public void ResetGame(TetrominoBag bag = null)
+        public virtual void ResetGame(TetrominoBag bag = null)
         {
             this.tetrominoBag = bag ?? new TetrominoBag();
-            next = new Queue<Tetromino>(5);
-            while(next.Count < 5)
-                next.Enqueue(tetrominoBag.GetNext());
+            tetrisGrid.Reset();
         }
 
-        public void StartGame()
+        public virtual void StartGame()
         {
-
             ResetGame();
             var firstPiece = tetrominoBag.GetNext();
             currentPiece = new CurrentTetrominoPiece(tetrisGrid, firstPiece, spawnOffset);
@@ -85,146 +84,29 @@ namespace Tetris
             this.gameState = GameState.Playing;
         }
 
-        public void PauseGame()
+        public virtual void PauseGame()
         {
             this.gameState = GameState.Paused;
         }
 
-        public void ResumeGame(TimeSpan curTime)
+        public virtual void ResumeGame(TimeSpan curTime)
         {
             this.gameState = GameState.Playing;
             LastSoftDropTime = curTime;
         }
 
-        public void Update(TimeSpan curTime)
+        public void UpdateGame(TimeSpan curTime)
         {
-            if(this.gameState != GameState.Playing)
-                return;
-
-            if (currentPiece == null)
-            {
-                if (curTime - lastMinoPlaced > minoSpawnDelay)
-                {
-                    currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
-                    var expectedPos = currentPiece.GetPosOfBlocks();
-                    if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
-                    {
-                        this.gameState = GameState.Dead;
-                    }
-                }
-
-                if(currentPiece == null)
-                    return;
-            }
-
-            // 업데이트당 한번의 이동, 또는 스핀만 해야함?
-
-            // TODO : 홀드 추가하기
-
-            if(InputProvider.GetState(InputType.HardDrop) == KeyState.ToggledDown)
-            {
-                while(currentPiece.TryShift(new Point(0, -1))); // 가능한 밑까지 쭉 보냄
-                
-                LastSoftDropTime = curTime;
-                lastMinoPlaced = curTime;
-                lockCurrentMinoToPlace();
-                tetrisGrid.UpdateBoard();
-            }
-            else
-            {
-                if(InputProvider.GetState(InputType.CCW) == KeyState.ToggledDown)
-                {
-                    var success = currentPiece.TrySpin(InputType.CCW);
-                }
-                else if(InputProvider.GetState(InputType.CW) == KeyState.ToggledDown)
-                {
-                    var success = currentPiece.TrySpin(InputType.CW);
-                }
-
-                //if(currentState.isTrue(InputType.LeftPressed))
-                var leftState = InputProvider.GetState(InputType.LeftPressed);
-                var rightState = InputProvider.GetState(InputType.RightPressed);
-
-                if(leftState == KeyState.ToggledDown)
-                {
-                    if(currentPiece.TryShift(new Point(-1, 0)))
-                    {
-                        lastMinoMoveTime = curTime;
-                    }
-                }
-                else if(rightState == KeyState.ToggledDown)
-                {
-                    if(currentPiece.TryShift(new Point(1, 0)))
-                    {
-                        lastMinoMoveTime = curTime;
-                    }
-                }
-                else if((leftState == KeyState.Down || rightState == KeyState.Down) && !(leftState == KeyState.Down && rightState == KeyState.Down))
-                { // 꾹눌렀을때
-                    if(leftState == KeyState.Down)
-                    {
-                        if(isContinousMoving)
-                        { // ARR에 의해 결정
-                            if(ARRDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(-1, 0)))
-                            {
-                                lastMinoMoveTime = curTime;
-                                isContinousMoving = true;
-                            }
-                        }
-                        else
-                        { // 아직 연속 이동상태가 아님
-                            if(DASDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(-1, 0)))
-                            {
-                                lastMinoMoveTime = curTime;
-                                isContinousMoving = true;
-                            }
-                        }
-                    }
-                    else if(rightState == KeyState.Down)
-                    {
-                        if(isContinousMoving)
-                        { // ARR에 의해 결정
-                            if(ARRDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(1, 0)))
-                            {
-                                lastMinoMoveTime = curTime;
-                                isContinousMoving = true;
-                            }
-                        }
-                        else
-                        { // 아직 연속 이동상태가 아님
-                            if(DASDelay < curTime - lastMinoMoveTime && currentPiece.TryShift(new Point(1, 0)))
-                            {
-                                lastMinoMoveTime = curTime;
-                                isContinousMoving = true;
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    isContinousMoving = false;
-                }
-                
-                if(InputProvider.GetState(InputType.SoftDrop) == KeyState.Down)
-                {
-                    if(curTime - LastSoftDropTime > SoftDropDelay)
-                    {
-                        if(currentPiece.TryShift(new Point(0, -1)))
-                        {
-                            LastSoftDropTime = curTime;
-                        }
-                    }
-                }
-
-                if(curTime - LastSoftDropTime > autoDropDelay)
-                {
-                    if (currentPiece.TryShift(new Point(0, -1)))
-                        LastSoftDropTime = curTime;
-                }
-            }
+            PreUpdate(curTime);
+            Update(curTime);
+            PostUpdate(curTime);
         }
+        protected virtual void PreUpdate(TimeSpan curTime) { }
 
-        void lockCurrentMinoToPlace()
+        protected virtual void Update(TimeSpan curTime) { }
+        protected virtual void PostUpdate(TimeSpan curTime) { }
+
+        protected void lockCurrentMinoToPlace()
         {
             if(currentPiece == null)
                 throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
@@ -235,8 +117,36 @@ namespace Tetris
                 throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
 
             tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
-
+            canHold = true;
             currentPiece = null;
+        }
+
+        protected bool TrySwapHold() // return true if swapping success, if not, return false, does not check swapped whether the "current piece" can be placed to the spawn offset or not.
+        {
+            if(Hold == null)
+            {
+                Hold = currentPiece;
+                currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
+                canHold = false;
+                return true;
+            }
+            
+            if(canHold)
+            {
+                var temp = Hold;
+                Hold = currentPiece;
+                currentPiece = temp;
+                currentPiece.ResetOffsetToSpawnOffset();
+                canHold = false;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public Tetromino PeekBag(int index)
+        {
+            return this.tetrominoBag.Peek(index);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Tetris.Renderer
             window = new Window("Window", image);
             inputManager = new UserInputManager(InputSetting.Default);
             var setting = InputSetting.Default;
-            tetrisGame = new TetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag());
+            tetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag());
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             tetrisGame.StartGame();
             _mouseCallback = mouseCallBack;
@@ -58,8 +58,9 @@ namespace Tetris.Renderer
                 DrawBoard();
                 DrawGhostMino();
                 DrawCurrentPiece();
+                DrawHold();
                 window.ShowImage(image);
-                tetrisGame.Update(sw.Elapsed);
+                tetrisGame.UpdateGame(sw.Elapsed);
                 Cv2.WaitKey(3);
                 yield return null;
             }
@@ -153,6 +154,54 @@ namespace Tetris.Renderer
         void DrawNext()
         {
             
+        }
+
+        void DrawHold()
+        {
+            // 390 640 이 시작..
+            // 225 * 250 ~ 320 * 240 에서 만들어주자
+            Point leftTop = new Point(225, 250);
+            Point rightDown = new Point(320, 240);
+            var width = rightDown.X - leftTop.X;
+            var height = rightDown.Y - leftTop.Y;
+
+            (int width, int height) boxSize = (width / 4, height / 4);
+
+            var holdMinoType = tetrisGame.HoldMinoType;
+
+            string c;
+            switch(holdMinoType)
+            {
+                case Tetromino.J:
+                    c = "J";
+                    break;
+                case Tetromino.I:
+                    c = "I";
+                    break;
+                case Tetromino.L:
+                    c = "L";
+                    break;
+                case Tetromino.O:
+                    c = "O";
+                    break;
+                case Tetromino.S:
+                    c = "S";
+                    break;
+                case Tetromino.T:
+                    c = "T";
+                    break;
+                case Tetromino.Z:
+                    c = "Z";
+                    break;
+                case Tetromino.Garbage:
+                    c = "??";
+                    break;
+                default:
+                    c = "None";
+                    break;
+            }
+
+            Cv2.PutText(image, c.ToString(), leftTop, HersheyFonts.HersheySimplex, 1, Scalar.White);
         }
     }
 }

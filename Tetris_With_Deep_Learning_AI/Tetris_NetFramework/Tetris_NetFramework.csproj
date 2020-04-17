@@ -78,11 +78,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AITetrisGame.cs" />
     <Compile Include="Bag.cs" />
     <Compile Include="ColdClear.cs" />
     <Compile Include="coldclearAPI.cs" />
     <Compile Include="CurrentTetrominoPiece.cs" />
     <Compile Include="iInputProvider.cs" />
+    <Compile Include="PlayerTetrisGame.cs" />
     <Compile Include="PointExtension.cs" />
     <Compile Include="SimpleDrawer\BoardRenderer.cs" />
     <Compile Include="TetrisGameSetting.cs" />

@@ -22,15 +22,23 @@ namespace Tetris
             random = new Random(seed);
         }
 
+        public Tetromino Peek(int index)
+        {
+            while(minos.Count <= index)
+                fillBag();
+
+            return minos.ElementAt(index);
+        }
+
         public Tetromino GetNext()
         {
             if(minos.Count == 0)
-                RefillBag();
+                fillBag();
             
             return minos.Dequeue();
         }
 
-        void RefillBag()
+        void fillBag()
         {
             Shuffle();
             foreach(var mino in template)
