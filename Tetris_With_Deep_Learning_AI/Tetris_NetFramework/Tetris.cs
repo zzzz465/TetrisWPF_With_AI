@@ -93,9 +93,9 @@ namespace Tetris
         }
     }
 
-    public enum Movement
+    public enum Instruction
     {
-        Left, Right, SoftDrop, HardDrop, CW, CCW
+        None, Left, Right, SoftDrop, HardDrop, CW, CCW, Hold, InstructionDone
     }
     
     public interface iMinoPlacementResult
@@ -105,13 +105,13 @@ namespace Tetris
 
     public interface iMinoPath
     {
-        IEnumerable<Movement> movements { get; }
+        IEnumerable<Instruction> movements { get; }
     }
 
     public struct MinoControlSequence : iMinoPath
     {
-        public IEnumerable<Movement> movements { get; private set; }
-        public MinoControlSequence(IEnumerable<Movement> movements)
+        public IEnumerable<Instruction> movements { get; private set; }
+        public MinoControlSequence(IEnumerable<Instruction> movements)
         {
             this.movements = movements;
         }

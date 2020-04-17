@@ -46,7 +46,8 @@ namespace Tetris
         #endregion
 
         #region TetrisGame Events
-        // public event Action 
+        public event Action BoardChanged; // unsupported yet
+        public event Action LineCleared; // unsupported yet
         #endregion
         protected GameState gameState = GameState.Idle;
         

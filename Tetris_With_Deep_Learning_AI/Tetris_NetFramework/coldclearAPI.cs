@@ -76,20 +76,20 @@ namespace ColdClear
             }
         }
 
-        public static Movement ToMovement(this CCMovement move)
+        public static Instruction ToMovement(this CCMovement move)
         {
             switch(move)
             {
                 case CCMovement.CC_CW:
-                    return Movement.CW;
+                    return Instruction.CW;
                 case CCMovement.CC_CCW:
-                    return Movement.CCW;
+                    return Instruction.CCW;
                 case CCMovement.CC_Drop:
-                    return Movement.HardDrop;
+                    return Instruction.SoftDrop; // 이거 맞니?
                 case CCMovement.CC_Left:
-                    return Movement.Left;
+                    return Instruction.Left;
                 case CCMovement.CC_Right:
-                    return Movement.Right;
+                    return Instruction.Right;
                 default:
                     throw new Exception();
             }

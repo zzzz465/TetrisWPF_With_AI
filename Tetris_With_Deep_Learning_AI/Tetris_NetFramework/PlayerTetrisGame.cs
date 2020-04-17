@@ -72,7 +72,6 @@ namespace Tetris
                     var success = currentPiece.TrySpin(InputType.CW);
                 }
 
-                //if(currentState.isTrue(InputType.LeftPressed))
                 var leftState = inputProvider.GetState(InputType.LeftPressed);
                 var rightState = inputProvider.GetState(InputType.RightPressed);
 

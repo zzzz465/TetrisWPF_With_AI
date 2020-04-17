@@ -13,7 +13,51 @@ namespace Tetris
 
         protected override void Update(TimeSpan curTime)
         {
-            throw new NotImplementedException();
+            if(this.gameState != GameState.Playing)
+                return;
+
+            iMovementProvider provider = null;
+
+            var curMove = provider.GetMovement();
+
+            switch(curMove)
+            {
+                case Instruction.CCW:
+                case Instruction.CW:
+                {
+                    break;
+                }
+
+                case Instruction.HardDrop:
+                {
+                    break;
+                }
+
+                case Instruction.SoftDrop:
+                {
+                    break;
+                }
+
+                case Instruction.Left:
+                case Instruction.Right:
+                {
+                    break;
+                }
+                
+                case Instruction.Hold:
+                {
+                    break;
+                }
+
+                default:
+                    throw new NotImplementedException($"Parameter {curMove} is not implemented function");
+            }
         }
+    }
+
+    public interface iMovementProvider
+    {
+        Instruction GetMovement();
+        void PollNewMove();
     }
 }
