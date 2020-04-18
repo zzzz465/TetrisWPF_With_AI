@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
 using System.Windows.Input;
+using log4net;
 
 namespace Tetris
 {
@@ -25,7 +26,7 @@ namespace Tetris
         public Tetromino curMinoType { get { return currentPiece?.minoType ?? Tetromino.None; } }
         public Tetromino HoldMinoType { get { return Hold?.minoType ?? Tetromino.None; } }
         protected TetrominoBag tetrominoBag;
-        protected readonly Point spawnOffset = new Point(4, 20);
+        protected readonly Point spawnOffset = new Point(4, 19);
 
         #region Time data about mino movement
         protected TimeSpan ARRDelay = TimeSpan.FromMilliseconds(100);
@@ -122,7 +123,7 @@ namespace Tetris
             currentPiece = null;
         }
 
-        protected bool TrySwapHold() // return true if swapping success, if not, return false, does not check swapped whether the "current piece" can be placed to the spawn offset or not.
+        protected virtual bool TrySwapHold() // return true if swapping success, if not, return false, does not check swapped whether the "current piece" can be placed to the spawn offset or not.
         {
             if(Hold == null)
             {
@@ -137,7 +138,7 @@ namespace Tetris
                 var temp = Hold;
                 Hold = currentPiece;
                 currentPiece = temp;
-                currentPiece.ResetOffsetToSpawnOffset();
+                currentPiece.ResetToInitialState();
                 canHold = false;
                 return true;
             }

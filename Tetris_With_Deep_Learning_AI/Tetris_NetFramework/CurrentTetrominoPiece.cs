@@ -88,9 +88,10 @@ namespace Tetris
             this.rotState = rotState;
         }
 
-        public void ResetOffsetToSpawnOffset()
+        public void ResetToInitialState()
         {
             this.offset = spawnOffset;
+            this.rotState = RotationState.Zero;
         }
 
         public IEnumerable<Point> GetPosOfBlocks()

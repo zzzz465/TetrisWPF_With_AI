@@ -77,7 +77,7 @@ namespace Tetris_WPF_Proj
         public void OnUpdated(object sender, TickUpdateEventArgs e)
         {
             inputProvider.Update();
-            this.tetrisGame.Update(TimeSpan.FromMilliseconds(e.currentMilliSecond));
+            this.tetrisGame.UpdateGame(TimeSpan.FromMilliseconds(e.currentMilliSecond));
 
             var lines = this.tetrisGame.Lines.ToList();
 

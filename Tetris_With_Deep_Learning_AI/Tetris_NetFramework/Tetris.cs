@@ -95,7 +95,7 @@ namespace Tetris
 
     public enum Instruction
     {
-        None, Left, Right, SoftDrop, HardDrop, CW, CCW, Hold, InstructionDone
+        None, Left, Right, SoftDrop, HardDrop, CW, CCW, Hold, LockMino, InstructionDone, SkipToNextMino
     }
     
     public interface iMinoPlacementResult

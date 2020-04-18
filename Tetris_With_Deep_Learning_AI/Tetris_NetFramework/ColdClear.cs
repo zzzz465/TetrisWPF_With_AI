@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Tetris;
 using ColdClear;
+using System.Drawing;
+using Tetris;
+using log4net;
 
 namespace ColdClear
 {
     // wrapper class for cold clear API
-    public class ColdClear : IDisposable
+    public class ColdClear : IDisposable, AI
     {
         #region static methods and variables
+        readonly static List<Point> blankPointOnHold = new List<Point>();
         public static ColdClear CreateInstance(CCOptions options, CCWeights weights)
         {
             return new ColdClear(options, weights);
@@ -24,10 +28,9 @@ namespace ColdClear
             return new ColdClear(options, weights);
         }
         #endregion
+        ILog Log = LogManager.GetLogger("ColdClear");
         IntPtr CCBot;
-        Queue<CCMove> moves;
-        IEnumerator<Instruction> currentInstructions;
-        public int RequestButNotPolledMovesCount { get; private set; } = 0;
+        bool isInstructionRequested = false;
         private bool disposedValue;
 
         protected ColdClear(CCOptions options, CCWeights weights)
@@ -35,86 +38,68 @@ namespace ColdClear
             CCBot = ColdClearAPI.cc_launch_async(ref options, ref weights);
             if(ColdClearAPI.cc_is_dead_async(CCBot))
                 throw new Exception("CCBot died immediately!");
-
-            moves = new Queue<CCMove>();
         }
 
         public void AddMino(Tetromino mino)
         {
+            Log.Debug($"Add Mino {mino} to CC");
             ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
         }
 
-        public void RequestNextMoveSets(Int32 incoming)
+        public bool TryGetInstruction(Int32 incoming, out AI_Instructions AI_instruction)
         {
-            RequestButNotPolledMovesCount += 1;
-            ColdClearAPI.cc_request_next_move(CCBot, incoming);
-        }
-
-        public bool PollNextMoveToMoveQueue()
-        {
-            var success = ColdClearAPI.cc_poll_next_move(CCBot, out var move);
-
-            if(success)
+            Log.Debug("Try to get instruction");
+            if(!isInstructionRequested)
             {
-                moves.Enqueue(move);
-                RequestButNotPolledMovesCount -= 1;
+                Log.Debug("Instruction is not requested, requesting new one...");
+                ColdClearAPI.cc_request_next_move(CCBot, incoming);
+                isInstructionRequested = true;
             }
 
-            return success;
-        }
-
-        public bool TryGetInstruction(Int32 incoming, out Instruction instruction)
-        {
-            instruction = Instruction.None;
-
-            if(currentInstructions == null)
+            if(ColdClearAPI.cc_poll_next_move(CCBot, out var CCMove))
             {
-                if(moves.Count == 0)
+                Log.Debug($"Successfully polled next move, movement count : {CCMove.movement_count}");
+                isInstructionRequested = false;
+
+                if(CCMove.hold)
                 {
-                    if(RequestButNotPolledMovesCount <= 3)
-                        RequestNextMoveSets(incoming);
-                        
-                    if(!PollNextMoveToMoveQueue())
-                        return false;
+                    List<Instruction> InstList = new List<Instruction>();
+                    InstList.Add(Instruction.Hold);
+                    InstList.Add(Instruction.SkipToNextMino);
+                    AI_instruction = new AI_Instructions(InstList, blankPointOnHold);
+                    return true;
                 }
-                
-                this.currentInstructions = InstructionEnumerator(moves.Dequeue());
-            }
 
-            if(currentInstructions.MoveNext())
-            {
-                instruction = currentInstructions.Current;
+                var convertedMovements = (from movement in CCMove.movements
+                                          let converted = movement.ToMovement()
+                                          select converted).ToList();
+
+                convertedMovements.Add(Instruction.LockMino);
+                convertedMovements.Add(Instruction.InstructionDone);
+
+                Point[] expected_points = new Point[4];
+                for(int i = 0; i < 4; i++)
+                    expected_points[i] = new Point(CCMove.expected_x[i], CCMove.expected_y[i]);
+
+                AI_instruction = new AI_Instructions(convertedMovements, expected_points);
                 return true;
             }
             else
             {
-                currentInstructions = null;
+                Log.Debug("Cannot poll next move");
+                AI_instruction = null;
                 return false;
             }
         }
 
-        IEnumerator<Instruction> InstructionEnumerator(CCMove ccMove)
-        {
-            if(ccMove.hold)
-            {
-                yield return Instruction.Hold;
-                yield break;
-            }
-
-            foreach(var move in ccMove.movements)
-            {
-                yield return move.ToMovement();
-            }
-
-            yield return Instruction.InstructionDone;
-        }
-
-        // public bool 
-
         public void Reset() // Reset to initial state
         {
-            moves.Clear();
             ColdClearAPI.cc_reset_async(CCBot, new bool[10*20], false, 0);
+        }
+
+        public void Reset(bool[] grid, bool b2b, int combo)
+        {
+            ColdClearAPI.cc_reset_async(CCBot, grid, b2b, combo);
         }
 
 

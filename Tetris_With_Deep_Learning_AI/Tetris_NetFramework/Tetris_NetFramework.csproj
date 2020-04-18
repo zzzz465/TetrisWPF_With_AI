@@ -56,6 +56,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenCvSharp4.4.3.0.20200405\lib\net461\OpenCvSharp.dll</HintPath>
     </Reference>
@@ -79,6 +82,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AITetrisGame.cs" />
+    <Compile Include="AI_Instructions.cs" />
     <Compile Include="Bag.cs" />
     <Compile Include="ColdClear.cs" />
     <Compile Include="coldclearAPI.cs" />
@@ -97,6 +101,9 @@
     <Compile Include="TetrisGrid.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

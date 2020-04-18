@@ -85,7 +85,7 @@ namespace ColdClear
                 case CCMovement.CC_CCW:
                     return Instruction.CCW;
                 case CCMovement.CC_Drop:
-                    return Instruction.SoftDrop; // 이거 맞니?
+                    return Instruction.SoftDrop;
                 case CCMovement.CC_Left:
                     return Instruction.Left;
                 case CCMovement.CC_Right:

@@ -6,6 +6,7 @@ using Tetris;
 using OpenCvSharp;
 using OpenCvSharp.Util;
 using System.Diagnostics;
+using ColdClear;
 
 namespace Tetris.Renderer
 {
@@ -34,7 +35,10 @@ namespace Tetris.Renderer
             window = new Window("Window", image);
             inputManager = new UserInputManager(InputSetting.Default);
             var setting = InputSetting.Default;
-            tetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag());
+
+            // tetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag()); // Player
+            this.tetrisGame = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), TetrisGameSetting.Default, new TetrominoBag());
+
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             tetrisGame.StartGame();
             _mouseCallback = mouseCallBack;
@@ -59,6 +63,7 @@ namespace Tetris.Renderer
                 DrawGhostMino();
                 DrawCurrentPiece();
                 DrawHold();
+                DrawExpected();
                 window.ShowImage(image);
                 tetrisGame.UpdateGame(sw.Elapsed);
                 Cv2.WaitKey(3);
@@ -96,9 +101,13 @@ namespace Tetris.Renderer
                 Cv2.Line(image, new Point(leftTop.X + rectSize.width * x, leftTop.Y), new Point(leftTop.X + rectSize.width * x, rightBottom.Y), new Scalar(200, 10 * x, 10 * x), 2);
 
             var lines = tetrisGame.Lines;
+            var lineCount = lines.Count();
 
             for(int y = 0; y < 20; y++)
             { // 좌측 하단부터 시작해서, 우측 상단으로 올라감
+                if (lineCount <= y)
+                    break;
+
                 var line = lines.ElementAt(y);
                 for(int x = 0; x < 10; x++)
                 {
@@ -154,6 +163,29 @@ namespace Tetris.Renderer
         void DrawNext()
         {
             
+        }
+
+        void DrawExpected()
+        {
+            if(tetrisGame is AITetrisGame AITetris)
+            {
+                var expectedMinoPoints = AITetris.expectedMinoEndPoints;
+                if(expectedMinoPoints == null)
+                    return;
+
+                (int width, int height) rectSize = (25, 25);
+                var leftTop = new Point(390, 110);
+                var rightBottom = new Point(640, 610);
+                var leftBottom = new Point(leftTop.X, rightBottom.Y);
+
+                foreach(var BlockPos in expectedMinoPoints)
+                {
+                    var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
+                    Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
+                    var cellColor = minoColor[tetrisGame.curMinoType];
+                    Cv2.Rectangle(image, cell, Scalar.White, -1);
+                }
+            }
         }
 
         void DrawHold()
