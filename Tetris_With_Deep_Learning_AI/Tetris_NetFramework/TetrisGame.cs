@@ -50,7 +50,12 @@ namespace Tetris
         public event Action BoardChanged; // unsupported yet
         public event Action LineCleared; // unsupported yet
         #endregion
+
+        #region Game rules and states
         protected GameState gameState = GameState.Idle;
+        protected uint IncomingGarbageLine = 0;
+        #endregion
+
         
         public TetrisGame(TetrisGameSetting gameSetting, TetrominoBag bag = null)
         {

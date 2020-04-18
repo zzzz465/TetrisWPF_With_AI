@@ -172,7 +172,7 @@ namespace XUnitTest_Tetris
             0 T T T T F T T T T T
             */
             var testGrid = CreateTestGrid();
-            testGrid.AddTrashLine(3, 4);
+            testGrid.AddGarbageLine(3, 4);
 
             Point[] shouldExist = new Point[] 
             {

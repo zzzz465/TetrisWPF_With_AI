@@ -100,7 +100,7 @@ namespace Tetris
             return true;
         }
 
-        public void AddTrashLine(int garbageLineCount, int x_of_empty_line)
+        public void AddGarbageLine(int garbageLineCount, int x_of_empty_line)
         {
             if(garbageLineCount < 1)
                 throw new ArgumentOutOfRangeException("trashLine parameter should be more than 1 !");

@@ -46,7 +46,7 @@ namespace ColdClear
             ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
         }
 
-        public bool TryGetInstruction(Int32 incoming, out AI_Instructions AI_instruction)
+        public bool TryGetInstructionSet(Int32 incoming, out InstructionSet InstructionSet)
         {
             Log.Debug("Try to get instruction");
             if(!isInstructionRequested)
@@ -80,13 +80,13 @@ namespace ColdClear
                 for(int i = 0; i < 4; i++)
                     expected_points[i] = new Point(CCMove.expected_x[i], CCMove.expected_y[i]);
 
-                AI_instruction = new AI_Instructions(convertedMovements, expected_points);
+                InstructionSet = new InstructionSet(convertedMovements, expected_points);
                 return true;
             }
             else
             {
                 Log.Debug("Cannot poll next move");
-                AI_instruction = null;
+                InstructionSet = null;
                 return false;
             }
         }

@@ -10,7 +10,7 @@ namespace Tetris
     {
         ILog Log;
         AI ai;
-        AI_Instructions instructions;
+        InstructionSet instructions;
         TimeSpan LastUpdateTime = TimeSpan.Zero;
         TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(16);
         public IEnumerable<Point> expectedMinoEndPoints { get { return instructions?.expectedPoints; } }
@@ -35,12 +35,12 @@ namespace Tetris
                 Log.Debug($"Add initial tetromino {nextMino} to AI");
             }
 
-            AI_Instructions InitInstructions = null;
+            InstructionSet InitInstructions = null;
             {
                 Log.Debug("Trying to get Initial instructions from AI");
                 for(int i = 0; i < 5; i++)
                 {
-                    if (ai.TryGetInstruction(0, out InitInstructions))
+                    if (ai.TryGetInstructionSet(0, out InitInstructions))
                     {
                         Log.Debug($"received Initial instructions, Length : {InitInstructions.Length}");
 
@@ -305,7 +305,7 @@ namespace Tetris
         void GetNextInstructions(int incoming = 0)
         {
             Log.Debug("Trying to get next instructions");
-            if(ai.TryGetInstruction(incoming, out var newInstructions))
+            if(ai.TryGetInstructionSet(incoming, out var newInstructions))
             {
                 Log.Debug("Get next instructions success");
                 Log.Debug($"Instructions list : (length : {newInstructions.Length}");
@@ -333,7 +333,7 @@ namespace Tetris
     public interface AI
     {
         void AddMino(Tetromino mino);
-        bool TryGetInstruction(Int32 incoming, out AI_Instructions instructions);
+        bool TryGetInstructionSet(Int32 incoming, out InstructionSet instructions);
         void Reset();
         void Reset(bool[] grid, bool b2b, int combo);
     }

@@ -83,12 +83,12 @@
   <ItemGroup>
     <Compile Include="AIGameSetting.cs" />
     <Compile Include="AITetrisGame.cs" />
-    <Compile Include="AI_Instructions.cs" />
     <Compile Include="Bag.cs" />
     <Compile Include="ColdClear.cs" />
     <Compile Include="coldclearAPI.cs" />
     <Compile Include="CurrentTetrominoPiece.cs" />
     <Compile Include="iInputProvider.cs" />
+    <Compile Include="InstructionSet.cs" />
     <Compile Include="PlayerTetrisGame.cs" />
     <Compile Include="PointExtension.cs" />
     <Compile Include="SimpleDrawer\BoardRenderer.cs" />
