@@ -81,6 +81,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AIGameSetting.cs" />
     <Compile Include="AITetrisGame.cs" />
     <Compile Include="AI_Instructions.cs" />
     <Compile Include="Bag.cs" />

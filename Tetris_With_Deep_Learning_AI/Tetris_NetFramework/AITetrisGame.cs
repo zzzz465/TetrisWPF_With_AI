@@ -9,15 +9,15 @@ namespace Tetris
     public class AITetrisGame : TetrisGame // CC봇으로 먼저 만들어보자.
     {
         ILog Log;
-        // TimeSpan AI_Instruction_
         AI ai;
         AI_Instructions instructions;
+        TimeSpan LastUpdateTime = TimeSpan.Zero;
         TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(16);
         public IEnumerable<Point> expectedMinoEndPoints { get { return instructions?.expectedPoints; } }
-        TimeSpan LastUpdateTime = TimeSpan.Zero;
         Queue<Tetromino> AIBag = new Queue<Tetromino>();
-        public AITetrisGame(AI ai, TetrisGameSetting gameSetting, TetrominoBag bag = null) : base(gameSetting, bag)
+        public AITetrisGame(AI ai, AIGameSetting AIGameSetting, TetrominoBag bag = null) : base(AIGameSetting, bag)
         {
+            this.UpdateDelay = AIGameSetting.UpdateDelay;
             this.ai = ai;
             Log = LogManager.GetLogger("AITetrisGame");
             // throw new NotImplementedException();
@@ -157,6 +157,28 @@ namespace Tetris
                     break;
                 }
 
+                case Instruction.SoftDrop_ToBottom:
+                {
+                    if(curTime - LastSoftDropTime > SoftDropDelay)
+                    {
+                        if(currentPiece.TryShift(new Point(0, -1)))
+                        {
+                            LastSoftDropTime = curTime;
+                            LastUpdateTime = curTime;
+                            Log.Debug("SoftDrop to bottom");
+                        }
+                        else
+                        {
+                            instructions.MoveNext();
+                        }
+                    }
+                    else
+                    {
+                        Log.Debug("Waiting for delay");
+                    }
+                    break;
+                }
+
                 case Instruction.SoftDrop:
                 {
                     if(curTime - LastSoftDropTime > SoftDropDelay)
@@ -239,7 +261,7 @@ namespace Tetris
             }
         }
         
-        protected override bool TrySwapHold()
+        bool TrySwapHold()
         {
             if(Hold == null)
             {
@@ -265,6 +287,21 @@ namespace Tetris
                 return false;
         }
 
+        void lockCurrentMinoToPlace()
+        {
+            if(currentPiece == null)
+                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
+
+            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
+            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
+            if(!isValid)
+                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
+
+            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
+            canHold = true;
+            currentPiece = null;
+        }
+
         void GetNextInstructions(int incoming = 0)
         {
             Log.Debug("Trying to get next instructions");
@@ -285,6 +322,11 @@ namespace Tetris
                 AIBag.Enqueue(nextMino);
                 ai.AddMino(nextMino);
             }
+        }
+
+        public override IEnumerable<Tetromino> PeekBag()
+        {
+            return AIBag;
         }
     }
 

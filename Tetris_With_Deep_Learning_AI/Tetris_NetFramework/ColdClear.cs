@@ -61,19 +61,18 @@ namespace ColdClear
                 Log.Debug($"Successfully polled next move, movement count : {CCMove.movement_count}");
                 isInstructionRequested = false;
 
-                if(CCMove.hold)
+                var convertedMovements = new List<Instruction>();
+
+                if (CCMove.hold)
+                    convertedMovements.Insert(0, Instruction.Hold);
+
+                for(int i = 0; i < CCMove.movement_count; i++)
                 {
-                    List<Instruction> InstList = new List<Instruction>();
-                    InstList.Add(Instruction.Hold);
-                    InstList.Add(Instruction.SkipToNextMino);
-                    AI_instruction = new AI_Instructions(InstList, blankPointOnHold);
-                    return true;
+                    var convertedInst = CCMove.movements[i].ToMovement();
+                    convertedMovements.Add(convertedInst);
                 }
 
-                var convertedMovements = (from movement in CCMove.movements
-                                          let converted = movement.ToMovement()
-                                          select converted).ToList();
-
+                convertedMovements.Add(Instruction.SoftDrop_ToBottom);
                 convertedMovements.Add(Instruction.LockMino);
                 convertedMovements.Add(Instruction.InstructionDone);
 

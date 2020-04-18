@@ -37,7 +37,8 @@ namespace Tetris.Renderer
             var setting = InputSetting.Default;
 
             // tetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag()); // Player
-            this.tetrisGame = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), TetrisGameSetting.Default, new TetrominoBag());
+            var AISetting = new AIGameSetting(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(0));
+            this.tetrisGame = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), AISetting, new TetrominoBag());
 
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             tetrisGame.StartGame();
@@ -63,10 +64,11 @@ namespace Tetris.Renderer
                 DrawGhostMino();
                 DrawCurrentPiece();
                 DrawHold();
+                DrawNext();
                 DrawExpected();
                 window.ShowImage(image);
                 tetrisGame.UpdateGame(sw.Elapsed);
-                Cv2.WaitKey(3);
+                Cv2.WaitKey(1);
                 yield return null;
             }
         }
@@ -83,7 +85,7 @@ namespace Tetris.Renderer
             // width = 250, height = 500
             // x 390 ~ x 640, y 110 ~ y 610
 
-            Cv2.Rectangle(image, new Rect(0, 0, 720, 1280), Scalar.Black, -1);
+            Cv2.Rectangle(image, new Rect(0, 0, 1280, 720), Scalar.Black, -1);
 
             var leftTop = new Point(390, 110);
             var rightBottom = new Point(640, 610);
@@ -162,7 +164,13 @@ namespace Tetris.Renderer
 
         void DrawNext()
         {
-            
+            string next = "";
+            foreach(var curMino in tetrisGame.PeekBag())
+            {
+                next = next + curMino + " ";
+            }
+
+            Cv2.PutText(image, next, new Point(660, 150), HersheyFonts.HersheySimplex, 1, Scalar.White);
         }
 
         void DrawExpected()
@@ -181,9 +189,9 @@ namespace Tetris.Renderer
                 foreach(var BlockPos in expectedMinoPoints)
                 {
                     var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
-                    Rect cell = new Rect(blockLeftTop.X - 1, blockLeftTop.Y + 1, rectSize.width - 1, rectSize.height - 1);
+                    Rect cell = new Rect(blockLeftTop.X - 2, blockLeftTop.Y + 2, rectSize.width - 2, rectSize.height - 2);
                     var cellColor = minoColor[tetrisGame.curMinoType];
-                    Cv2.Rectangle(image, cell, Scalar.White, -1);
+                    Cv2.Rectangle(image, cell, Scalar.White, 1);
                 }
             }
         }

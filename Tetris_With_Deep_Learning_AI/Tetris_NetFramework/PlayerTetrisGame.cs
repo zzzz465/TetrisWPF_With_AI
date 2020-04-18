@@ -15,6 +15,31 @@ namespace Tetris
             this.inputSetting = keySetting;
         }
 
+        public override void StartGame()
+        {
+            ResetGame();
+            var firstPiece = tetrominoBag.GetNext();
+            currentPiece = new CurrentTetrominoPiece(tetrisGrid, firstPiece, spawnOffset);
+            var expectedPos = currentPiece.GetPosOfBlocks();
+            if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
+            {
+                throw new InvalidOperationException("Game is initialized but cannot spawn the first mino to the spawn offset!");
+            }
+            
+            this.gameState = GameState.Playing;
+        }
+
+        public override void PauseGame()
+        {
+            this.gameState = GameState.Paused;
+        }
+
+        public override void ResumeGame(TimeSpan curTime)
+        {
+            this.gameState = GameState.Playing;
+            LastSoftDropTime = curTime;
+        }
+
         protected override void Update(TimeSpan curTime)
         {
             if(this.gameState != GameState.Playing)
@@ -59,7 +84,6 @@ namespace Tetris
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
                 lockCurrentMinoToPlace();
-                tetrisGrid.UpdateBoard();
             }
             else
             {
@@ -152,6 +176,49 @@ namespace Tetris
                         LastSoftDropTime = curTime;
                 }
             }
+        }
+
+        void lockCurrentMinoToPlace()
+        {
+            if(currentPiece == null)
+                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
+
+            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
+            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
+            if(!isValid)
+                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
+
+            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
+            canHold = true;
+            currentPiece = null;
+        }
+
+        bool TrySwapHold() // return true if swapping success, if not, return false, does not check swapped whether the "current piece" can be placed to the spawn offset or not.
+        {
+            if(Hold == null)
+            {
+                Hold = currentPiece;
+                currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
+                canHold = false;
+                return true;
+            }
+            
+            if(canHold)
+            {
+                var temp = Hold;
+                Hold = currentPiece;
+                currentPiece = temp;
+                currentPiece.ResetToInitialState();
+                canHold = false;
+                return true;
+            }
+            else
+                return false;
+        }
+
+        public override IEnumerable<Tetromino> PeekBag()
+        {
+            throw new NotImplementedException();
         }
     }
 }
