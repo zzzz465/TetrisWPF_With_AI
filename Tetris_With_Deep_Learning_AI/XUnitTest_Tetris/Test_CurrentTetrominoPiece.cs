@@ -108,6 +108,54 @@ namespace XUnitTest_Tetris
             return grid;
         }
 
+        TetrisGrid CreateTSpinGrid()
+        {
+            /*
+              0 1 2 3 4 5 6 7 8 9
+
+X = 비어있음
+O = 블럭있음
+
+           10       
+            9       
+            8 X X X O X X O O     W
+            7 X X X O X X X O     A
+            6 X X X O O O X O     L
+            5 X X O O O X X O     L
+            4 X X O O O X X O
+            3 X X X O X X X O
+            2 O O X O X O O O
+            1 O X X O X X O O
+            0 O O X O X O O O
+            W G R O U N D
+            A
+            L
+            L
+            */
+
+            (int x, int y)[] garbageBlocks = new (int x, int y)[]
+            {
+                (0, 0), (1, 0), (3, 0), (5, 0), (6, 0), (7, 0),
+                (0, 1), (3, 1), (6, 1), (7, 1),
+                (0, 2), (1, 2), (3, 2), (5, 2), (6, 2), (7, 2),
+                (3, 3), (7, 3),
+                (2, 4), (3, 4), (4, 4), (7, 4),
+                (2, 5), (3, 5), (4, 5), (7, 5),
+                (3, 6), (4, 6), (5, 6), (7, 6),
+                (3, 7), (7, 7),
+                (3, 8), (6, 8), (7, 8),
+            };
+
+            TetrisGrid testGrid = new TetrisGrid();
+            var converted = from point in garbageBlocks
+                            let p = new Point(point.x, point.y)
+                            select p;
+            
+            testGrid.Set(converted, Tetromino.Garbage);
+
+            return testGrid;
+        }
+
         [Fact]
         public void Check_J_Rotation()
         {
@@ -273,6 +321,29 @@ namespace XUnitTest_Tetris
             CollectionAssert.CollectionSameWithoutOrder(expectedGhostPos4, actualGhostPos4);
         }
 
+        [Fact]
+        public void Complex_Spin_Validation()
+        {
+            var grid = CreateTSpinGrid();
+            var curPiece1 = new CurrentTetrominoPiece(grid, Tetromino.T, new Point(0, 4), RotationState.R);
+            Assert.True(curPiece1.TrySpin(InputType.CCW));
+            Assert.True(curPiece1.TrySpin(InputType.CCW));
+            
+            var expectedPoints = new Point[]
+            {
+                new Point(1, 1), new Point(2, 1), new Point(2, 0), new Point(2, 2)
+            };
+
+            CollectionAssert.CollectionSameWithoutOrder(expectedPoints, curPiece1.GetPosOfBlocks());
+
+            var curPiece2 = new CurrentTetrominoPiece(grid, Tetromino.T, new Point(4, 8), RotationState.R);
+            Assert.True(curPiece2.TrySpin(InputType.CCW));
+            Assert.True(curPiece2.TrySpin(InputType.CCW));
+            Assert.True(curPiece2.TryShift(new Point(0, -1)));
+            Assert.True(curPiece2.TrySpin(InputType.CW));
+            Assert.True(curPiece2.TrySpin(InputType.CW));
+        }
+
         /*
         [Theory]
         [MemberData(nameof(GetPos_Test_Case), MemberType = typeof(Test_CurrentTetromino))]
@@ -286,5 +357,31 @@ namespace XUnitTest_Tetris
 
         }
         */
+        
+        [Fact]
+        public void Check_TSpin_Validation()
+        {
+            var grid = CreateTSpinGrid();
+            var curPiece1 = new CurrentTetrominoPiece(grid, Tetromino.T, new Point(0, 4), RotationState.R);
+            Assert.True(curPiece1.TrySpin(InputType.CCW));
+            Assert.Equal(TSpinType.Spin, curPiece1.tSpinType);
+            Assert.True(curPiece1.TrySpin(InputType.CCW));
+            Assert.Equal(TSpinType.Spin, curPiece1.tSpinType);
+
+            var expectedPoints = new Point[]
+            {
+                new Point(1, 1), new Point(2, 1), new Point(2, 0), new Point(2, 2)
+            };
+
+            CollectionAssert.CollectionSameWithoutOrder(expectedPoints, curPiece1.GetPosOfBlocks());
+
+            var curPiece2 = new CurrentTetrominoPiece(grid, Tetromino.T, new Point(4, 8), RotationState.R);
+            Assert.True(curPiece2.TrySpin(InputType.CCW));
+            Assert.True(curPiece2.TrySpin(InputType.CCW));
+            Assert.True(curPiece2.TryShift(new Point(0, -1)));
+            Assert.True(curPiece2.TrySpin(InputType.CW));
+            Assert.True(curPiece2.TrySpin(InputType.CW));
+            Assert.Equal(TSpinType.Spin, curPiece2.tSpinType);
+        }
     }
 }

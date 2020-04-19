@@ -114,7 +114,10 @@ namespace XUnitTest_Tetris
             };
 
             testGrid.Set(FillTwoLine, Tetromino.Garbage);
-            testGrid.UpdateBoard();
+            testGrid.UpdateBoard(out var gridUpdateResult);
+            Assert.Equal(gridUpdateResult.LineDeleted, 2);
+            Assert.NotEqual(gridUpdateResult.LineDeleted, 0);
+            Assert.False(gridUpdateResult.isPerfectClear);
 
             var lines = testGrid.getLines.ToList();
 

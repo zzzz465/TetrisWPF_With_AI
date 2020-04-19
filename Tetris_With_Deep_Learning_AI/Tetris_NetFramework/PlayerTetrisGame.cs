@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Drawing;
+using log4net;
 
 namespace Tetris
 {
     public class PlayerTetrisGame : TetrisGame
     {
+        protected override ILog Log { get; set; } = LogManager.GetLogger("PlayerTetrisGame");
         iInputProvider inputProvider;
         InputSetting inputSetting;
         public PlayerTetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting, TetrominoBag bag = null) : base(gameSetting, bag)
@@ -176,21 +178,6 @@ namespace Tetris
                         LastSoftDropTime = curTime;
                 }
             }
-        }
-
-        void lockCurrentMinoToPlace()
-        {
-            if(currentPiece == null)
-                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
-
-            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
-            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
-            if(!isValid)
-                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
-
-            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
-            canHold = true;
-            currentPiece = null;
         }
 
         bool TrySwapHold() // return true if swapping success, if not, return false, does not check swapped whether the "current piece" can be placed to the spawn offset or not.

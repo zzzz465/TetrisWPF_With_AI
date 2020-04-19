@@ -21,7 +21,24 @@ namespace Tetris
             
             return true;
         }
+
+        public bool isLineEmpty()
+        {
+            foreach(var x in line)
+                if(x != Tetromino.None)
+                    return false;
+
+            return true;
+        }
     }
+
+    public struct GridUpdateResult
+    {
+        public int LineDeleted;
+        public bool isPerfectClear;
+        public bool GridChanged { get { return LineDeleted > 0; } }
+    }
+    
     public class TetrisGrid
     {
         public int width { get; private set; } = 10;
@@ -45,14 +62,19 @@ namespace Tetris
         }
 
         public bool Get(int x, int y)
-        {
+        { // return true if point is filled, return false if it's blank.
+            if(maxHeight < y)
+                throw new ArgumentException($"maxHeight : {maxHeight}, y : {y}");
+
+            if(x < 0 || x >= width || y < 0)
+                return false;
+
             while(board.Count - 1 <= y)
                 board.Add(new TetrisLine());
 
             return board[y].line[x] != Tetromino.None;
         }
 
-        // accepts 4,2 array which takes x, y position of 0, 1, 2, 3 block.
         public void Set(IEnumerable<Point> mino, Tetromino minoType = Tetromino.None)
         {
             var maxY = mino.Max(i => i.Y);
@@ -69,19 +91,27 @@ namespace Tetris
                 // 여기서 true에 true를 덮어쓰는지 체크를 하는게 좋지않을까
             }
         }
-        public void UpdateBoard()
+
+        public void UpdateBoard(out GridUpdateResult updateResult)
         {
+            updateResult = new GridUpdateResult() { LineDeleted = 0, isPerfectClear = true };
+
             for(int y = 0; y < board.Count;)
             {
                 var current = board[y];
                 if (current.isLineFilled())
                 {
                     this.board.Remove(current);
-                    this.board.Add(new TetrisLine(width));
+                    updateResult.LineDeleted += 1;
                     continue;
                 }
                 else
+                {
+                    if(!current.isLineEmpty())
+                        updateResult.isPerfectClear = false;
+                        
                     y++;
+                }
             }
         }
 

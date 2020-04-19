@@ -12,6 +12,7 @@ namespace Tetris
     */
     public abstract class TetrisGame
     {
+        protected abstract ILog Log { get; set; }
         protected enum GameState
         {
             Idle,
@@ -53,15 +54,31 @@ namespace Tetris
 
         #region Game rules and states
         protected GameState gameState = GameState.Idle;
-        protected uint IncomingGarbageLine = 0;
+        TetrisGame opponentGame;
+        protected int incomingGarbageLine = 0;
+        protected int MaxGarbageLinePerBlockLock = 6;
+        protected bool ProcessGarbageLineWhileCombo = false;
+        Random garbageLineSelector = new Random();
+        bool wasBlockLocked = false;
+        bool GridChanged = false;
+        protected int Combo { get; private set; }
+        protected bool B2B { get; private set; }
+        protected TSpinType tSpinType { get; private set; }
+        iGarbageLineCalculator garbageLineCalculator;
         #endregion
 
         
-        public TetrisGame(TetrisGameSetting gameSetting, TetrominoBag bag = null)
+        public TetrisGame(TetrisGameSetting gameSetting, TetrominoBag bag = null, iGarbageLineCalculator garbageLineCalculator = null)
         {
             ApplySetting(gameSetting);
             tetrisGrid = new TetrisGrid();
+            this.garbageLineCalculator = garbageLineCalculator ?? new FallbackGarbageLineCalculator();
             ResetGame(bag);
+        }
+
+        public void SetLogName(string name)
+        {
+            this.Log = LogManager.GetLogger(name);
         }
 
         public void ApplySetting(TetrisGameSetting setting)
@@ -72,6 +89,7 @@ namespace Tetris
             this.SoftDropDelay = setting.softDropDelay;
             this.autoDropDelay = setting.autoDropDelay;
         }
+
         public virtual void ResetGame(TetrominoBag bag = null)
         {
             this.tetrominoBag = bag ?? new TetrominoBag();
@@ -97,8 +115,113 @@ namespace Tetris
         {
             if(gameState != GameState.Playing)
                 return;
+
+            tetrisGrid.UpdateBoard(out var gridUpdateResult);
+            
+            if(GridChanged)
+            {
+                ProcessGridChange(gridUpdateResult);
+                GridChanged = false;
+            }
+
+            ProcessIncomingGarbageLine();
+        }
+
+        public void SetApponent(TetrisGame opponent)
+        {
+            this.opponentGame = opponent;
+        }
+
+        public void SendDamageToOpponent(int garbageLine)
+        {
+            if(garbageLine < 0)
+                throw new ArgumentOutOfRangeException($"invalid argument : garbageLine {garbageLine}");
+
+            if(this.opponentGame != null)
+            {
+                this.opponentGame.incomingGarbageLine += garbageLine;
+            }
+            else
+            {
+                Log.Warn($"Tried to send garbage line (amount : {garbageLine}) but opponent is not configured");
+            }
+        }
+
+        void ProcessGridChange(GridUpdateResult gridUpdateResult)
+        {
+            var isPerfectClear = gridUpdateResult.isPerfectClear;
+            var lineDeleted = gridUpdateResult.LineDeleted;
+
+            if(lineDeleted > 0)
+            {
+                if(isPerfectClear)
+                {
+                    Log.Debug("Perfect Clear!");
+                    int garbageLine = garbageLineCalculator.CalculatePerfectClear(lineDeleted, this.tSpinType, this.B2B, this.Combo);
+                    SendDamageToOpponent(garbageLine);
+                }
+                else
+                {
+                    int garbageLine = garbageLineCalculator.Calculate(lineDeleted, this.tSpinType, this.B2B, this.Combo);
+                    Log.Debug($"Sending Garbage line {garbageLine} to opponent lineDeleted : {lineDeleted}, TspinState : {this.tSpinType}, B2B : {this.B2B}, combo : {this.Combo}");
+                    SendDamageToOpponent(garbageLine);
+                }
                 
-            tetrisGrid.UpdateBoard();
+                if(this.tSpinType != TSpinType.None || lineDeleted == 4)
+                    B2B = true;
+                else
+                    B2B = false;
+
+                this.Combo += 1;
+            }
+            else
+            {
+                this.Combo = 0;
+            }
+
+            GridChanged = false;
+        }
+
+
+        void ProcessIncomingGarbageLine()
+        {
+            if(this.incomingGarbageLine <= 0 || !wasBlockLocked)
+                return;
+
+            if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
+                return;
+
+            var x_index_of_garbage_line = garbageLineSelector.Next(0, 9);
+
+            if(incomingGarbageLine > MaxGarbageLinePerBlockLock)
+            {
+                tetrisGrid.AddGarbageLine(MaxGarbageLinePerBlockLock, x_index_of_garbage_line);
+                incomingGarbageLine -= MaxGarbageLinePerBlockLock;
+                if(incomingGarbageLine < 0)
+                    incomingGarbageLine = 0;
+            }
+            else
+            {
+                tetrisGrid.AddGarbageLine(incomingGarbageLine, x_index_of_garbage_line);
+                incomingGarbageLine = 0;
+            }
+        }
+
+        protected void lockCurrentMinoToPlace()
+        {
+            if(currentPiece == null)
+                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
+
+            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
+            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
+            if(!isValid)
+                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
+
+            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
+            this.tSpinType = currentPiece.tSpinType;
+            canHold = true;
+            currentPiece = null;
+            GridChanged = true;
         }
 
         public abstract IEnumerable<Tetromino> PeekBag();

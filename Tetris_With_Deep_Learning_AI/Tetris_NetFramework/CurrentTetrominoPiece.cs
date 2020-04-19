@@ -5,9 +5,16 @@ using System.Drawing;
 
 namespace Tetris
 {
+    public enum TSpinType
+    {
+        None,
+        Spin,
+        MiniSpin
+    }
+    
     public class CurrentTetrominoPiece
     {
-        #region Tetris Block Position by offset and rotation data
+    #region Tetris Block Position by offset and rotation data
         static readonly Dictionary<Tetromino, Dictionary<RotationState, Point[]>> minoData = new Dictionary<Tetromino, Dictionary<RotationState, Point[]>>()
         {
             { 
@@ -68,12 +75,15 @@ namespace Tetris
                 }
             }
         };
+
+        static Point[] corners = new Point[] { new Point(-1, -1), new Point(-1, 1), new Point(1, 1), new Point(1, -1) };
         #endregion
 
         public Tetromino minoType { get; private set; }
         TetrisGrid tetrisGrid;
         Point offset;
         Point spawnOffset;
+        public TSpinType tSpinType { get; private set; } = TSpinType.None; // lock 할때, 이거 보고 참조
         public RotationState rotState { get; private set; } = RotationState.Zero;
         public CurrentTetrominoPiece(TetrisGrid curGrid, Tetromino minoType, Point initialOffsetPos)
         {
@@ -122,9 +132,19 @@ namespace Tetris
                 {
                     this.offset = this.offset.Add(localOffsetPos);
                     this.rotState = after;
+
+                    if(isTSpin(this.offset, this.rotState))
+                        this.tSpinType = TSpinType.Spin;
+
+                    // else if() // is Mini T Spin?
+
+                    else
+                        this.tSpinType = TSpinType.None;
+
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -136,6 +156,7 @@ namespace Tetris
             if(tetrisGrid.CanMinoExistHere(expectedBlockPos))
             {
                 offset = newOffsetPos;
+                this.tSpinType = TSpinType.None;
                 return true;
             }
             else
@@ -169,5 +190,24 @@ namespace Tetris
 
             return expectedBlockPos;
         }
+
+        bool isTSpin(Point offset, RotationState rotationState)
+        {
+            int filledCount = 0;
+            foreach(var corner in corners)
+            {
+                var point = offset.Add(corner);
+                var isFilled = tetrisGrid.Get(point);
+                if(isFilled)
+                    filledCount += 1;
+            }
+
+            return filledCount == 3;
+        }
+    }
+
+    public struct SpinResult
+    {
+        public bool isTSpin;
     }
 }

@@ -42,23 +42,23 @@ namespace ColdClear
 
         public void AddMino(Tetromino mino)
         {
-            Log.Debug($"Add Mino {mino} to CC");
+            Log.DebugAI($"Add Mino {mino} to CC");
             ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
         }
 
         public bool TryGetInstructionSet(Int32 incoming, out InstructionSet InstructionSet)
         {
-            Log.Debug("Try to get instruction");
+            Log.DebugAI("Try to get instruction");
             if(!isInstructionRequested)
             {
-                Log.Debug("Instruction is not requested, requesting new one...");
+                Log.DebugAI("Instruction is not requested, requesting new one...");
                 ColdClearAPI.cc_request_next_move(CCBot, incoming);
                 isInstructionRequested = true;
             }
 
             if(ColdClearAPI.cc_poll_next_move(CCBot, out var CCMove))
             {
-                Log.Debug($"Successfully polled next move, movement count : {CCMove.movement_count}");
+                Log.DebugAI($"Successfully polled next move, movement count : {CCMove.movement_count}");
                 isInstructionRequested = false;
 
                 var convertedMovements = new List<Instruction>();
@@ -85,7 +85,7 @@ namespace ColdClear
             }
             else
             {
-                Log.Debug("Cannot poll next move");
+                Log.DebugAI("Cannot poll next move");
                 InstructionSet = null;
                 return false;
             }

@@ -37,7 +37,7 @@ namespace Tetris.Renderer
             var setting = InputSetting.Default;
 
             // tetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag()); // Player
-            var AISetting = new AIGameSetting(TimeSpan.FromMilliseconds(0), TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(0));
+            var AISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(14));
             this.tetrisGame = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), AISetting, new TetrominoBag());
 
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);

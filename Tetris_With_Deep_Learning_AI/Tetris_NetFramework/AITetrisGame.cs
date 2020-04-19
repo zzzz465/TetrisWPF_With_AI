@@ -8,7 +8,7 @@ namespace Tetris
 {
     public class AITetrisGame : TetrisGame // CC봇으로 먼저 만들어보자.
     {
-        ILog Log;
+        protected override ILog Log { get; set; }
         AI ai;
         InstructionSet instructions;
         TimeSpan LastUpdateTime = TimeSpan.Zero;
@@ -42,10 +42,10 @@ namespace Tetris
                 {
                     if (ai.TryGetInstructionSet(0, out InitInstructions))
                     {
-                        Log.Debug($"received Initial instructions, Length : {InitInstructions.Length}");
+                        Log.DebugAI($"received Initial instructions, Length : {InitInstructions.Length}");
 
                         while(InitInstructions.MoveNext())
-                            Log.Debug($"{InitInstructions.Current} | {InitInstructions.index}");
+                            Log.DebugAI($"{InitInstructions.Current} | {InitInstructions.index}");
                         
                         InitInstructions.Reset();
 
@@ -54,7 +54,7 @@ namespace Tetris
                     else
                     {
                         System.Threading.Thread.Sleep(1);
-                        Log.Debug("Failed to get initial instructions... retry count : " + i);
+                        Log.DebugAI("Failed to get initial instructions... retry count : " + i);
                     }
                 }
             }
@@ -95,12 +95,12 @@ namespace Tetris
             { // 메소드로 분리하기
                 if (curTime - lastMinoPlaced > minoSpawnDelay)
                 {
-                    Log.Debug("trying to get new CurrentTetrominoPiece...");
+                    Log.DebugAI("trying to get new CurrentTetrominoPiece...");
                     currentPiece = new CurrentTetrominoPiece(tetrisGrid, AIBag.Dequeue(), spawnOffset);
                     var expectedPos = currentPiece.GetPosOfBlocks();
                     if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
                     {
-                        Log.Debug("Cannot place currentTetrominoPiece to spawn offset");
+                        Log.DebugAI("Cannot place currentTetrominoPiece to spawn offset");
                         this.gameState = GameState.Dead;
                     }
                 }
@@ -122,7 +122,7 @@ namespace Tetris
                         // Log.Debug("Try CCW");
                         if(currentPiece.TrySpin(InputType.CCW))
                         {
-                            Log.Debug("CCW success");
+                            Log.DebugAI("CCW success");
                             LastUpdateTime = curTime;
                             instructions.MoveNext();
                         }
@@ -136,7 +136,7 @@ namespace Tetris
                         // Log.Debug("Try CW");
                         if(currentPiece.TrySpin(InputType.CW))
                         {
-                            Log.Debug("CW Success");
+                            Log.DebugAI("CW Success");
                             LastUpdateTime = curTime;
                             instructions.MoveNext();
                         }
@@ -150,7 +150,7 @@ namespace Tetris
 
                 case Instruction.HardDrop:
                 {
-                    Log.Debug("Try HardDrop");
+                    Log.DebugAI("Try HardDrop");
                     while(currentPiece.TryShift(new Point(0, -1)));
                     LastUpdateTime = curTime;
                     instructions.MoveNext();
@@ -165,7 +165,7 @@ namespace Tetris
                         {
                             LastSoftDropTime = curTime;
                             LastUpdateTime = curTime;
-                            Log.Debug("SoftDrop to bottom");
+                            Log.DebugAI("SoftDrop to bottom");
                         }
                         else
                         {
@@ -174,7 +174,7 @@ namespace Tetris
                     }
                     else
                     {
-                        Log.Debug("Waiting for delay");
+                        Log.DebugAI("Waiting for delay");
                     }
                     break;
                 }
@@ -189,11 +189,11 @@ namespace Tetris
                             LastSoftDropTime = curTime;
                             LastUpdateTime = curTime;
                             instructions.MoveNext();
-                            Log.Debug("Softdrop Success");
+                            Log.DebugAI("Softdrop Success");
                         }
                         else
                         {
-                            Log.Debug("Cannot softdrop");
+                            Log.DebugAI("Cannot softdrop");
                             instructions.MoveNext();
                         }
                     }
@@ -209,7 +209,7 @@ namespace Tetris
                         var direction = curMove == Instruction.Left ? new Point(-1, 0) : new Point(1, 0);
                         if(currentPiece.TryShift(direction))
                         {
-                            Log.Debug("Move success");
+                            Log.DebugAI("Move success");
                             lastMinoMoveTime = curTime;
                             LastUpdateTime = curTime;
                             instructions.MoveNext();
@@ -227,7 +227,7 @@ namespace Tetris
                     // Log.Debug("Try Hold");
                     if(TrySwapHold())
                     {
-                        Log.Debug("Hold success");
+                        Log.DebugAI("Hold success");
                         LastUpdateTime = curTime;
                         instructions.MoveNext();
                     }
@@ -287,32 +287,17 @@ namespace Tetris
                 return false;
         }
 
-        void lockCurrentMinoToPlace()
-        {
-            if(currentPiece == null)
-                throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
-
-            var PosOfCurrentPiece = currentPiece.GetPosOfBlocks();
-            var isValid = tetrisGrid.CanMinoExistHere(PosOfCurrentPiece);
-            if(!isValid)
-                throw new Exception("Unexpected behaviour of currentPiece, currentPiece's current pos should always valid");
-
-            tetrisGrid.Set(PosOfCurrentPiece, currentPiece.minoType);
-            canHold = true;
-            currentPiece = null;
-        }
-
         void GetNextInstructions(int incoming = 0)
         {
-            Log.Debug("Trying to get next instructions");
+            Log.DebugAI("Trying to get next instructions");
             if(ai.TryGetInstructionSet(incoming, out var newInstructions))
             {
-                Log.Debug("Get next instructions success");
-                Log.Debug($"Instructions list : (length : {newInstructions.Length}");
+                Log.DebugAI("Get next instructions success");
+                Log.DebugAI($"Instructions list : (length : {newInstructions.Length}");
 
                 // debug instructions
                 while(newInstructions.MoveNext())
-                    Log.Debug(newInstructions.Current);
+                    Log.DebugAI(newInstructions.Current);
 
                 newInstructions.Reset();
                 
