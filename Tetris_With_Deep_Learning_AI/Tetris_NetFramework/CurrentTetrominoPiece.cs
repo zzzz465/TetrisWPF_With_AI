@@ -174,7 +174,7 @@ namespace Tetris
         {
             var expectedBlockPos = minoType.GetPos(offset, rotState);
             if(tetrisGrid.CanMinoExistHere(expectedBlockPos) == false) // Dead State인데, 받아오려고 하면 에러가 남
-                throw new Exception($"Unexpected exception on {nameof(this.GetExpectedHardDropPosOfBlocks)}");
+                return null;
 
             bool canPlaceMino = true;
             

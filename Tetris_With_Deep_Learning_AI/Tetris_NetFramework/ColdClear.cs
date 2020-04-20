@@ -72,7 +72,7 @@ namespace ColdClear
                     convertedMovements.Add(convertedInst);
                 }
 
-                convertedMovements.Add(Instruction.SoftDrop_ToBottom);
+                convertedMovements.Add(Instruction.HardDrop);
                 convertedMovements.Add(Instruction.LockMino);
                 convertedMovements.Add(Instruction.InstructionDone);
 

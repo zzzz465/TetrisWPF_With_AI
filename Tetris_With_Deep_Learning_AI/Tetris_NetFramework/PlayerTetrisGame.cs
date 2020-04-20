@@ -205,7 +205,14 @@ namespace Tetris
 
         public override IEnumerable<Tetromino> PeekBag()
         {
-            throw new NotImplementedException();
+            List<Tetromino> peekBag = new List<Tetromino>();
+            for(int i = 0; i < 5; i++)
+            {
+                var nextMino = tetrominoBag.Peek(i);
+                peekBag.Add(nextMino);
+            }
+
+            return peekBag;
         }
     }
 }

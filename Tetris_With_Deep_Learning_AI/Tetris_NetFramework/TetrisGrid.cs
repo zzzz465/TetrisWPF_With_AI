@@ -67,7 +67,7 @@ namespace Tetris
                 throw new ArgumentException($"maxHeight : {maxHeight}, y : {y}");
 
             if(x < 0 || x >= width || y < 0)
-                return false;
+                return true;
 
             while(board.Count - 1 <= y)
                 board.Add(new TetrisLine());

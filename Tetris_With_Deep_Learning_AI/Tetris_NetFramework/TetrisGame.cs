@@ -57,6 +57,7 @@ namespace Tetris
         TetrisGame opponentGame;
         protected int incomingGarbageLine = 0;
         protected int MaxGarbageLinePerBlockLock = 6;
+        [Obsolete("Not implemented feature")]
         protected bool ProcessGarbageLineWhileCombo = false;
         Random garbageLineSelector = new Random();
         bool wasBlockLocked = false;
@@ -124,11 +125,17 @@ namespace Tetris
                 GridChanged = false;
             }
 
-            ProcessIncomingGarbageLine();
+            if(wasBlockLocked)
+            {
+                ProcessIncomingGarbageLine();
+                wasBlockLocked = false;
+            }
         }
 
         public void SetApponent(TetrisGame opponent)
         {
+            if(opponent == this)
+                throw new ArgumentException("Cannot set self as opponent!");
             this.opponentGame = opponent;
         }
 
@@ -185,11 +192,11 @@ namespace Tetris
 
         void ProcessIncomingGarbageLine()
         {
-            if(this.incomingGarbageLine <= 0 || !wasBlockLocked)
+            if(this.incomingGarbageLine <= 0)
                 return;
 
-            if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
-                return;
+            // if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
+            //     return;
 
             var x_index_of_garbage_line = garbageLineSelector.Next(0, 9);
 
@@ -222,6 +229,8 @@ namespace Tetris
             canHold = true;
             currentPiece = null;
             GridChanged = true;
+
+            wasBlockLocked = true;
         }
 
         public abstract IEnumerable<Tetromino> PeekBag();
