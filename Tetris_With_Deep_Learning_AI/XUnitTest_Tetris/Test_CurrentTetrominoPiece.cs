@@ -364,7 +364,7 @@ O = 블럭있음
             var grid = CreateTSpinGrid();
             var curPiece1 = new CurrentTetrominoPiece(grid, Tetromino.T, new Point(0, 4), RotationState.R);
             Assert.True(curPiece1.TrySpin(InputType.CCW));
-            Assert.Equal(TSpinType.Spin, curPiece1.tSpinType);
+            Assert.Equal(TSpinType.None, curPiece1.tSpinType);
             Assert.True(curPiece1.TrySpin(InputType.CCW));
             Assert.Equal(TSpinType.Spin, curPiece1.tSpinType);
 
