@@ -10,11 +10,10 @@ namespace Tetris
     {
         protected override ILog Log { get; set; }
         AI ai;
-        InstructionSet instructions;
+        InstructionSet instructionSet;
         TimeSpan LastUpdateTime = TimeSpan.Zero;
         TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(16);
-        public IEnumerable<Point> expectedMinoEndPoints { get { return instructions?.expectedPoints; } }
-        Queue<Tetromino> AIBag = new Queue<Tetromino>();
+        public IEnumerable<Point> expectedMinoEndPoints { get { return instructionSet?.expectedPoints; } }
         public AITetrisGame(AI ai, AIGameSetting AIGameSetting, TetrominoBag bag = null) : base(AIGameSetting, bag)
         {
             this.UpdateDelay = AIGameSetting.UpdateDelay;
@@ -23,52 +22,15 @@ namespace Tetris
             // throw new NotImplementedException();
         }
 
-        public override void StartGame()
+        public override void InitializeGame()
         {
-            Log.Debug("Starting game...");
-            ai.Reset();
-            for(int i = 0; i < 5; i++)
-            {
-                var nextMino = tetrominoBag.GetNext();
-                AIBag.Enqueue(nextMino);
-                ai.AddMino(nextMino);
-                Log.Debug($"Add initial tetromino {nextMino} to AI");
-            }
+            this.tetrominoBag.Reset();
 
-            InstructionSet InitInstructions = null;
-            {
-                Log.Debug("Trying to get Initial instructions from AI");
-                for(int i = 0; i < 5; i++)
-                {
-                    if (ai.TryGetInstructionSet(0, out InitInstructions))
-                    {
-                        Log.DebugAI($"received Initial instructions, Length : {InitInstructions.Length}");
+            ai.CleanReset(this.tetrominoBag);
+            ai.OnGameInitialize();
 
-                        while(InitInstructions.MoveNext())
-                            Log.DebugAI($"{InitInstructions.Current} | {InitInstructions.index}");
-                        
-                        InitInstructions.Reset();
-
-                        break;
-                    }
-                    else
-                    {
-                        System.Threading.Thread.Sleep(1);
-                        Log.DebugAI("Failed to get initial instructions... retry count : " + i);
-                    }
-                }
-            }
-
-            // ai.AddMino(tetrominoBag.Peek(peekIndex++));
-
-            this.instructions = InitInstructions;
-            if(!instructions.MoveNext())
-                throw new Exception();
-
-            this.gameState = GameState.Playing;
-            Log.Debug($"Set Gamestate to {this.gameState}");
+            this.gameState = GameState.OnInitialize;
         }
-
         public override void PauseGame()
         {
             throw new NotImplementedException();
@@ -91,25 +53,27 @@ namespace Tetris
 
             //  Log.Debug("Start Updating AITetrisGame");
 
-            if (currentPiece == null)
-            { // 메소드로 분리하기
-                if (curTime - lastMinoPlaced > minoSpawnDelay)
-                {
-                    Log.DebugAI("trying to get new CurrentTetrominoPiece...");
-                    currentPiece = new CurrentTetrominoPiece(tetrisGrid, AIBag.Dequeue(), spawnOffset);
-                    var expectedPos = currentPiece.GetPosOfBlocks();
-                    if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
-                    {
-                        Log.DebugAI("Cannot place currentTetrominoPiece to spawn offset");
-                        this.gameState = GameState.Dead;
-                    }
-                }
+            /*
+            1. 미노 생성 직전에 리퀘스트를 날려야함
+            2. 미노 생성을 해야함
+            3. InstructionSet을 받아와야함
+            */
 
-                if(currentPiece == null)
+            if(currentPiece == null)
+            {
+                if(!TryCreateCurrentPiece(curTime)) // 무조건 성공하거나, 게임이 종료되어야함
                     return;
             }
 
-            var curMove = instructions.Current;
+            if (instructionSet == null || instructionSet.Current == Instruction.InstructionDone || instructionSet.Current == Instruction.SkipToNextMino || instructionSet.Current == Instruction.None)
+            {
+                if (ai.TryGetInstructionSet(out instructionSet))
+                    instructionSet.MoveNext(); // set index to zero
+                else
+                    return;
+            }
+
+            var curMove = instructionSet.Current;
             // Log.Debug($"current move : {curMove} | Index : {instructions.index}");
 
             switch(curMove)
@@ -124,7 +88,7 @@ namespace Tetris
                         {
                             Log.DebugAI("CCW success");
                             LastUpdateTime = curTime;
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                         }
                         else
                         {
@@ -138,7 +102,7 @@ namespace Tetris
                         {
                             Log.DebugAI("CW Success");
                             LastUpdateTime = curTime;
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                         }
                         else
                         {
@@ -153,7 +117,7 @@ namespace Tetris
                     Log.DebugAI("Try HardDrop");
                     while(currentPiece.TryShift(new Point(0, -1)));
                     LastUpdateTime = curTime;
-                    instructions.MoveNext();
+                    instructionSet.MoveNext();
                     break;
                 }
 
@@ -169,7 +133,7 @@ namespace Tetris
                         }
                         else
                         {
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                         }
                     }
                     else
@@ -188,13 +152,13 @@ namespace Tetris
                         {
                             LastSoftDropTime = curTime;
                             LastUpdateTime = curTime;
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                             Log.DebugAI("Softdrop Success");
                         }
                         else
                         {
                             Log.DebugAI("Cannot softdrop");
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                         }
                     }
                     break;
@@ -212,7 +176,7 @@ namespace Tetris
                             Log.DebugAI("Move success");
                             lastMinoMoveTime = curTime;
                             LastUpdateTime = curTime;
-                            instructions.MoveNext();
+                            instructionSet.MoveNext();
                         }
                         else
                         {
@@ -229,7 +193,7 @@ namespace Tetris
                     {
                         Log.DebugAI("Hold success");
                         LastUpdateTime = curTime;
-                        instructions.MoveNext();
+                        instructionSet.MoveNext();
                     }
                     else
                     {
@@ -242,14 +206,15 @@ namespace Tetris
                 case Instruction.LockMino:
                 {
                     lockCurrentMinoToPlace();
-                    instructions.MoveNext();
+                    instructionSet.MoveNext();
                     break;
                 }
 
                 case Instruction.SkipToNextMino:
                 case Instruction.InstructionDone:
                 {
-                    GetNextInstructions();
+                    CheckExpectedMinoPosIsCorrect();
+                    this.instructionSet = null;
                     break;
                 }
 
@@ -261,15 +226,20 @@ namespace Tetris
             }
         }
         
+        protected override void PostUpdate(TimeSpan curTime)
+        {
+            base.PostUpdate(curTime);
+            if(this.GarbageLineReceived)
+                ai.NotifyGridChanged(this.tetrisGrid.getLines, this.Combo, this.B2B);
+        }
+
         bool TrySwapHold()
         {
             if(Hold == null)
             {
                 Hold = currentPiece;
-                currentPiece = new CurrentTetrominoPiece(tetrisGrid, AIBag.Dequeue(), spawnOffset);
-                var nextMino = tetrominoBag.GetNext();
-                AIBag.Enqueue(nextMino);
-                ai.AddMino(nextMino);
+                currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
+                ai.NotifyBagConsumed();
                 canHold = false;
                 return true;
             }
@@ -287,39 +257,52 @@ namespace Tetris
                 return false;
         }
 
-        void GetNextInstructions(int incoming = 0)
+
+        protected override bool TryCreateCurrentPiece(TimeSpan curTime)
         {
-            Log.DebugAI("Trying to get next instructions");
-            if(ai.TryGetInstructionSet(incoming, out var newInstructions))
+            if(curTime - lastMinoPlaced > minoSpawnDelay)
             {
-                Log.DebugAI("Get next instructions success");
-                Log.DebugAI($"Instructions list : (length : {newInstructions.Length}");
+                ai.RequestNextInstructionSet(this.incomingGarbageLine); // 이 함수가 실행되면, 반드시 다음 미노를 만들어야하거나, 아니면 게임이 종료되어야함
+                var mino = this.tetrominoBag.GetNext();
+                ai.NotifyBagConsumed();
 
-                // debug instructions
-                while(newInstructions.MoveNext())
-                    Log.DebugAI(newInstructions.Current);
-
-                newInstructions.Reset();
-                
-                this.instructions = newInstructions;
-                instructions.MoveNext();
-                var nextMino = tetrominoBag.GetNext();
-                AIBag.Enqueue(nextMino);
-                ai.AddMino(nextMino);
+                currentPiece = new CurrentTetrominoPiece(tetrisGrid, mino, spawnOffset);
+                var expectedPos = currentPiece.GetPosOfBlocks();
+                if(tetrisGrid.CanMinoExistHere(expectedPos))
+                    return true;
+                else
+                {
+                    Log.Info("Cannot spawn mino, set game state to Dead");
+                    this.gameState = GameState.Dead;
+                    return false;
+                }
             }
+            else
+                return false;
+        }
+
+        void CheckExpectedMinoPosIsCorrect()
+        {
+            // var expected = this.instructionSet.expectedPoints;
+            // 
         }
 
         public override IEnumerable<Tetromino> PeekBag()
         {
-            return AIBag;
+            return tetrominoBag.PeekMany(5);
         }
     }
 
     public interface AI
     {
-        void AddMino(Tetromino mino);
-        bool TryGetInstructionSet(Int32 incoming, out InstructionSet instructions);
-        void Reset();
-        void Reset(bool[] grid, bool b2b, int combo);
+        /*
+        리퀘스트는 무조건 현재 미노가 null이고, 홀드가 있는지 없는지 모르면서, bag의 0번째가 다음으로 사용할 미노가 될 때
+        */
+        void OnGameInitialize();
+        void RequestNextInstructionSet(Int32 incoming);
+        bool TryGetInstructionSet(out InstructionSet instructions);
+        void NotifyBagConsumed();
+        void NotifyGridChanged(IEnumerable<TetrisLine> grid, int combo, bool b2b);
+        void CleanReset(TetrominoBag BagToUse);
     }
 }

@@ -45,7 +45,7 @@ namespace Tetris.Renderer
 
             // tetrisGames[0] = playerGame;
             tetrisGames[0] = AIGame;
-            tetrisGames[1] = AIGame2;
+            // tetrisGames[1] = AIGame2;
 
             /*
             playerGame.SetApponent(AIGame);
@@ -53,11 +53,13 @@ namespace Tetris.Renderer
             */
             
             AIGame.SetApponent(AIGame2);
-            AIGame2.SetApponent(AIGame);
+            // AIGame2.SetApponent(AIGame);
 
             // playerGame.StartGame();
+            AIGame.InitializeGame();
+            // AIGame2.InitializeGame();
             AIGame.StartGame();
-            AIGame2.StartGame();
+            // AIGame2.StartGame();
 
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             _mouseCallback = mouseCallBack;
