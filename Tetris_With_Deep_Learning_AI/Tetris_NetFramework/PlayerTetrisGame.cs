@@ -17,9 +17,13 @@ namespace Tetris
             this.inputSetting = keySetting;
         }
 
+        public override void InitializeGame()
+        {
+            base.InitializeGame();
+        }
+
         public override void StartGame()
         {
-            ResetGame();
             var firstPiece = tetrominoBag.GetNext();
             currentPiece = new CurrentTetrominoPiece(tetrisGrid, firstPiece, spawnOffset);
             var expectedPos = currentPiece.GetPosOfBlocks();
@@ -49,17 +53,7 @@ namespace Tetris
 
             if (currentPiece == null)
             {
-                if (curTime - lastMinoPlaced > minoSpawnDelay)
-                {
-                    currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
-                    var expectedPos = currentPiece.GetPosOfBlocks();
-                    if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
-                    {
-                        this.gameState = GameState.Dead;
-                    }
-                }
-
-                if(currentPiece == null)
+                if(TryCreateCurrentPiece(curTime) == false)
                     return;
             }
 

@@ -4,7 +4,6 @@ using System.Linq;
 using Tetris;
 using ColdClear;
 using System.Drawing;
-using Tetris;
 using log4net;
 
 namespace ColdClear
@@ -14,9 +13,18 @@ namespace ColdClear
     {
         #region static methods and variables
         readonly static List<Point> blankPointOnHold = new List<Point>();
-        public static ColdClear CreateInstance(CCOptions options, CCWeights weights)
+        public static ColdClear CreateInstance(CCOptions options, CCWeights weights, TetrominoBag currentUsingBag)
         {
-            return new ColdClear(options, weights);
+            if(currentUsingBag == null)
+                throw new ArgumentNullException();
+
+            var cc = new ColdClear(options, weights);
+            cc.currentUsingBag = currentUsingBag;
+
+            if(ColdClearAPI.cc_is_dead_async(cc.CCBot))
+                throw new Exception("CCBot died immediately");
+
+            return cc;
         }
 
         public static ColdClear CreateInstance()
@@ -29,33 +37,47 @@ namespace ColdClear
         }
         #endregion
         ILog Log = LogManager.GetLogger("ColdClear");
-        IntPtr CCBot;
+        IntPtr CCBot = IntPtr.Zero;
         bool isInstructionRequested = false;
         private bool disposedValue;
 
+        #region options
+        CCOptions cc_options;
+        CCWeights cc_weights;
+        int UsedMinoCountForSpeculation = 5;
+        #endregion
+
+        TetrominoBag currentUsingBag;
+        bool isMinoExistInHold = false;
+
         protected ColdClear(CCOptions options, CCWeights weights)
         {
-            CCBot = ColdClearAPI.cc_launch_async(ref options, ref weights);
-            if(ColdClearAPI.cc_is_dead_async(CCBot))
-                throw new Exception("CCBot died immediately!");
+            this.cc_options = options;
+            this.cc_weights = weights;
+            this.CCBot = ColdClearAPI.cc_launch_async(ref this.cc_options, ref this.cc_weights);
         }
 
-        public void AddMino(Tetromino mino)
+        public void OnGameInitialize()
         {
-            Log.DebugAI($"Add Mino {mino} to CC");
-            ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
-        }
-
-        public bool TryGetInstructionSet(Int32 incoming, out InstructionSet InstructionSet)
-        {
-            Log.DebugAI("Try to get instruction");
-            if(!isInstructionRequested)
+            Log.DebugAI($"Initializing ColdClearAI, using mino {UsedMinoCountForSpeculation}");
+            for(int i = 0; i < UsedMinoCountForSpeculation; i++)
             {
-                Log.DebugAI("Instruction is not requested, requesting new one...");
-                ColdClearAPI.cc_request_next_move(CCBot, incoming);
-                isInstructionRequested = true;
+                var mino = currentUsingBag.Peek(i);
+                AddMino(currentUsingBag.Peek(i));
             }
+        }
 
+        public void RequestNextInstructionSet(int incoming)
+        {
+            ColdClearAPI.cc_request_next_move(CCBot, incoming);
+            /*
+            5개를 집어넣었으면, 0~4까지 들어가있고, request를 하면 0번의 무브먼트를 요청 -> 하나를 추가로 넣어줌
+            이것 이후에는 분명히 미노가 사용되는걸 보장받아야함
+            */
+        }
+
+        public bool TryGetInstructionSet(out InstructionSet InstructionSet)
+        {
             if(ColdClearAPI.cc_poll_next_move(CCBot, out var CCMove))
             {
                 Log.DebugAI($"Successfully polled next move, movement count : {CCMove.movement_count}");
@@ -64,7 +86,16 @@ namespace ColdClear
                 var convertedMovements = new List<Instruction>();
 
                 if (CCMove.hold)
+                {
                     convertedMovements.Insert(0, Instruction.Hold);
+                    /*
+                    if(isMinoExistInHold == false)
+                    {
+                        NotifyBagConsumed();
+                        isMinoExistInHold = true;
+                    }
+                    */
+                }
 
                 for(int i = 0; i < CCMove.movement_count; i++)
                 {
@@ -90,17 +121,56 @@ namespace ColdClear
                 return false;
             }
         }
-
-        public void Reset() // Reset to initial state
+        public void NotifyBagConsumed()
         {
-            ColdClearAPI.cc_reset_async(CCBot, new bool[10*20], false, 0);
+            /*
+            T Z J L I S O 인 상태에서 UsedMinoCountForSpeculation(길이) 가 5라면, T Z J L I까지 들어가있고, S를 넣어야함.
+            T를 소모한 다음 이 함수가 호출되므로, 호출된 당시에 Bag은 Z J L I S O 이므로, S가 들어갈려면 인덱스 기준 Z J L I S, x - 1번째를 추가해야함
+            */
+            AddMino(currentUsingBag.Peek(UsedMinoCountForSpeculation - 1));
         }
 
-        public void Reset(bool[] grid, bool b2b, int combo)
+        void AddMino(Tetromino mino)
+        {
+            Log.DebugAI($"Add Mino {mino} to CC");
+            ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
+        }
+
+        public void NotifyGridChanged(IEnumerable<TetrisLine> grid, int combo, bool b2b)
+        {
+            var lines = grid.ToList();
+            bool[] convertedGrid = new bool[400];
+            for(int y = 0; y < 20; y++)
+            {
+                var curLine = lines.Count < y ? lines[y].line : new Tetromino[10];
+                for(int x = 0; x < 10; x++)
+                {
+                    convertedGrid[x + y * 10] = curLine[x] != Tetromino.None;
+                }
+            }
+
+            ColdClearAPI.cc_reset_async(CCBot, convertedGrid, b2b, combo + 1);
+
+            for(int i = 0; i < UsedMinoCountForSpeculation; i++)
+                AddMino(currentUsingBag.Peek(i));
+        }
+        
+        public void Reset(bool[] grid, bool b2b, int combo) // Reset Game Board, including grid
         {
             ColdClearAPI.cc_reset_async(CCBot, grid, b2b, combo);
         }
 
+        public void CleanReset(TetrominoBag bag)
+        { // reset, meaning kill bot and re-initializing bot so the hold data can be removed.
+            if(CCBot != IntPtr.Zero && !ColdClearAPI.cc_is_dead_async(CCBot))
+                ColdClearAPI.cc_destroy_async(CCBot);
+
+            this.CCBot = ColdClearAPI.cc_launch_async(ref this.cc_options, ref this.cc_weights);
+            this.currentUsingBag = bag;
+        }
+
+
+        
 
         #region Dispose of unmanaged objects
 
@@ -131,6 +201,8 @@ namespace ColdClear
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
+
 
         #endregion
     }

@@ -30,12 +30,26 @@ namespace Tetris
             return minos.ElementAt(index);
         }
 
+        public IEnumerable<Tetromino> PeekMany(int length)
+        {
+            Tetromino[] arr = new Tetromino[length];
+            for(int i = 0; i < length; i++)
+                arr[i] = Peek(i);
+
+            return arr;
+        }
+
         public Tetromino GetNext()
         {
             if(minos.Count == 0)
                 fillBag();
             
             return minos.Dequeue();
+        }
+
+        public void Reset()
+        {
+            minos.Clear();
         }
 
         void fillBag()

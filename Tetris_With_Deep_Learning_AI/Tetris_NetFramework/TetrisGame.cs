@@ -16,6 +16,7 @@ namespace Tetris
         protected enum GameState
         {
             Idle,
+            OnInitialize,
             Playing,
             Paused,
             Dead
@@ -61,6 +62,7 @@ namespace Tetris
         protected bool ProcessGarbageLineWhileCombo = false;
         Random garbageLineSelector = new Random();
         bool wasBlockLocked = false;
+        protected bool GarbageLineReceived { get; private set; }
         bool GridChanged = false;
         protected int Combo { get; private set; }
         protected bool B2B { get; private set; }
@@ -96,8 +98,18 @@ namespace Tetris
             this.tetrominoBag = bag ?? new TetrominoBag();
             tetrisGrid.Reset();
         }
+        public virtual void InitializeGame()
+        {
 
-        public abstract void StartGame();
+        }
+
+        public virtual void StartGame()
+        {
+            if(gameState != GameState.OnInitialize)
+                throw new Exception("should call InitializeGame before calling StartGame");
+            
+            gameState = GameState.Playing;
+        }
 
         public abstract void PauseGame();
 
@@ -192,6 +204,8 @@ namespace Tetris
 
         void ProcessIncomingGarbageLine()
         {
+            GarbageLineReceived = false;
+
             if(this.incomingGarbageLine <= 0)
                 return;
 
@@ -212,9 +226,31 @@ namespace Tetris
                 tetrisGrid.AddGarbageLine(incomingGarbageLine, x_index_of_garbage_line);
                 incomingGarbageLine = 0;
             }
+
+            GarbageLineReceived = true;
         }
 
-        protected void lockCurrentMinoToPlace()
+        protected virtual bool TryCreateCurrentPiece(TimeSpan curTime)
+        {
+            if(curTime - lastMinoPlaced > minoSpawnDelay)
+            {
+                var mino = this.tetrominoBag.GetNext();
+                currentPiece = new CurrentTetrominoPiece(tetrisGrid, mino, spawnOffset);
+                var expectedPos = currentPiece.GetPosOfBlocks();
+                if(tetrisGrid.CanMinoExistHere(expectedPos))
+                    return true;
+                else
+                {
+                    Log.Info("Cannot spawn mino, set game state to Dead");
+                    this.gameState = GameState.Dead;
+                    return false;
+                }
+            }
+            else
+                return false;
+        }
+
+        protected virtual void lockCurrentMinoToPlace()
         {
             if(currentPiece == null)
                 throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
