@@ -7,11 +7,14 @@ using OpenCvSharp;
 using OpenCvSharp.Util;
 using System.Diagnostics;
 using ColdClear;
+using log4net;
+using System.Reflection;
 
 namespace Tetris.Renderer
 {
     public class BoardRenderer
     {
+        ILog Log = LogManager.GetLogger("BoardRenderer");
         static Dictionary<Tetromino, Scalar> minoColor = new Dictionary<Tetromino, Scalar>()
         {
             { Tetromino.I, new Scalar(170, 210, 15) },
@@ -38,14 +41,14 @@ namespace Tetris.Renderer
             var setting = InputSetting.Default;
 
             var playerGame = new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default, new TetrominoBag()); // Player
-            var FastAISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(300), TimeSpan.FromMilliseconds(14));
-            var SlowAiSetting = new AIGameSetting(TimeSpan.FromMilliseconds(92), TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(64));
+            var FastAISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(80), TimeSpan.FromMilliseconds(14));
+            var SlowAiSetting = new AIGameSetting(TimeSpan.FromMilliseconds(48), TimeSpan.FromMilliseconds(40), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(32));
             var AIGame = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), SlowAiSetting, new TetrominoBag());
             var AIGame2 = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), SlowAiSetting, new TetrominoBag());
 
             // tetrisGames[0] = playerGame;
             tetrisGames[0] = AIGame;
-            // tetrisGames[1] = AIGame2;
+            tetrisGames[1] = AIGame2;
 
             /*
             playerGame.SetApponent(AIGame);
@@ -53,13 +56,13 @@ namespace Tetris.Renderer
             */
             
             AIGame.SetApponent(AIGame2);
-            // AIGame2.SetApponent(AIGame);
+            AIGame2.SetApponent(AIGame);
 
             // playerGame.StartGame();
             AIGame.InitializeGame();
-            // AIGame2.InitializeGame();
+            AIGame2.InitializeGame();
             AIGame.StartGame();
-            // AIGame2.StartGame();
+            AIGame2.StartGame();
 
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             _mouseCallback = mouseCallBack;
@@ -90,7 +93,7 @@ namespace Tetris.Renderer
                     DrawCurrentPiece(player1, tetrisGames[0]);
                     // DrawHold();
                     // DrawNext();
-                    // DrawExpected();
+                    DrawExpected(player1, tetrisGames[0]);
                     window.ShowImage(image);
                     tetrisGames[0].UpdateGame(sw.Elapsed);
                 }
@@ -102,12 +105,19 @@ namespace Tetris.Renderer
                     DrawCurrentPiece(player2, tetrisGames[1]);
                     // DrawHold();
                     // DrawNext();
-                    // DrawExpected();
+                    DrawExpected(player2, tetrisGames[1]);
                     window.ShowImage(image);
                     tetrisGames[1].UpdateGame(sw.Elapsed);
                 }
 
-                Cv2.WaitKey(1);
+                int key = Cv2.WaitKey(5);
+                if(key == 116) // t
+                {
+                    int line = 6;
+                    var method = typeof(TetrisGame).GetMethod("ReceiveDamage", BindingFlags.NonPublic|BindingFlags.Instance);
+                    method.Invoke( ((TetrisGame)tetrisGames[0]), new object[] { line });
+                    Log.Debug($"Adding {line} garbage line to player 1");
+                }
                 yield return null;
             }
         }
@@ -226,29 +236,31 @@ namespace Tetris.Renderer
             */
         }
 
-        void DrawExpected()
+        void DrawExpected(Rect rootRect, TetrisGame game)
         {
-            /*
-            if(tetrisGame is AITetrisGame AITetris)
+            
+            if(game is AITetrisGame AITetris)
             {
                 var expectedMinoPoints = AITetris.expectedMinoEndPoints;
                 if(expectedMinoPoints == null)
                     return;
 
-                (int width, int height) rectSize = (25, 25);
-                var leftTop = new Point(390, 110);
-                var rightBottom = new Point(640, 610);
-                var leftBottom = new Point(leftTop.X, rightBottom.Y);
+                var rectWidth = singleRectSize.width;
+                var rectHeight = singleRectSize.height;
+                var gridLeftTop_x = (rootRect.Width - rectWidth * 10) / 2f;
+                var gridLeftTop_y = (image.Height - rectHeight * 20) / 2f;
+
+                var gridLeftTop = new OpenCvSharp.Point(rootRect.X + gridLeftTop_x, rootRect.Y + gridLeftTop_y);
+                var gridRightDown = new OpenCvSharp.Point(gridLeftTop.X + rectWidth * 10, gridLeftTop.Y + rectWidth * 20);
 
                 foreach(var BlockPos in expectedMinoPoints)
                 {
-                    var blockLeftTop = new Point(leftBottom.X + rectSize.width * BlockPos.X, leftBottom.Y - rectSize.height * BlockPos.Y);
-                    Rect cell = new Rect(blockLeftTop.X - 2, blockLeftTop.Y + 2, rectSize.width - 2, rectSize.height - 2);
-                    var cellColor = minoColor[tetrisGame.curMinoType];
-                    Cv2.Rectangle(image, cell, Scalar.White, 1);
+                    var blockLeftTop = new Point(gridLeftTop.X + rectWidth * BlockPos.X, gridRightDown.Y - rectHeight * BlockPos.Y);
+                    Rect cell = new Rect(blockLeftTop.X - 2, blockLeftTop.Y + 2, rectWidth - 2, rectHeight - 2);
+                    var cellColor = Scalar.White;
+                    Cv2.Rectangle(image, cell, cellColor, 1);
                 }
             }
-            */
         }
 
         void DrawHold()

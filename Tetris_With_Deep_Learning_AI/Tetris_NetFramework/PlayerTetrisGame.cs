@@ -79,7 +79,7 @@ namespace Tetris
                 
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
-                lockCurrentMinoToPlace();
+                lockCurrentMinoToPlace(curTime);
             }
             else
             {

@@ -195,8 +195,12 @@ namespace ColdClear
         public static extern IntPtr cc_launch_async(IntPtr optionsPtr, IntPtr weightsPtr);
         [DllImport("cold_clear")]
         public static extern void cc_destroy_async(IntPtr bot);
-        [DllImport("cold_clear")]
-        public static extern void cc_reset_async(IntPtr bot, bool[] field, bool b2b, Int32 combo);
+        [DllImport("cold_clear", EntryPoint = "cc_reset_async")]
+        static extern void cc_reset_async_internal(IntPtr bot, [MarshalAs(UnmanagedType.LPArray, ArraySubType = UnmanagedType.I1)] bool[] field, bool b2b, Int32 combo);
+        public static void cc_reset_async(IntPtr bot, bool[] field, bool b2b, Int32 combo)
+        {
+            cc_reset_async_internal(bot, field, b2b, combo);
+        }
         [DllImport("cold_clear")]
         public static extern void cc_add_next_piece_async(IntPtr bot, CCPiece piece);
         [DllImport("cold_clear")]

@@ -205,7 +205,7 @@ namespace Tetris
 
                 case Instruction.LockMino:
                 {
-                    lockCurrentMinoToPlace();
+                    lockCurrentMinoToPlace(curTime);
                     instructionSet.MoveNext();
                     break;
                 }
@@ -213,7 +213,7 @@ namespace Tetris
                 case Instruction.SkipToNextMino:
                 case Instruction.InstructionDone:
                 {
-                    CheckExpectedMinoPosIsCorrect();
+                    //CheckExpectedMinoPosIsCorrect();
                     this.instructionSet = null;
                     break;
                 }
@@ -225,13 +225,12 @@ namespace Tetris
                     throw new NotImplementedException($"Parameter {curMove} is not implemented function");
             }
         }
-        
-        protected override void PostUpdate(TimeSpan curTime)
+
+        protected override void OnGarbageLineReceived()
         {
-            base.PostUpdate(curTime);
-            if(this.GarbageLineReceived)
-                ai.NotifyGridChanged(this.tetrisGrid.getLines, this.Combo, this.B2B);
-        }
+            ai.NotifyGridChanged(tetrisGrid.getLines, this.Combo, this.B2B);
+            // ai.RequestNextInstructionSet(incomingGarbageLine);
+        } 
 
         bool TrySwapHold()
         {
@@ -262,7 +261,7 @@ namespace Tetris
         {
             if(curTime - lastMinoPlaced > minoSpawnDelay)
             {
-                ai.RequestNextInstructionSet(this.incomingGarbageLine); // 이 함수가 실행되면, 반드시 다음 미노를 만들어야하거나, 아니면 게임이 종료되어야함
+                ai.RequestNextInstructionSet(incomingGarbageLine); // 이 함수가 실행되면, 반드시 다음 미노를 만들어야하거나, 아니면 게임이 종료되어야함
                 var mino = this.tetrominoBag.GetNext();
                 ai.NotifyBagConsumed();
 

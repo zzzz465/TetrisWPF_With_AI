@@ -70,6 +70,10 @@ namespace ColdClear
         public void RequestNextInstructionSet(int incoming)
         {
             ColdClearAPI.cc_request_next_move(CCBot, incoming);
+            Log.DebugAI($"Instruction requested with incoming : {incoming}");
+
+            if(ColdClearAPI.cc_is_dead_async(CCBot))
+                Log.Fatal("Bot died");
             /*
             5개를 집어넣었으면, 0~4까지 들어가있고, request를 하면 0번의 무브먼트를 요청 -> 하나를 추가로 넣어줌
             이것 이후에는 분명히 미노가 사용되는걸 보장받아야함
@@ -130,7 +134,7 @@ namespace ColdClear
             AddMino(currentUsingBag.Peek(UsedMinoCountForSpeculation - 1));
         }
 
-        void AddMino(Tetromino mino)
+        public void AddMino(Tetromino mino)
         {
             Log.DebugAI($"Add Mino {mino} to CC");
             ColdClearAPI.cc_add_next_piece_async(CCBot, mino.ToCCPiece());
@@ -138,21 +142,20 @@ namespace ColdClear
 
         public void NotifyGridChanged(IEnumerable<TetrisLine> grid, int combo, bool b2b)
         {
+            Log.Debug("Grid changed due to garbage line or misdrop... reset grid");
+
             var lines = grid.ToList();
             bool[] convertedGrid = new bool[400];
             for(int y = 0; y < 20; y++)
             {
-                var curLine = lines.Count < y ? lines[y].line : new Tetromino[10];
+                var curLine = y < lines.Count ? lines[y].line : new Tetromino[10];
                 for(int x = 0; x < 10; x++)
                 {
                     convertedGrid[x + y * 10] = curLine[x] != Tetromino.None;
                 }
             }
 
-            ColdClearAPI.cc_reset_async(CCBot, convertedGrid, b2b, combo + 1);
-
-            for(int i = 0; i < UsedMinoCountForSpeculation; i++)
-                AddMino(currentUsingBag.Peek(i));
+            ColdClearAPI.cc_reset_async(CCBot, convertedGrid, b2b, combo);
         }
         
         public void Reset(bool[] grid, bool b2b, int combo) // Reset Game Board, including grid

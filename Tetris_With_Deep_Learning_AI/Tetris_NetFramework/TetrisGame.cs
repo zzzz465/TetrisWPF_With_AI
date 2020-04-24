@@ -56,13 +56,19 @@ namespace Tetris
         #region Game rules and states
         protected GameState gameState = GameState.Idle;
         TetrisGame opponentGame;
-        protected int incomingGarbageLine = 0;
+        protected int incomingGarbageLine
+        {
+            get
+            {
+                return GarbageLine > MaxGarbageLinePerBlockLock ? MaxGarbageLinePerBlockLock : GarbageLine;
+            }
+        }
+        private int GarbageLine = 0;
         protected int MaxGarbageLinePerBlockLock = 6;
         [Obsolete("Not implemented feature")]
         protected bool ProcessGarbageLineWhileCombo = false;
         Random garbageLineSelector = new Random();
         bool wasBlockLocked = false;
-        protected bool GarbageLineReceived { get; private set; }
         bool GridChanged = false;
         protected int Combo { get; private set; }
         protected bool B2B { get; private set; }
@@ -156,14 +162,35 @@ namespace Tetris
             if(garbageLine < 0)
                 throw new ArgumentOutOfRangeException($"invalid argument : garbageLine {garbageLine}");
 
-            if(this.opponentGame != null)
+            int lineToSend = garbageLine;
+
+            if(GarbageLine > 0)
             {
-                this.opponentGame.incomingGarbageLine += garbageLine;
+                if(GarbageLine >= garbageLine)
+                {
+                    GarbageLine -= garbageLine;
+                    lineToSend = 0;
+                }
+                else
+                    lineToSend = garbageLine - lineToSend;
             }
-            else
+
+            if(lineToSend > 0)
             {
-                Log.Warn($"Tried to send garbage line (amount : {garbageLine}) but opponent is not configured");
+                if(this.opponentGame != null)
+                {
+                    this.opponentGame.ReceiveDamage(lineToSend);
+                }
+                else
+                {
+                    Log.Warn($"Tried to send garbage line (amount : {garbageLine}) but opponent is not configured");
+                }
             }
+        }
+
+        void ReceiveDamage(int garbageLine)
+        {
+            this.GarbageLine += garbageLine;
         }
 
         void ProcessGridChange(GridUpdateResult gridUpdateResult)
@@ -197,37 +224,38 @@ namespace Tetris
             {
                 this.Combo = 0;
             }
-
-            GridChanged = false;
         }
 
 
         void ProcessIncomingGarbageLine()
         {
-            GarbageLineReceived = false;
-
-            if(this.incomingGarbageLine <= 0)
-                return;
-
-            // if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
-            //     return;
-
-            var x_index_of_garbage_line = garbageLineSelector.Next(0, 9);
-
-            if(incomingGarbageLine > MaxGarbageLinePerBlockLock)
+            if(this.GarbageLine > 0)
             {
-                tetrisGrid.AddGarbageLine(MaxGarbageLinePerBlockLock, x_index_of_garbage_line);
-                incomingGarbageLine -= MaxGarbageLinePerBlockLock;
-                if(incomingGarbageLine < 0)
-                    incomingGarbageLine = 0;
-            }
-            else
-            {
-                tetrisGrid.AddGarbageLine(incomingGarbageLine, x_index_of_garbage_line);
-                incomingGarbageLine = 0;
-            }
+                // if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
+                //     return;
 
-            GarbageLineReceived = true;
+                var x_index_of_garbage_line = garbageLineSelector.Next(0, 9);
+
+                if(GarbageLine > MaxGarbageLinePerBlockLock)
+                {
+                    tetrisGrid.AddGarbageLine(MaxGarbageLinePerBlockLock, x_index_of_garbage_line);
+                    GarbageLine -= MaxGarbageLinePerBlockLock;
+                    if(GarbageLine < 0)
+                        GarbageLine = 0;
+                }
+                else
+                {
+                    tetrisGrid.AddGarbageLine(GarbageLine, x_index_of_garbage_line);
+                    GarbageLine = 0;
+                }
+
+                OnGarbageLineReceived();
+            }
+        }
+
+        protected virtual void OnGarbageLineReceived()
+        {
+
         }
 
         protected virtual bool TryCreateCurrentPiece(TimeSpan curTime)
@@ -250,7 +278,7 @@ namespace Tetris
                 return false;
         }
 
-        protected virtual void lockCurrentMinoToPlace()
+        protected virtual void lockCurrentMinoToPlace(TimeSpan curTime)
         {
             if(currentPiece == null)
                 throw new InvalidOperationException("setMinoToPlace Method shouldn't be called when the currentPiece is null...");
@@ -265,8 +293,9 @@ namespace Tetris
             canHold = true;
             currentPiece = null;
             GridChanged = true;
-
             wasBlockLocked = true;
+
+            lastMinoPlaced = curTime;
         }
 
         public abstract IEnumerable<Tetromino> PeekBag();
