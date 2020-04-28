@@ -33,8 +33,9 @@ namespace Tetris.Renderer
         MouseCallback _mouseCallback;
         UserInputManager inputManager;
         (int width, int height) singleRectSize = (25, 25);
-        public BoardRenderer()
+        private BoardRenderer()
         {
+            /*
             image = new Mat(720, 1280, MatType.CV_8UC3);
             window = new Window("Window", image);
             inputManager = new UserInputManager(InputSetting.Default);
@@ -55,6 +56,7 @@ namespace Tetris.Renderer
             AIGame.SetApponent(playerGame);
             */
             
+            /*
             AIGame.SetApponent(AIGame2);
             AIGame2.SetApponent(AIGame);
 
@@ -67,7 +69,35 @@ namespace Tetris.Renderer
             inputManager.ObserveKey(setting.CCW, setting.CW, setting.HardDrop, setting.SoftDrop, setting.Hold, setting.Left, setting.Right);
             _mouseCallback = mouseCallBack;
             Cv2.SetMouseCallback("Window", _mouseCallback);
+            */
         }
+
+        public BoardRenderer(TetrisGame player1 = null, TetrisGame player2 = null, UserInputManager inputManager = null)
+        {
+            InitializeComp();
+
+            this.inputManager = inputManager;
+
+            this.tetrisGames[0] = player1;
+            this.tetrisGames[1] = player2;
+
+            for(int i = 0; i < 2; i++)
+            {
+                if(tetrisGames[i] != null)
+                {
+                    tetrisGames[i].ResetGame();
+                    tetrisGames[i].InitializeGame();
+                    tetrisGames[i].StartGame();
+                }
+            }
+        }
+
+        void InitializeComp()
+        {
+            image = new Mat(720, 1280, MatType.CV_8UC3);
+            window = new Window("Window", image);
+        }
+
         public void syncUpdateLoop()
         {
             var enumerator = UpdateOnce();
@@ -85,9 +115,10 @@ namespace Tetris.Renderer
             var borderColor = new Scalar(70, 70, 70);
             while (true)
             {
+                inputManager?.Update();
+
                 if(tetrisGames[0] != null)
                 {
-                    inputManager.Update();
                     DrawGrid(tetrisGames[0].Lines, player1, borderColor);
                     DrawGhostMino(player1, tetrisGames[0]);
                     DrawCurrentPiece(player1, tetrisGames[0]);

@@ -14,18 +14,16 @@ namespace Tetris
         TimeSpan LastUpdateTime = TimeSpan.Zero;
         TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(16);
         public IEnumerable<Point> expectedMinoEndPoints { get { return instructionSet?.expectedPoints; } }
-        public AITetrisGame(AI ai, AIGameSetting AIGameSetting, TetrominoBag bag = null) : base(AIGameSetting, bag)
+        public AITetrisGame(AI ai, AIGameSetting AIGameSetting) : base(AIGameSetting)
         {
             this.UpdateDelay = AIGameSetting.UpdateDelay;
             this.ai = ai;
             Log = LogManager.GetLogger("AITetrisGame");
-            // throw new NotImplementedException();
         }
 
         public override void InitializeGame()
         {
-            this.tetrominoBag.Reset();
-
+            base.ResetGame();
             ai.CleanReset(this.tetrominoBag);
             ai.OnGameInitialize();
 

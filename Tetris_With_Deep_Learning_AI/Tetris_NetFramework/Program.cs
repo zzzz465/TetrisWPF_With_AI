@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using log4net;
 using ColdClear;
+using Tetris.Renderer;
 
 namespace Tetris
 {
@@ -14,9 +15,8 @@ namespace Tetris
         {
             Log.Info("Starting Program");
             
-            Tetris.Renderer.BoardRenderer renderer = new Renderer.BoardRenderer();
-            renderer.syncUpdateLoop();
-            
+            // TestPlayerTetrisGame();
+            AIVersusTest();
 
             /*
             ColdClear.ColdClear CC = ColdClear.ColdClear.CreateInstance();
@@ -37,6 +37,26 @@ namespace Tetris
             else
                 Log.Info("Fail");
             */
+        }
+
+        static void TestPlayerTetrisGame()
+        {
+            var PlayerSetting = TetrisGameSetting.Default;
+            var inputManager = new UserInputManager(InputSetting.Default);
+            var playerTetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, PlayerSetting);
+            var renderer = new BoardRenderer(playerTetrisGame, null, inputManager);
+            renderer.syncUpdateLoop();
+        }
+
+        static void AIVersusTest()
+        {
+            var FastAISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(80), TimeSpan.FromMilliseconds(14));
+            var AIPlayer_1 = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), FastAISetting);
+            var AIPlayer_2 = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), FastAISetting);
+            AIPlayer_1.SetApponent(AIPlayer_2);
+            AIPlayer_2.SetApponent(AIPlayer_1);
+            var renderer = new BoardRenderer(AIPlayer_1, AIPlayer_2);
+            renderer.syncUpdateLoop();
         }
     }
 }   

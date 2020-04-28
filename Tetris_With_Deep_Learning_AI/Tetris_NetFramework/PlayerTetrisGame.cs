@@ -11,7 +11,7 @@ namespace Tetris
         protected override ILog Log { get; set; } = LogManager.GetLogger("PlayerTetrisGame");
         iInputProvider inputProvider;
         InputSetting inputSetting;
-        public PlayerTetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting, TetrominoBag bag = null) : base(gameSetting, bag)
+        public PlayerTetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting) : base(gameSetting)
         {
             this.inputProvider = inputProvider;
             this.inputSetting = keySetting;

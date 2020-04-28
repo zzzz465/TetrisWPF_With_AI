@@ -77,12 +77,11 @@ namespace Tetris
         #endregion
 
         
-        public TetrisGame(TetrisGameSetting gameSetting, TetrominoBag bag = null, iGarbageLineCalculator garbageLineCalculator = null)
+        public TetrisGame(TetrisGameSetting gameSetting, iGarbageLineCalculator garbageLineCalculator = null)
         {
             ApplySetting(gameSetting);
             tetrisGrid = new TetrisGrid();
             this.garbageLineCalculator = garbageLineCalculator ?? new FallbackGarbageLineCalculator();
-            ResetGame(bag);
         }
 
         public void SetLogName(string name)
@@ -106,7 +105,7 @@ namespace Tetris
         }
         public virtual void InitializeGame()
         {
-
+            ResetGame();
         }
 
         public virtual void StartGame()
@@ -136,10 +135,17 @@ namespace Tetris
                 return;
 
             tetrisGrid.UpdateBoard(out var gridUpdateResult);
+
+            if(gridUpdateResult.LineDeleted > 0)
+                if(LineCleared != null)
+                    LineCleared.Invoke();
             
             if(GridChanged)
             {
                 ProcessGridChange(gridUpdateResult);
+                if(BoardChanged != null)
+                    BoardChanged.Invoke();
+
                 GridChanged = false;
             }
 
