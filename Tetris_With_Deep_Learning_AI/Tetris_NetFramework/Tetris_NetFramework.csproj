@@ -59,6 +59,9 @@
     <Reference Include="log4net, Version=2.0.8.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.2.0.8\lib\net45-full\log4net.dll</HintPath>
     </Reference>
+    <Reference Include="MisaMinoNET">
+      <HintPath>..\Dependencies\Zetris-32\MisaMinoNET.dll</HintPath>
+    </Reference>
     <Reference Include="OpenCvSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=6adad1e807fea099, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenCvSharp4.4.3.0.20200405\lib\net461\OpenCvSharp.dll</HintPath>
     </Reference>
@@ -91,6 +94,8 @@
     <Compile Include="CurrentTetrominoPiece.cs" />
     <Compile Include="iInputProvider.cs" />
     <Compile Include="InstructionSet.cs" />
+    <Compile Include="MisaminoAI.cs" />
+    <Compile Include="MisaMinoAPI.cs" />
     <Compile Include="PlayerTetrisGame.cs" />
     <Compile Include="PointExtension.cs" />
     <Compile Include="SimpleDrawer\BoardRenderer.cs" />

@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tetris_WPF_Proj"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="800" Width="400">
     <Grid>
-        <local:TetrisGrid Width="200" Height="400"/>
+        <local:TetrisGameUserControl x:Name="TestTetrisGame"/>
     </Grid>
 </Window>

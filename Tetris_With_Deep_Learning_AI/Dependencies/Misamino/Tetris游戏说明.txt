@@ -1,0 +1,112 @@
+﻿★规则：
+本游戏以TO-P规则为标准
+可视游戏池大小10x20，重叠时死亡，有方块高于可视顶部20层也死亡
+共显示6个next块，默认为回合制，无自由下落，硬降锁定后才出现下一块
+每一次攻击会在游戏池下方显示攻击方式及攻击层数
+随机方块使用Bag7算法产生
+
+★按键：
+默认键位：
+left            	左方向键
+right           	右方向键
+softdrop        	下方向键（软降）
+harddrop        	空格（硬降锁定）
+counterclockwise	Z键（逆旋键）
+180rotate       	X键（180度逆转，需要设置中开启）
+clockwise       	C键（顺旋键）
+hold            	V键（暂存）
+
+在游戏中：
+F12自行设定键位，键位会自动保存
+F2键在丢下10块以前或游戏结束后重新开始
+F3切换攻击线的显示
+F4切换网络显示
+F5/F6键设置音效及背景音乐的音量
+
+默认DAS设定为8帧，游戏运行于60fps下。
+有踢墙，即旋转可在偏移判定，以SRS踢墙系统为标准
+
+★攻击：
+支持T-spin攻击，combo连击，B2B特殊连击。暂不支持全spin（以TOP规则）。
+B2B指除了一般消一消二消三外的攻击。
+
+攻击具体计算（TOJ/TOP rule）：
+一般消行 ———垃圾行数
+Single 单行 ————0
+Double 两行 ————1
+Triple 三行 ————2
+Tetris 四行 ————4
+Tetris(B2B) --———5
+
+T-spin消行 —————————垃圾行数
+Mini 有踢墙单行 ————————1
+Mini(B2B) ———————————2
+Single 无踢墙单行 ———————2
+Single(B2B) ——————————3
+Double 双行，不论是否踢墙 ———4
+Double(B2B) ——————————5
+Triple 三行，不论是否踢墙 ———6
+Triple(B2B) ——————————8
+
+连击数 —附加垃圾行数 总计
+0（首次） 0 ——————0
+1 ————0 ——————0
+2 ————1 ——————1
+3 ————1 ——————2
+4 ————2 ——————4
+5 ————2 ——————6
+6 ————3 ——————9
+7 ————3 ——————12
+8 ————4 ——————16
+9 ————4 ——————20
+10 -———4 ——————24
+11 -———5 ——————29
+11连击以后每次附加行数固定为5行。
+
+全消攻击6行。
+
+攻击可抵消，攻击产生的垃圾行有一个空，一次性攻击所产生的空会在同一列上，抵消时从最先攻击的行开始（从上到下）。若有消行，则攻击行暂时不会顶上来，直到你锁定后没有消行时出现在游戏池底部。
+
+★配置
+在文件misamino.ini里
+区段"AI"
+        "delay": AI的思考延迟（非回合制模式下有效）
+        "move" : AI的移动延迟（非回合制模式下有效）
+        "4w"   : 开启AI的4-wide combo策略，但只限于TOJ规则（combo table=1 or 2; tspin/tspin+/ren AI; garbage buffer, garbage blocking and garbage cancel on）
+
+区段"AI_P1"和"AI_P1"
+        "style": AI类型。P1默认是0，P2默认是2，类型列表：
+0, human
+1, T-spin+ AI
+2, T-spin
+3, Ren
+4, non-Hold
+5, Downstack
+-1, 使用自定义插件
+
+        "level": AI等级，范围从0-8，默认是4
+        "PieceMul": 在普通回合制下，设置方块数目的比例
+        "dllplugin": 玩家1的AI dll插件名和路径
+
+区段"Rule"
+        "turnbase": 是否为回合制
+        "KOS_turnbase": KOS方式的回合制，7块一个回合
+        "spin180": 是否允许180度旋转
+        "GarbageStyle": 垃圾行类型。0为TOJ类型，1为每两行改变洞的位置，2为每行均改变洞的位置
+        "GarbageCancel": 抵消允许
+        "GarbageBuffer": 无缓冲，立即攻击
+        "GarbageBlocking": 消行能暂时阻止涨行
+        "samesequence": 双方玩家使用相同方块序列
+        "combo_table_style": 0为使用连击表[0,0,1,1,2]，1为使用TOJ的连击表（如上文所示），2为Tetris Friend的E+模式的连击表，默认为1
+区段"Player"
+        "das": 移动首次延迟，默认为8帧
+        "softdropdas": 软降的首次延迟，默认3帧
+        "softdropdelay": 软降的重复延迟，默认是10，即为 10 * 0.1frame = 1frame
+
+★其它：
+一些具体细则可参阅：
+http://hi.baidu.com/farteryhr/item/32d41c14382757563a176ece
+
+更多的讨论可访问Harddrop社区
+http://harddrop.com/forums/index.php?showtopic=5292
+

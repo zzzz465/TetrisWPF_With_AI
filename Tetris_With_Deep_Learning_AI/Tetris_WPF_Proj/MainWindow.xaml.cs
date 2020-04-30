@@ -12,6 +12,8 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tetris;
+using System.Windows.Threading;
 
 namespace Tetris_WPF_Proj
 {
@@ -23,8 +25,9 @@ namespace Tetris_WPF_Proj
         public MainWindow()
         {
             InitializeComponent();
-
-            new TestGameWindow().Show();
+            UserInputManager inputManager = new UserInputManager(InputSetting.Default);
+            TestTetrisGame.SetTetrisGame(new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default), inputManager);
+            TestTetrisGame.StartNewGame();
         }
     }
 }
