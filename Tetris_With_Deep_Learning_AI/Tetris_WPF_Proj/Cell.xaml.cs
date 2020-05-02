@@ -21,7 +21,15 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class Cell : UserControl
     {
+        public Style LMinoStyle { get; set; }
+        public Style JMinoStyle { get; set; }
+        public Style ZMinoStyle { get; set; }
+        public Style SMinoStyle { get; set; }
+        public Style TMinoStyle { get; set; }
+        public Style OMinoStyle { get; set; }
+        public Style IMinoStyle { get; set; }
         Point point;
+
         public Cell()
         {
             InitializeComponent();

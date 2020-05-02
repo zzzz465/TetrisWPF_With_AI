@@ -6,7 +6,18 @@
              xmlns:local="clr-namespace:Tetris_WPF_Proj"
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="100">
-    <Grid x:Name="CellGrid">
-        <Image x:Name="CellImage" Panel.ZIndex="1" />
-    </Grid>
+    
+    <UserControl.Resources>
+        <Style x:Key="FallbackStyle" TargetType="{x:Type local:Cell}">
+            <Setter Property="">
+                <Setter.Value>
+                    <Style>
+                        
+                    </Style>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+    
+    <Image x:Name="CellLabel" />
 </UserControl>

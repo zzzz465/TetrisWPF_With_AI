@@ -11,6 +11,7 @@ namespace MisaMinoNET
         static object FindMoveLocker = new object();
         public static async Task<Solution> FindMove()
         { // not thread-safe, returned task is thread-safe
+            throw new NotImplementedException();
             lock(FindMoveLocker)
             {
 

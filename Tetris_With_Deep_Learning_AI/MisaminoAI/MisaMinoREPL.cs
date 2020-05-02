@@ -11,6 +11,7 @@ namespace MisaminoAI
         bool shouldExit = false;
         public void Loop()
         {
+            throw new NotImplementedException();
             while(shouldExit == false)
             {
                 var line = Console.ReadLine();
@@ -20,7 +21,7 @@ namespace MisaminoAI
                 int current = TetrominoToInt(data.current);
                 int? hold = data.hold != Tetromino.None ? (int?)TetrominoToInt(data.hold) : null;
                 int height = data.field.Count();
-                int[,] field = new int[10 * height];
+                int[,] field = new int[height, 10];
             }
         }
 
@@ -41,6 +42,7 @@ namespace MisaminoAI
 
         int[,] ConvertFieldToArr(IEnumerable<TetrisLine> lines)
         {
+            throw new NotImplementedException();
             int height = lines.Count();
             int[,] arr = new int[10, height];
             for(int i = 0; i < height; i++)
