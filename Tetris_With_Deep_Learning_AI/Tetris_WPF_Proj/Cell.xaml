@@ -9,15 +9,117 @@
     
     <UserControl.Resources>
         <Style x:Key="FallbackStyle" TargetType="{x:Type local:Cell}">
-            <Setter Property="">
+            <Setter Property="LMinoStyle">
                 <Setter.Value>
-                    <Style>
-                        
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="200" G="150" R="15" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
                 </Setter.Value>
             </Setter>
+            <Setter Property="JMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="190" G="40" R="40" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="SMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="30" G="200" R="50" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="ZMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="40" G="50" R="200" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="TMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="180" G="30" R="170" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="OMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="10" G="200" R="220" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="IMinoStyle">
+                <Setter.Value>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Fill">
+                            <Setter.Value>
+                                <SolidColorBrush>
+                                    <SolidColorBrush.Color>
+                                        <Color B="170" G="210" R="15" />
+                                    </SolidColorBrush.Color>
+                                </SolidColorBrush>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+            
         </Style>
     </UserControl.Resources>
-    
-    <Image x:Name="CellLabel" />
+
+    <Canvas x:Name="RootCanvas">
+        <Rectangle x:Name="CellRect" Panel.ZIndex="0" />
+        <Image x:Name="CellImage" Panel.ZIndex="1" />
+    </Canvas>
 </UserControl>
