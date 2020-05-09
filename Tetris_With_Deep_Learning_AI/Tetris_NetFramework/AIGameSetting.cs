@@ -20,5 +20,7 @@ namespace Tetris
         {
             this.UpdateDelay = UpdateDelay;
         }
+
+        new public static AIGameSetting Default = new AIGameSetting(TimeSpan.Zero, TimeSpan.FromMilliseconds(35), TimeSpan.FromMilliseconds(150), TimeSpan.FromMilliseconds(30));
     }
 }

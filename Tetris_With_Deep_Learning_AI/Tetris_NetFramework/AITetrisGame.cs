@@ -232,9 +232,9 @@ namespace Tetris
 
         bool TrySwapHold()
         {
-            if(Hold == null)
+            if(curHold == null)
             {
-                Hold = currentPiece;
+                curHold = currentPiece;
                 currentPiece = new CurrentTetrominoPiece(tetrisGrid, tetrominoBag.GetNext(), spawnOffset);
                 ai.NotifyBagConsumed();
                 canHold = false;
@@ -243,8 +243,8 @@ namespace Tetris
             
             if(canHold)
             {
-                var temp = Hold;
-                Hold = currentPiece;
+                var temp = curHold;
+                curHold = currentPiece;
                 currentPiece = temp;
                 currentPiece.ResetToInitialState();
                 canHold = false;
