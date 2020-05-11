@@ -89,7 +89,7 @@
     <Compile Include="AIGameSetting.cs" />
     <Compile Include="AITetrisGame.cs" />
     <Compile Include="Bag.cs" />
-    <Compile Include="ColdClear.cs" />
+    <Compile Include="ColdClearAI.cs" />
     <Compile Include="coldclearAPI.cs" />
     <Compile Include="CurrentTetrominoPiece.cs" />
     <Compile Include="iInputProvider.cs" />
@@ -107,6 +107,7 @@
     <Compile Include="Tetris.cs" />
     <Compile Include="TetrisGame.cs" />
     <Compile Include="TetrisGrid.cs" />
+    <Compile Include="TetrisGameEvent.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="log4net.config">

@@ -26,7 +26,7 @@ namespace Tetris
         public IEnumerable<Point> PosOfCurMinoBlocks { get { return currentPiece?.GetPosOfBlocks(); } }
         public IEnumerable<Point> PosOfGhostMinoBlocks { get { return currentPiece?.GetExpectedHardDropPosOfBlocks(); } }
         public Tetromino curMinoType { get { return currentPiece?.minoType ?? Tetromino.None; } }
-        public Tetromino HoldMinoType { get { return Hold?.minoType ?? Tetromino.None; } }
+        public Tetromino HoldMinoType { get { return curHold?.minoType ?? Tetromino.None; } }
         protected TetrominoBag tetrominoBag;
         protected readonly Point spawnOffset = new Point(4, 19);
 
@@ -44,13 +44,13 @@ namespace Tetris
         #endregion
         #region Current & Hold Piece Data
         protected CurrentTetrominoPiece currentPiece;
-        protected CurrentTetrominoPiece Hold;
+        protected CurrentTetrominoPiece curHold;
         protected bool canHold = true;
         #endregion
 
         #region TetrisGame Events
-        public event Action BoardChanged; // unsupported yet
-        public event Action LineCleared; // unsupported yet
+        public iTetrisGameEvent TetrisGameEvent { get { return _TetrisGameEvent; } }
+        protected TetrisGameEvent _TetrisGameEvent = new TetrisGameEvent();
         #endregion
 
         #region Game rules and states
@@ -137,14 +137,12 @@ namespace Tetris
             tetrisGrid.UpdateBoard(out var gridUpdateResult);
 
             if(gridUpdateResult.LineDeleted > 0)
-                if(LineCleared != null)
-                    LineCleared.Invoke();
+                _TetrisGameEvent.OnLineCleared(null);
             
             if(GridChanged)
             {
                 ProcessGridChange(gridUpdateResult);
-                if(BoardChanged != null)
-                    BoardChanged.Invoke();
+                _TetrisGameEvent.OnBoardChanged(null);
 
                 GridChanged = false;
             }

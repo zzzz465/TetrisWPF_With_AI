@@ -9,16 +9,16 @@ using log4net;
 namespace ColdClear
 {
     // wrapper class for cold clear API
-    public class ColdClear : IDisposable, AI
+    public class ColdClearAI : IDisposable, AI
     {
         #region static methods and variables
         readonly static List<Point> blankPointOnHold = new List<Point>();
-        public static ColdClear CreateInstance(CCOptions options, CCWeights weights, TetrominoBag currentUsingBag)
+        public static ColdClearAI CreateInstance(CCOptions options, CCWeights weights, TetrominoBag currentUsingBag)
         {
             if(currentUsingBag == null)
                 throw new ArgumentNullException();
 
-            var cc = new ColdClear(options, weights);
+            var cc = new ColdClearAI(options, weights);
             cc.currentUsingBag = currentUsingBag;
 
             if(ColdClearAPI.cc_is_dead_async(cc.CCBot))
@@ -27,13 +27,13 @@ namespace ColdClear
             return cc;
         }
 
-        public static ColdClear CreateInstance()
+        public static ColdClearAI CreateInstance()
         {
             CCOptions options;
             ColdClearAPI.cc_default_options(out options);
             CCWeights weights;
             ColdClearAPI.cc_default_weights(out weights);
-            return new ColdClear(options, weights);
+            return new ColdClearAI(options, weights);
         }
         #endregion
         ILog Log = LogManager.GetLogger("ColdClear");
@@ -50,7 +50,7 @@ namespace ColdClear
         TetrominoBag currentUsingBag;
         bool isMinoExistInHold = false;
 
-        protected ColdClear(CCOptions options, CCWeights weights)
+        protected ColdClearAI(CCOptions options, CCWeights weights)
         {
             this.cc_options = options;
             this.cc_weights = weights;
@@ -193,7 +193,7 @@ namespace ColdClear
             }
         }
 
-        ~ColdClear()
+        ~ColdClearAI()
         {
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: false);

@@ -65,6 +65,7 @@ namespace Tetris
                     if(tetrisGrid.CanMinoExistHere(expectedPos) == false)
                         this.gameState = GameState.Dead;
 
+                    _TetrisGameEvent.OnHold(new EventArgs());
                     return;
                 }
             }
@@ -80,16 +81,19 @@ namespace Tetris
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
                 lockCurrentMinoToPlace(curTime);
+                _TetrisGameEvent.OnCurMinoHardDropped(new EventArgs());
             }
             else
             {
                 if(inputProvider.GetState(InputType.CCW) == KeyState.ToggledDown)
                 {
                     var success = currentPiece.TrySpin(InputType.CCW);
+                    _TetrisGameEvent.OnCurMinoRotated(new EventArgs());
                 }
                 else if(inputProvider.GetState(InputType.CW) == KeyState.ToggledDown)
                 {
                     var success = currentPiece.TrySpin(InputType.CW);
+                    _TetrisGameEvent.OnCurMinoRotated(new EventArgs());
                 }
 
                 var leftState = inputProvider.GetState(InputType.LeftPressed);
@@ -100,6 +104,7 @@ namespace Tetris
                     if(currentPiece.TryShift(new Point(-1, 0)))
                     {
                         lastMinoMoveTime = curTime;
+                        _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                     }
                 }
                 else if(rightState == KeyState.ToggledDown)
@@ -107,6 +112,7 @@ namespace Tetris
                     if(currentPiece.TryShift(new Point(1, 0)))
                     {
                         lastMinoMoveTime = curTime;
+                        _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                     }
                 }
                 else if((leftState == KeyState.Down || rightState == KeyState.Down) && !(leftState == KeyState.Down && rightState == KeyState.Down))
@@ -119,6 +125,7 @@ namespace Tetris
                             {
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
+                                _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                             }
                         }
                         else
@@ -127,6 +134,7 @@ namespace Tetris
                             {
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
+                                _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                             }
                         }
                     }
@@ -138,6 +146,7 @@ namespace Tetris
                             {
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
+                                _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                             }
                         }
                         else
@@ -146,6 +155,7 @@ namespace Tetris
                             {
                                 lastMinoMoveTime = curTime;
                                 isContinousMoving = true;
+                                _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                             }
                         }
                     }
@@ -162,6 +172,7 @@ namespace Tetris
                         if(currentPiece.TryShift(new Point(0, -1)))
                         {
                             LastSoftDropTime = curTime;
+                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                         }
                     }
                 }
@@ -169,7 +180,10 @@ namespace Tetris
                 if(curTime - LastSoftDropTime > autoDropDelay)
                 {
                     if (currentPiece.TryShift(new Point(0, -1)))
+                    {
                         LastSoftDropTime = curTime;
+                        _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
+                    }
                 }
             }
         }

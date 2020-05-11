@@ -51,8 +51,8 @@ namespace Tetris
         static void AIVersusTest()
         {
             var FastAISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(80), TimeSpan.FromMilliseconds(14));
-            var AIPlayer_1 = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), FastAISetting);
-            var AIPlayer_2 = new AITetrisGame(ColdClear.ColdClear.CreateInstance(), FastAISetting);
+            var AIPlayer_1 = new AITetrisGame(ColdClear.ColdClearAI.CreateInstance(), FastAISetting);
+            var AIPlayer_2 = new AITetrisGame(ColdClear.ColdClearAI.CreateInstance(), FastAISetting);
             AIPlayer_1.SetApponent(AIPlayer_2);
             AIPlayer_2.SetApponent(AIPlayer_1);
             var renderer = new BoardRenderer(AIPlayer_1, AIPlayer_2);

@@ -87,6 +87,7 @@ namespace Tetris
                             Log.DebugAI("CCW success");
                             LastUpdateTime = curTime;
                             instructionSet.MoveNext();
+                            base._TetrisGameEvent.OnCurMinoRotated(new EventArgs());
                         }
                         else
                         {
@@ -101,6 +102,7 @@ namespace Tetris
                             Log.DebugAI("CW Success");
                             LastUpdateTime = curTime;
                             instructionSet.MoveNext();
+                            _TetrisGameEvent.OnCurMinoRotated(new EventArgs());
                         }
                         else
                         {
@@ -116,6 +118,7 @@ namespace Tetris
                     while(currentPiece.TryShift(new Point(0, -1)));
                     LastUpdateTime = curTime;
                     instructionSet.MoveNext();
+                    _TetrisGameEvent.OnCurMinoHardDropped(new EventArgs());
                     break;
                 }
 
@@ -128,6 +131,7 @@ namespace Tetris
                             LastSoftDropTime = curTime;
                             LastUpdateTime = curTime;
                             Log.DebugAI("SoftDrop to bottom");
+                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                         }
                         else
                         {
@@ -152,6 +156,7 @@ namespace Tetris
                             LastUpdateTime = curTime;
                             instructionSet.MoveNext();
                             Log.DebugAI("Softdrop Success");
+                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                         }
                         else
                         {
@@ -175,6 +180,7 @@ namespace Tetris
                             lastMinoMoveTime = curTime;
                             LastUpdateTime = curTime;
                             instructionSet.MoveNext();
+                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                         }
                         else
                         {
@@ -192,6 +198,7 @@ namespace Tetris
                         Log.DebugAI("Hold success");
                         LastUpdateTime = curTime;
                         instructionSet.MoveNext();
+                        _TetrisGameEvent.OnHold(new EventArgs());
                     }
                     else
                     {
@@ -205,6 +212,7 @@ namespace Tetris
                 {
                     lockCurrentMinoToPlace(curTime);
                     instructionSet.MoveNext();
+                    _TetrisGameEvent.OnMinoLocked(new EventArgs());
                     break;
                 }
 
