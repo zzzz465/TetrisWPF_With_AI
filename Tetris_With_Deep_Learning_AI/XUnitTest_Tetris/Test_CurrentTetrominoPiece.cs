@@ -69,7 +69,7 @@ namespace XUnitTest_Tetris
         
         TetrisGrid CreateTestGrid(int maxAllowedHeight = 20)
         {
-                        /*
+            /*
               
               0 1 2 3 4 5 6 7 8 9
             9
@@ -357,7 +357,7 @@ O = 블럭있음
 
         }
         */
-        
+        /*
         [Fact]
         public void Check_TSpin_Validation()
         {
@@ -383,5 +383,6 @@ O = 블럭있음
             Assert.True(curPiece2.TrySpin(InputType.CW));
             Assert.Equal(TSpinType.Spin, curPiece2.tSpinType);
         }
+        */
     }
 }

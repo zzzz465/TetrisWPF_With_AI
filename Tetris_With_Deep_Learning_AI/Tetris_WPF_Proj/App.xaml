@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:Tetris_WPF_Proj"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        
     </Application.Resources>
 </Application>

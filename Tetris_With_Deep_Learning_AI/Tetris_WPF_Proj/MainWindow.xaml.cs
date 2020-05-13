@@ -1,19 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Tetris;
-using System.Windows.Threading;
+using System.Diagnostics;
+using Tetris_WPF_Proj.UI;
 
 namespace Tetris_WPF_Proj
 {
@@ -22,12 +12,33 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow Instance { get; set; }
+        Stack<Control> UIStack = new Stack<Control>();
         public MainWindow()
         {
             InitializeComponent();
-            UserInputManager inputManager = new UserInputManager(InputSetting.Default);
-            TestTetrisGame.SetTetrisGame(new PlayerTetrisGame(inputManager, InputSetting.Default, TetrisGameSetting.Default), inputManager);
-            TestTetrisGame.StartNewGame();
+            if (MainWindow.Instance != null)
+                throw new Exception("Unexpected behaviour, do not create mainWindow directly");
+            MainWindow.Instance = this;
+            RootCC.Content = new MainMenu();
+        }
+
+        public void OpenWindow(Control control)
+        {
+            UIStack.Push(RootCC.Content as Control);
+            RootCC.Content = control;
+        }
+
+        public void CloseWindow()
+        {
+            var curStackTrace = new StackTrace();
+            var type = curStackTrace.GetFrame(0).GetMethod().ReflectedType;
+            if (type != UIStack.Peek().GetType())
+                throw new InvalidOperationException("Content can be closed by itself, do not call CloseWindow() outside Content object");
+
+            RootCC.Content = null;
+            var content = UIStack.Pop();
+            RootCC.Content = content;
         }
     }
 }

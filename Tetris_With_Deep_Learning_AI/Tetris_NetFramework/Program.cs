@@ -4,6 +4,7 @@ using System.Linq;
 using log4net;
 using ColdClear;
 using Tetris.Renderer;
+using Tetris.AudioModule;
 
 namespace Tetris
 {
@@ -16,27 +17,8 @@ namespace Tetris
             Log.Info("Starting Program");
             
             // TestPlayerTetrisGame();
-            AIVersusTest();
-
-            /*
-            ColdClear.ColdClear CC = ColdClear.ColdClear.CreateInstance();
-            CC.CleanReset(new TetrominoBag());
-            //CC.Reset(new bool[400], false, 0);
-            CC.NotifyGridChanged(new List<TetrisLine>(), 0, false);
-            CCPiece[] pieces = new CCPiece[5] { CCPiece.CC_I, CCPiece.CC_L, CCPiece.CC_J, CCPiece.CC_O, CCPiece.CC_S };
-            foreach(var mino in pieces)
-            {
-                CC.AddMino(mino.ToTetromino());
-            }
-
-            CC.RequestNextInstructionSet(2);
-            System.Threading.Thread.Sleep(10);
-            var result = CC.TryGetInstructionSet(out var _);
-            if(result)
-                Log.Info("Success");
-            else
-                Log.Info("Fail");
-            */
+            // AIVersusTest();
+            AudioTest();
         }
 
         static void TestPlayerTetrisGame()
@@ -57,6 +39,19 @@ namespace Tetris
             AIPlayer_2.SetApponent(AIPlayer_1);
             var renderer = new BoardRenderer(AIPlayer_1, AIPlayer_2);
             renderer.syncUpdateLoop();
+        }
+
+        static void AudioTest()
+        {
+            
+            var testSound = new CachedSound("./TestAudio.wav");
+            for(int i = 0; i < 5; i++)
+            {
+                
+                System.Threading.Thread.Sleep(200);
+            }
+
+            
         }
     }
 }   

@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="Tetris_WPF_Proj.GameView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Tetris_WPF_Proj"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="450">
+    <Grid>
+        <Grid.RowDefinitions>
+            
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="3*" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+        <StackPanel Background="White" Grid.Column="0">
+            <Label/>
+        </StackPanel>
+        <Grid Grid.Column="1">
+            <local:TetrisGrid />
+        </Grid>
+        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
+            <Rectangle Width="40" Height="50" Fill="Aqua" Margin="10"/>
+            <Rectangle Width="50" Height="60" Fill="Aqua" Margin="10"/>
+            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
+            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

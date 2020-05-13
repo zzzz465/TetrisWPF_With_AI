@@ -5,9 +5,43 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tetris_WPF_Proj"
              mc:Ignorable="d" 
-             d:DesignHeight="800" d:DesignWidth="400"
-             x:Name="RootCanvas" MinWidth="200" MinHeight="400" Width="400" Height="800">
-    <Canvas x:Name="GridCanvas" Width="{Binding ElementName=RootCanvas, Path=Width}"
-                                    Height="{Binding ElementName=RootCanvas, Path=Height}">
-    </Canvas>
+             d:DesignHeight="800" d:DesignWidth="800" 
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Viewbox>
+        <Canvas x:Name="RootCanvas" Width="400" Height="800">
+            <Rectangle x:Name="BackgroundRect" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="0">
+                <Rectangle.Fill>
+                    <DrawingBrush>
+                        <DrawingBrush.Drawing>
+                            <DrawingGroup>
+                                <GeometryDrawing>
+                                    <GeometryDrawing.Geometry>
+                                        <RectangleGeometry Rect="0, 0, 10, 20" />
+                                    </GeometryDrawing.Geometry>
+                                    <GeometryDrawing.Brush>
+                                        <DrawingBrush Viewport="0, 0, 0.1, 0.05" TileMode="Tile">
+                                            <DrawingBrush.Drawing>
+                                                <GeometryDrawing>
+                                                    <GeometryDrawing.Geometry>
+                                                        <RectangleGeometry Rect="0, 0, 1, 1"/>
+                                                    </GeometryDrawing.Geometry>
+                                                    <GeometryDrawing.Pen>
+                                                        <Pen Thickness="0.05">
+                                                            <Pen.Brush>
+                                                                <SolidColorBrush Color="Gray"/>
+                                                            </Pen.Brush>
+                                                        </Pen>
+                                                    </GeometryDrawing.Pen>
+                                                </GeometryDrawing>
+                                            </DrawingBrush.Drawing>
+                                        </DrawingBrush>
+                                    </GeometryDrawing.Brush>
+                                </GeometryDrawing>
+                            </DrawingGroup>
+                        </DrawingBrush.Drawing>
+                    </DrawingBrush>
+                </Rectangle.Fill>
+            </Rectangle>
+        </Canvas>
+    </Viewbox>
 </UserControl>

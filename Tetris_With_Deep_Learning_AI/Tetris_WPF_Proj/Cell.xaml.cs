@@ -12,6 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Tetris;
+using log4net;
+using System.Diagnostics;
+using System.Windows.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace Tetris_WPF_Proj
 {
@@ -20,66 +25,68 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class Cell : UserControl
     {
+        ILog Log;
         #region MinoStyle
-        public Style LMinoStyle { get { return (Style)GetValue(LMinoStyleProperty); } set { SetValue(LMinoStyleProperty, value); } }
-        public Style JMinoStyle { get { return (Style)GetValue(JMinoStyleProperty); } set { SetValue(JMinoStyleProperty, value); } }
-        public Style ZMinoStyle { get { return (Style)GetValue(ZMinoStyleProperty); } set { SetValue(ZMinoStyleProperty, value); } }
-        public Style SMinoStyle { get { return (Style)GetValue(SMinoStyleProperty); } set { SetValue(SMinoStyleProperty, value); } }
-        public Style TMinoStyle { get { return (Style)GetValue(TMinoStyleProperty); } set { SetValue(TMinoStyleProperty, value); } }
-        public Style OMinoStyle { get { return (Style)GetValue(OMinoStyleProperty); } set { SetValue(OMinoStyleProperty, value); } }
-        public Style IMinoStyle { get { return (Style)GetValue(IMinoStyleProperty); } set { SetValue(IMinoStyleProperty, value); } }
 
-        public static readonly DependencyProperty LMinoStyleProperty = DependencyProperty.Register(
-            "LMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty JMinoStyleProperty = DependencyProperty.Register(
-            "JMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty ZMinoStyleProperty = DependencyProperty.Register(
-            "ZMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty SMinoStyleProperty = DependencyProperty.Register(
-            "SMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty TMinoStyleProperty = DependencyProperty.Register(
-            "TMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty OMinoStyleProperty = DependencyProperty.Register(
-            "OMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
-        public static readonly DependencyProperty IMinoStyleProperty = DependencyProperty.Register(
-            "IMinoStyle", typeof(Style), typeof(Cell), new FrameworkPropertyMetadata());
+        public Brush CellBrush
+        {
+            get { return (Brush)GetValue(CellBrushProperty); }
+            set { SetValue(CellBrushProperty, value); }
+        }
+        public Tetromino curTetromino
+        {
+            get
+            {
+                return (Tetromino)GetValue(curTetrominoProperty);
+            }
+            set
+            {
+                SetValue(curTetrominoProperty, value);
+            }
+        }
+        public ResourceDictionary MinoStyles 
+        {
+            get { return (ResourceDictionary)GetValue(MinoStylesProperty); } 
+            set 
+            {
+                SetValue(MinoStylesProperty, value);
+            }
+        }
+
+        public static readonly DependencyProperty CellBrushProperty = DependencyProperty.Register("CellBrush", typeof(Brush), typeof(Cell), new PropertyMetadata(null));
+        public static readonly DependencyProperty curTetrominoProperty = DependencyProperty.Register("curTetromino", typeof(Tetromino), typeof(Cell), new PropertyMetadata(Tetromino.None, TetrominoChangeCallBack));
+        public static readonly DependencyProperty MinoStylesProperty = DependencyProperty.Register("MinoStyle", typeof(ResourceDictionary), typeof(Cell), new PropertyMetadata());
         #endregion
 
-        Point point;
+        public int RectLength { get; set; } = 20;
+        public Point CellPos { get; set; } = new Point(0, 0);
 
         public Cell()
         {
             InitializeComponent();
         }
-
-        public Cell(BitmapImage image) : this()
+        /*
+        public Cell(ResourceDictionary minoStyles) : this()
         {
-            Background = new ImageBrush();
+            this.MinoStyles = minoStyles;
+            Log = LogManager.GetLogger("Cell");
+            //SetTetromino(Tetromino.None);
+            curTetromino = Tetromino.None;
         }
+        */
 
-        public Cell(Color backgroundColor) : this()
+        private static void TetrominoChangeCallBack(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            Background = new SolidColorBrush(backgroundColor);
-        }
+            var cell = d as Cell;
+            if (cell == null || cell.MinoStyles == null)
+                return;
 
-        public void SetCoord(Point point)
-        {
-            this.point = point;
-        }
-
-        public void SetColor(Color color)
-        {
-            if (Background is SolidColorBrush)
+            var tetromino = (Tetromino)e.NewValue;
+            if(cell.MinoStyles.Contains(tetromino))
             {
-                (Background as SolidColorBrush).Color = color;
+                var brush = cell.MinoStyles[tetromino];
+                cell.CellBrush = brush as Brush;
             }
-            else
-                throw new Exception();
-        }
-
-        public void SetBackground()
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -13,5 +13,9 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+
+        }
     }
 }

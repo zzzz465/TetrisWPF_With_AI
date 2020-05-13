@@ -22,14 +22,14 @@ namespace XUnitTest_Tetris
             gameEventInterface.LineCleared += (sender, e) => assertAction(1);
             gameEventInterface.CurMinoMoved += (sender, e) => assertAction(2);
             gameEventInterface.CurMinoRotated += (sender, e) => assertAction(3);
-            gameEventInterface.CurMinoHardDroped += (sender, e) => assertAction(4);
+            gameEventInterface.CurMinoHardDropped += (sender, e) => assertAction(4);
             gameEventInterface.Hold += (sender, e) => assertAction(5);
             
             gameEventInstance.OnBoardChanged(null);
             gameEventInstance.OnLineCleared(null);
             gameEventInstance.OnCurMinoMoved(null);
             gameEventInstance.OnCurMinoRotated(null);
-            gameEventInstance.OnCurMinoHardDroped(null);
+            gameEventInstance.OnCurMinoHardDropped(null);
             gameEventInstance.OnHold(null);
 
             for(int i = 0; i < shouldAllTrue.Length; i++)

@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="Tetris_WPF_Proj.TetrisGameUserControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Tetris_WPF_Proj"
+             mc:Ignorable="d"
+             d:DesignHeight="900" d:DesignWidth="1600">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="DefaultTetrominoStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <local:TetrisGrid x:Name="TetrisGrid_1" CellStyles="{StaticResource DefaultTetrominoStyles}" Margin="0" />
+
+        <local:TetrisGrid x:Name="TetrisGrid_2" Grid.Column="1" />
+    </Grid>
+</UserControl>

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,108 +15,154 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-using System.Timers;
 using Tetris;
 
 namespace Tetris_WPF_Proj
 {
     /// <summary>
-    /// TetrisGrid.xaml에 대한 상호 작용 논리
+    /// NewTetrisGrid.xaml에 대한 상호 작용 논리
     /// </summary>
     public partial class TetrisGrid : UserControl
     {
-        /*
-        width 10 height 23짜리 grid
-        
-        */
-        static System.Windows.Media.Color BackgroundColor = System.Windows.Media.Color.FromRgb(50, 50, 50);
-        Cell[] curPieceCells;
-        Cell[] cells;
-        CellColorSet cellColorSet = CellColorSet.GetDafultCellColorSet();
+        public ResourceDictionary CellStyles
+        {
+            get { return (ResourceDictionary)GetValue(CellStylesProperty); }
+            set { SetValue(CellStylesProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for CellStyles.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty CellStylesProperty =
+            DependencyProperty.Register("CellStyles", typeof(ResourceDictionary), typeof(TetrisGrid), new PropertyMetadata(null, OnCellStylesChangedCallBack));
+
+        List<Cell> Cells = new List<Cell>();
+        List<Cell> CurTetrominoCells = new List<Cell>();
+
+        private int cellLength = 0;
+
 
         public TetrisGrid()
         {
             InitializeComponent();
+
             InitializeGrid();
+            ReAllocateCellPosition(this, SizeChangedEventArgs.Empty);
+            SizeChanged += ReAllocateCellPosition;
+        }
+
+        void Test_DrawSome(object sender, EventArgs e)
+        {
+            var z = new Random().Next(0, 6);
+            var x = new Tetromino[] { Tetromino.I, Tetromino.J, Tetromino.O, Tetromino.L, Tetromino.Z, Tetromino.S };
+            for (int i = 13; i < 32; i++)
+                this.Cells[i].curTetromino = x[z];
         }
 
         void InitializeGrid()
         {
-            cells = new Cell[10 * 23];
-            int RectSideLength = (int)(RootCanvas.Width / 10);
-            
-            for (int y = 0; y < 23; y++)
+            for(int y = 0; y < 20; y++)
             {
-                for (int x = 0; x < 10; x++)
+                for(int x = 0; x < 10; x++)
                 {
-                    var cell = new Cell(BackgroundColor);
-                    cell.Width = RectSideLength;
-                    cell.Height = RectSideLength;
-                    cells[x + y * 10] = cell;
-                    GridCanvas.Children.Add(cell);
+                    var cell = new Cell();
+                    RootCanvas.Children.Add(cell);
                     Canvas.SetZIndex(cell, 1);
-                    Canvas.SetBottom(cell, y * RectSideLength);
-                    Canvas.SetLeft(cell, x * RectSideLength);
+                    cell.CellPos = new Point(x, y);
+                    Cells.Add(cell);
                 }
             }
-            
 
-            curPieceCells = new Cell[4];
-            for (int i = 0; i < 4; i++)
+            for(int i = 0; i < 4; i++)
             {
-                var cell = new Cell(BackgroundColor);
-                cell.Width = RectSideLength;
-                cell.Height = RectSideLength;
-                curPieceCells[i] = cell;
-                GridCanvas.Children.Add(cell);
+                var cell = new Cell();
+                RootCanvas.Children.Add(cell);
                 Canvas.SetZIndex(cell, 2);
+                cell.Visibility = Visibility.Hidden;
+                CurTetrominoCells.Add(cell);
             }
         }
 
-        public void DrawGame(TetrisGame tetrisGame)
+        protected void ReAllocateCellPosition(object sender, EventArgs e)
         {
-            DrawGrid(tetrisGame.Lines.ToList());
-            DrawCurMinoPiece(tetrisGame.PosOfCurMinoBlocks?.Select(p => new System.Windows.Point(p.X, p.Y)).ToList(), tetrisGame.curMinoType);
+            this.cellLength = (int)(RootCanvas.ActualWidth / 10);
+            foreach(var cell in Enumerable.Concat(Cells, CurTetrominoCells))
+            {
+                var pos = cell.CellPos;
+                cell.Width = cellLength;
+                cell.Height = cellLength;
+                Canvas.SetBottom(cell, cellLength * pos.Y);
+                Canvas.SetLeft(cell, cellLength * pos.X);
+            }
         }
 
-        void DrawGrid(List<TetrisLine> lines)
+        static void OnCellStylesChangedCallBack(DependencyObject obj, DependencyPropertyChangedEventArgs e)
         {
-            for (int y = 0; y < 23; y++)
+            var grid = obj as TetrisGrid;
+            if (grid == null)
+                return;
+
+            foreach(var cell in Enumerable.Concat(grid.Cells, grid.CurTetrominoCells))
             {
-                var curLine = y < lines.Count ? lines[y] : new TetrisLine();
-                for (int x = 0; x < 10; x++)
+                cell.MinoStyles = e.NewValue as ResourceDictionary;
+            }
+        }
+
+        public void DrawGame(TetrisGame game)
+        {
+            DrawBoard(game);
+            DrawCurTetrominoPiece(game);
+        }
+
+        void DrawBoard(TetrisGame game)
+        {
+            var lines = game.Lines.ToList();
+            for(int y = 0; y < 20; y++)
+            {
+                var line = lines.Count > y ? lines[y] : new TetrisLine();
+                for(int x = 0; x < 10; x++)
                 {
-                    var cell = cells[y * 10 + x];
-                    var cellColor = cellColorSet.GetColor(curLine.line[x]);
-                    cell.SetColor(cellColor);
+                    var cell = Cells[y * 10 + x];
+                    cell.curTetromino = line.line[x];
                 }
             }
         }
 
-        void DrawCurMinoPiece(List<Point> curMinoBlocksPos, Tetromino minoType)
+        void DrawCurTetrominoPiece(TetrisGame game)
         {
-            if(curMinoBlocksPos != null && curMinoBlocksPos.Count > 0)
+            if (game.PosOfCurMinoBlocks != null)
             {
-                int RectSideLength = (int)(RootCanvas.Width / 10);
-                int i = 0;
-                var cellColor = cellColorSet.GetColor(minoType);
-                foreach(var p in curMinoBlocksPos)
+                var curMinoPos = game.PosOfCurMinoBlocks;
+
+                foreach (var pair in Enumerable.Zip(curMinoPos, CurTetrominoCells, (x, y) => (pos: x, cell: y)))
                 {
-                    var cell = curPieceCells[i];
-                    cell.SetColor(cellColor);
-                    cell.Visibility = Visibility.Visible;
-                    Canvas.SetLeft(cell, p.X * RectSideLength);
-                    Canvas.SetBottom(cell, p.Y * RectSideLength);
-                    i++;
+                    pair.cell.Visibility = Visibility.Visible;
+                    pair.cell.CellPos = new Point(pair.pos.X, pair.pos.Y);
+                    pair.cell.curTetromino = game.curMinoType;
+                    Canvas.SetBottom(pair.cell, pair.cell.CellPos.Y * cellLength);
+                    Canvas.SetLeft(pair.cell, pair.cell.CellPos.X * cellLength);
                 }
             }
             else
             {
-                for(int i = 0; i < 4; i++)
+                foreach(var cell in CurTetrominoCells)
                 {
-                    var cell = curPieceCells[i];
                     cell.Visibility = Visibility.Hidden;
                 }
+            }
+        }
+
+        public void ChangeCellInGrid(int x, int y, Tetromino tetromino)
+        { // test
+            Cells[y * 10 + x].curTetromino = tetromino;
+        }
+
+        public void ChangeCurCellInGrid(int x, int y, Tetromino tetromino)
+        { // test
+            foreach(var cell in CurTetrominoCells)
+            {
+                cell.Visibility = Visibility.Visible;
+                cell.CellPos = new Point(x, y);
+                cell.curTetromino = tetromino;
+                ReAllocateCellPosition(this, null);
             }
         }
     }
