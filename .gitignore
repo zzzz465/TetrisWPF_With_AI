@@ -354,4 +354,4 @@ MigrationBackup/
 
 # End of https://www.gitignore.io/api/csharp
 
-Tetris_WPF_Proj/Resources
+Tetris_WPF_Proj/Resources/
