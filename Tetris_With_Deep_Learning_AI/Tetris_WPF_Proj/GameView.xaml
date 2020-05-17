@@ -5,28 +5,126 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tetris_WPF_Proj"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="450">
-    <Grid>
-        <Grid.RowDefinitions>
-            
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
-        <StackPanel Background="White" Grid.Column="0">
-            <Label/>
-        </StackPanel>
-        <Grid Grid.Column="1">
-            <local:TetrisGrid />
+             x:Name="_GameView">
+    <UserControl.Resources>
+        <DoubleAnimationUsingKeyFrames x:Key="HardDropEffectAnimator"
+                Duration="0:0:0.3">
+            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0" />
+            <LinearDoubleKeyFrame Value="6" KeyTime="0:0:0.01"/>
+            <LinearDoubleKeyFrame Value="0" KeyTime="0:0:0.3" />
+        </DoubleAnimationUsingKeyFrames>
+    </UserControl.Resources>
+
+    <Viewbox>
+        <Grid Width="400" Height="400" Background="{Binding ElementName=_GameView, Path=BackgroundBrush}">
+            <Grid.RowDefinitions>
+
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="1*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0">
+                    <Label  Grid.Row="0" FontSize="21" FontFamily="Consolas" HorizontalAlignment="Left" Foreground="Red" Padding="0">
+                        HOLD
+                    </Label>
+                    <Viewbox>
+                        <local:TetrominoPreview Width="100" Height="100" CurTetromino="{Binding ElementName=_GameView, Path=HoldTetromino}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <local:TetrominoPreview.Background>
+                                <DrawingBrush>
+                                    <DrawingBrush.Drawing>
+                                        <GeometryDrawing>
+                                            <GeometryDrawing.Geometry>
+                                                <RectangleGeometry Rect="0, 0, 1, 1"/>
+                                            </GeometryDrawing.Geometry>
+                                            <GeometryDrawing.Pen>
+                                                <Pen Thickness="0.01">
+                                                    <Pen.Brush>
+                                                        <SolidColorBrush Color="Red" />
+                                                    </Pen.Brush>
+                                                </Pen>
+                                            </GeometryDrawing.Pen>
+                                        </GeometryDrawing>
+                                    </DrawingBrush.Drawing>
+                                </DrawingBrush>
+                            </local:TetrominoPreview.Background>
+                        </local:TetrominoPreview>
+                    </Viewbox>
+                </StackPanel>
+            </Grid>
+
+            <Grid Grid.Column="1">
+                <Grid.Triggers>
+                    <EventTrigger RoutedEvent="local:TetrisGrid.HardDrop">
+                        
+                    </EventTrigger>
+                </Grid.Triggers>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="15*"/>
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Foreground="White" HorizontalAlignment="Center" Padding="0" Margin="0,2,0,5">Player</Label>
+                <!-- <Canvas x:Name="GridContainerCanvas" Grid.Row="1"> -->
+                <local:TetrisGrid Grid.Row="1" x:Name="tetrisGrid" CellStyles="{Binding ElementName=_GameView, Path=MinoStyles}" BackgroundBrush="Black" RenderTransformOrigin="0.5,0.5">
+                    <local:TetrisGrid.Triggers>
+                        <EventTrigger>
+                            
+                        </EventTrigger>
+                    </local:TetrisGrid.Triggers>
+                </local:TetrisGrid>
+                <!-- </Canvas> -->
+            </Grid>
+
+            <StackPanel Grid.Column="2" Margin="10,0,0,0">
+                <!-- width = 100 -->
+                <Label Content="NEXT" Padding="0" Foreground="Blue" HorizontalAlignment="Left" FontFamily="Consolas" VerticalAlignment="Center" FontSize="22" FontWeight="ExtraLight"/>
+                <Grid Height="300" HorizontalAlignment="Left">
+                    <Grid.Resources>
+                        <Style TargetType="local:TetrominoPreview">
+                            <Setter Property="Margin" Value="5,7,5,7"/>
+                        </Style>
+                    </Grid.Resources>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Rectangle Grid.RowSpan="5" Panel.ZIndex="-2" Fill="Black"/>
+                    <Rectangle Grid.RowSpan="5" Panel.ZIndex="-1">
+                        <Rectangle.Fill>
+                            <DrawingBrush>
+                                <DrawingBrush.Drawing>
+                                    <GeometryDrawing>
+                                        <GeometryDrawing.Geometry>
+                                            <RectangleGeometry Rect="0, 0, 1, 3"/>
+                                        </GeometryDrawing.Geometry>
+                                        <GeometryDrawing.Pen>
+                                            <Pen Thickness="0.01">
+                                                <Pen.Brush>
+                                                    <SolidColorBrush Color="Blue"/>
+                                                </Pen.Brush>
+                                            </Pen>
+                                        </GeometryDrawing.Pen>
+                                    </GeometryDrawing>
+                                </DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    <local:TetrominoPreview Grid.Row="0" CurTetromino="{Binding ElementName=_GameView, Path=NextTetrominos[0]}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" />
+                    <local:TetrominoPreview Grid.Row="1" CurTetromino="{Binding ElementName=_GameView, Path=NextTetrominos[1]}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" />
+                    <local:TetrominoPreview Grid.Row="2" CurTetromino="{Binding ElementName=_GameView, Path=NextTetrominos[2]}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" />
+                    <local:TetrominoPreview Grid.Row="3" CurTetromino="{Binding ElementName=_GameView, Path=NextTetrominos[3]}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" />
+                    <local:TetrominoPreview Grid.Row="4" CurTetromino="{Binding ElementName=_GameView, Path=NextTetrominos[4]}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" />
+                </Grid>
+            </StackPanel>
+
         </Grid>
-        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
-            <Rectangle Width="40" Height="50" Fill="Aqua" Margin="10"/>
-            <Rectangle Width="50" Height="60" Fill="Aqua" Margin="10"/>
-            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
-            <Rectangle Width="50" Height="50" Fill="Aqua" Margin="10"/>
-        </StackPanel>
-    </Grid>
+    </Viewbox>
 </UserControl>

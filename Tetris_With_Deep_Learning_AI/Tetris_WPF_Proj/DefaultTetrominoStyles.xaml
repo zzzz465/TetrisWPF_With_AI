@@ -3,7 +3,7 @@
                     xmlns:local="clr-namespace:Tetris_WPF_Proj"
                     xmlns:Tetris="clr-namespace:Tetris;assembly=Tetris_NetFramework">
 
-    <ResourceDictionary x:Key="DefaultTetrominoStyles">
+    <ResourceDictionary x:Key="DefaultSolidColorTetrominoStyles">
         <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.T}">
             <SolidColorBrush.Color>
                 <Color A="255" B="180" G="30" R="170" />
@@ -39,6 +39,48 @@
                 <Color A="255" B="10" G="200" R="220"/>
             </SolidColorBrush.Color>
         </SolidColorBrush>
+        <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.None}">
+            <SolidColorBrush.Color>
+                <Color A="0"/>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
+    </ResourceDictionary>
+    <ResourceDictionary x:Key="DefaultImageTetrominoStyles">
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.I}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/I.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.J}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/J.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.L}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/L.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.Z}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/Z.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.S}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/S.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.T}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/T.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+        <ImageBrush x:Key="{x:Static Tetris:Tetromino.O}">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/DefaultTetrominoImages/O.png"/>
+            </ImageBrush.ImageSource>
+        </ImageBrush>
         <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.None}">
             <SolidColorBrush.Color>
                 <Color A="0"/>

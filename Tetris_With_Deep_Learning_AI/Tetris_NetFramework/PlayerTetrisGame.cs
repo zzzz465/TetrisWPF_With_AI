@@ -172,7 +172,8 @@ namespace Tetris
                         if(currentPiece.TryShift(new Point(0, -1)))
                         {
                             LastSoftDropTime = curTime;
-                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
+                            _TetrisGameEvent.OnSoftDropped(new EventArgs());
+                            // _TetrisGameEvent.OnCurMinoMoved(new EventArgs()); FIXME : 
                         }
                     }
                 }
@@ -182,7 +183,8 @@ namespace Tetris
                     if (currentPiece.TryShift(new Point(0, -1)))
                     {
                         LastSoftDropTime = curTime;
-                        _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
+                        _TetrisGameEvent.OnSoftDropped(new EventArgs());
+                        // _TetrisGameEvent.OnCurMinoMoved(new EventArgs()); FIXME :
                     }
                 }
             }

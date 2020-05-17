@@ -24,18 +24,49 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class TetrisGrid : UserControl
     {
+        #region PROPDP
         public ResourceDictionary CellStyles
         {
             get { return (ResourceDictionary)GetValue(CellStylesProperty); }
             set { SetValue(CellStylesProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for CellStyles.  This enables animation, styling, binding, etc...
+        public Brush BackgroundBrush
+        {
+            get { return (Brush)GetValue(BackgroundBrushProperty); }
+            set { SetValue(BackgroundBrushProperty, value); }
+        }
+
         public static readonly DependencyProperty CellStylesProperty =
             DependencyProperty.Register("CellStyles", typeof(ResourceDictionary), typeof(TetrisGrid), new PropertyMetadata(null, OnCellStylesChangedCallBack));
 
+        public static readonly DependencyProperty BackgroundBrushProperty =
+            DependencyProperty.Register("BackgroundBrush", typeof(Brush), typeof(TetrisGrid), new PropertyMetadata(null));
+        #endregion
+        #region Events
+        public event RoutedEventHandler HardDrop
+        {
+            add { AddHandler(HardDropEvent, value); }
+            remove { RemoveHandler(HardDropEvent, value); }
+        }
+        public static readonly RoutedEvent HardDropEvent = EventManager.RegisterRoutedEvent("HardDrop", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TetrisGrid));
+        #endregion
+        TetrisGame _tetrisGame;
+        public TetrisGame tetrisGame
+        {
+            get { return _tetrisGame; }
+            set
+            {
+                _tetrisGame = value;
+                // DeRegisterEvents();
+                RegisterEvents();
+            }
+        }
+        public float GhostMinoOpacity { get; set; } = 0.6f;
+
         List<Cell> Cells = new List<Cell>();
         List<Cell> CurTetrominoCells = new List<Cell>();
+        List<Cell> GhostTetrominoCells = new List<Cell>();
 
         private int cellLength = 0;
 
@@ -47,14 +78,6 @@ namespace Tetris_WPF_Proj
             InitializeGrid();
             ReAllocateCellPosition(this, SizeChangedEventArgs.Empty);
             SizeChanged += ReAllocateCellPosition;
-        }
-
-        void Test_DrawSome(object sender, EventArgs e)
-        {
-            var z = new Random().Next(0, 6);
-            var x = new Tetromino[] { Tetromino.I, Tetromino.J, Tetromino.O, Tetromino.L, Tetromino.Z, Tetromino.S };
-            for (int i = 13; i < 32; i++)
-                this.Cells[i].curTetromino = x[z];
         }
 
         void InitializeGrid()
@@ -75,16 +98,25 @@ namespace Tetris_WPF_Proj
             {
                 var cell = new Cell();
                 RootCanvas.Children.Add(cell);
-                Canvas.SetZIndex(cell, 2);
+                Canvas.SetZIndex(cell, 3);
                 cell.Visibility = Visibility.Hidden;
                 CurTetrominoCells.Add(cell);
+            }
+
+            for(int i = 0; i < 4; i++)
+            {
+                var cell = new Cell();
+                GhostTetrominoCells.Add(cell);
+                RootCanvas.Children.Add(cell);
+                Canvas.SetZIndex(cell, 2);
+                cell.Visibility = Visibility.Hidden;
             }
         }
 
         protected void ReAllocateCellPosition(object sender, EventArgs e)
         {
             this.cellLength = (int)(RootCanvas.ActualWidth / 10);
-            foreach(var cell in Enumerable.Concat(Cells, CurTetrominoCells))
+            foreach(var cell in Enumerable.Concat(Enumerable.Concat(Cells, CurTetrominoCells), GhostTetrominoCells))
             {
                 var pos = cell.CellPos;
                 cell.Width = cellLength;
@@ -104,12 +136,22 @@ namespace Tetris_WPF_Proj
             {
                 cell.MinoStyles = e.NewValue as ResourceDictionary;
             }
+
+            foreach(var cell in grid.GhostTetrominoCells)
+            {
+                cell.MinoStyles = e.NewValue as ResourceDictionary;
+                cell.Opacity = grid.GhostMinoOpacity;
+            }
         }
 
-        public void DrawGame(TetrisGame game)
+        public void DrawGame()
         {
-            DrawBoard(game);
-            DrawCurTetrominoPiece(game);
+            if (this.tetrisGame == null)
+                return;
+
+            DrawBoard(this.tetrisGame);
+            DrawCurTetrominoPiece(this.tetrisGame);
+            DrawGhostTetrominoPiece(this.tetrisGame);
         }
 
         void DrawBoard(TetrisGame game)
@@ -131,7 +173,6 @@ namespace Tetris_WPF_Proj
             if (game.PosOfCurMinoBlocks != null)
             {
                 var curMinoPos = game.PosOfCurMinoBlocks;
-
                 foreach (var pair in Enumerable.Zip(curMinoPos, CurTetrominoCells, (x, y) => (pos: x, cell: y)))
                 {
                     pair.cell.Visibility = Visibility.Visible;
@@ -150,10 +191,30 @@ namespace Tetris_WPF_Proj
             }
         }
 
-        public void ChangeCellInGrid(int x, int y, Tetromino tetromino)
-        { // test
-            Cells[y * 10 + x].curTetromino = tetromino;
+        void DrawGhostTetrominoPiece(TetrisGame game)
+        { // identical code but let it seperated.
+            var ghostMinoPos = game.PosOfGhostMinoBlocks;
+            if(ghostMinoPos != null)
+            {
+                foreach(var pair in Enumerable.Zip(ghostMinoPos, GhostTetrominoCells, (x, y) => (pos : x, cell : y)))
+                {
+                    pair.cell.Visibility = Visibility.Visible;
+                    pair.cell.CellPos = new Point(pair.pos.X, pair.pos.Y);
+                    pair.cell.curTetromino = game.curMinoType;
+                    Canvas.SetBottom(pair.cell, pair.cell.CellPos.Y * cellLength);
+                    Canvas.SetLeft(pair.cell, pair.cell.CellPos.X * cellLength);
+                }
+            }
+            else
+            {
+                foreach (var cell in CurTetrominoCells)
+                {
+                    cell.Visibility = Visibility.Hidden;
+                }
+            }
         }
+
+        public void ChangeCellInGrid(int x, int y, Tetromino tetromino) => Cells[y * 10 + x].curTetromino = tetromino;
 
         public void ChangeCurCellInGrid(int x, int y, Tetromino tetromino)
         { // test
@@ -164,6 +225,17 @@ namespace Tetris_WPF_Proj
                 cell.curTetromino = tetromino;
                 ReAllocateCellPosition(this, null);
             }
+        }
+
+        void RegisterEvents()
+        {
+            var gameEvent = tetrisGame.TetrisGameEvent;
+            gameEvent.CurMinoHardDropped += (obj, e) => RaiseEvent(new RoutedEventArgs(HardDropEvent, e));
+        }
+
+        void DeRegisterEvents()
+        {
+            throw new NotImplementedException();
         }
     }
 }

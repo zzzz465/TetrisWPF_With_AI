@@ -7,9 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="100" d:DesignWidth="100"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    
 <!-- Binding을 하려면 x:Name을 통해 이름을 지정한 다음, ElementName=이름 이후 Path=속성을 하거나, 
      Binding은 DataContext에 의한 것이므로, DataContext를 먼저 지정해준다음 Binding Path=속성을 하면 된다, DataContext는 기본적으로 자식에게 전파됨
     -->
+    
     <Rectangle Fill="{Binding Path=CellBrush}">
     </Rectangle>
 </UserControl>

@@ -9,7 +9,7 @@
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Viewbox>
         <Canvas x:Name="RootCanvas" Width="400" Height="800">
-            <Rectangle x:Name="BackgroundRect" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="0">
+            <Rectangle x:Name="GridRectangle" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="1">
                 <Rectangle.Fill>
                     <DrawingBrush>
                         <DrawingBrush.Drawing>
@@ -41,6 +41,8 @@
                         </DrawingBrush.Drawing>
                     </DrawingBrush>
                 </Rectangle.Fill>
+            </Rectangle>
+            <Rectangle x:Name="BackgroundRectangle" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="0" Fill="{Binding BackgroundBrush}">
             </Rectangle>
         </Canvas>
     </Viewbox>

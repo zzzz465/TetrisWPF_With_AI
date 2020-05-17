@@ -27,7 +27,7 @@ namespace Tetris_WPF_Proj
     /// <summary>
     /// TetrisGame.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class TetrisGameUserControl : UserControl
+    public partial class TetrisGameView : UserControl
     {
         ILog Log = LogManager.GetLogger("TetrisGameUserControl");
 
@@ -36,7 +36,7 @@ namespace Tetris_WPF_Proj
         List<iInputProvider> inputProviders;
         byte[] dontremove;
 
-        public TetrisGameUserControl()
+        public TetrisGameView()
         {
             InitializeComponent();
             sw.Reset();
@@ -106,12 +106,13 @@ namespace Tetris_WPF_Proj
             {
                 game.UpdateGame(sw.Elapsed);
             }
-
+            /*
             if (tetrisGames.Count > 0)
                 TetrisGrid_1.DrawGame(tetrisGames[0]);
 
             if (tetrisGames.Count > 1)
                 TetrisGrid_2.DrawGame(tetrisGames[1]);
+                */
         }
     }
 }

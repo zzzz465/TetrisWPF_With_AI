@@ -75,17 +75,17 @@
     <Compile Include="GameView.xaml.cs">
       <DependentUpon>GameView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="TestWindow.xaml.cs">
+      <DependentUpon>TestWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TetrisGrid.xaml.cs">
       <DependentUpon>TetrisGrid.xaml</DependentUpon>
     </Compile>
-    <Compile Include="NextMino.xaml.cs">
-      <DependentUpon>NextMino.xaml</DependentUpon>
+    <Compile Include="TetrominoPreview.xaml.cs">
+      <DependentUpon>TetrominoPreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="TetrisGameView.xaml.cs">
+    <Compile Include="UI\TetrisGameView.xaml.cs">
       <DependentUpon>TetrisGameView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="TetrisGridTestWindow.xaml.cs">
-      <DependentUpon>TetrisGridTestWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\MainMenu.xaml.cs">
       <DependentUpon>MainMenu.xaml</DependentUpon>
@@ -110,11 +110,11 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TetrisGrid.xaml">
+    <Page Include="TestWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="NextMino.xaml">
+    <Page Include="TetrisGrid.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -122,11 +122,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TetrisGameView.xaml">
+    <Page Include="TetrominoPreview.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="TetrisGridTestWindow.xaml">
+    <Page Include="UI\TetrisGameView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -150,6 +150,30 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
     <Resource Include="Resources\Image\Background.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\I.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\J.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\L.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\O.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\S.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\T.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\DefaultTetrominoImages\Z.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Image\TetrisLogo.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Content Include="Resources\SoundEffect\Tetris99\me_game_clear.wav">

@@ -7,69 +7,88 @@ namespace Tetris
 {
     public interface iTetrisGameEvent
     { // 공개용 인터페이스
-        event EventHandler<EventArgs> BoardChanged;
-        event EventHandler<EventArgs> LineCleared;
-        event EventHandler<EventArgs> CurMinoMoved;
-        event EventHandler<EventArgs> CurMinoRotated;
-        event EventHandler<EventArgs> CurMinoHardDropped;
-        event EventHandler<EventArgs> Hold;
-        event EventHandler<EventArgs> MinoLocked;
+        event EventHandler BoardChanged;
+        event EventHandler LineCleared;
+        event EventHandler CurMinoMoved;
+        event EventHandler CurMinoRotated;
+        event EventHandler CurMinoHardDropped;
+        event EventHandler Hold;
+        event EventHandler MinoLocked;
+        event EventHandler SoftDropped;
     }
     public class TetrisGameEvent : iTetrisGameEvent
     { // Event 담당 클래스
-        public event EventHandler<EventArgs> BoardChanged;
-        public event EventHandler<EventArgs> LineCleared;
-        public event EventHandler<EventArgs> CurMinoMoved;
-        public event EventHandler<EventArgs> CurMinoRotated;
-        public event EventHandler<EventArgs> CurMinoHardDropped;
-        public event EventHandler<EventArgs> Hold;
-        public event EventHandler<EventArgs> MinoLocked;
+        public event EventHandler BoardChanged;
+        public event EventHandler LineCleared;
+        public event EventHandler CurMinoMoved;
+        public event EventHandler CurMinoRotated;
+        public event EventHandler CurMinoHardDropped;
+        public event EventHandler Hold;
+        public event EventHandler MinoLocked;
+        public event EventHandler SoftDropped;
         public void OnBoardChanged(EventArgs e)
         {
-            EventHandler<EventArgs> handler = BoardChanged;
+            EventHandler handler = BoardChanged;
             if(handler != null)
                 handler.Invoke(this, e);
         }
         public void OnLineCleared(EventArgs e)
         {
-            EventHandler<EventArgs> handler = LineCleared;
+            EventHandler handler = LineCleared;
             if(handler != null)
                 handler.Invoke(this, e);
         }
 
         public void OnCurMinoMoved(EventArgs e)
         {
-            EventHandler<EventArgs> handler = CurMinoMoved;
+            EventHandler handler = CurMinoMoved;
             if(handler != null)
                 handler.Invoke(this, e);
         }
 
         public void OnCurMinoRotated(EventArgs e)
         {
-            EventHandler<EventArgs> handler = CurMinoRotated;
+            EventHandler handler = CurMinoRotated;
             if(handler != null)
                 handler.Invoke(this, e);
         }
 
         public void OnCurMinoHardDropped(EventArgs e)
         {
-            EventHandler<EventArgs> handler = CurMinoHardDropped;
+            EventHandler handler = CurMinoHardDropped;
             if(handler != null)
                 handler.Invoke(this, e);
         }
 
         public void OnHold(EventArgs e)
         {
-            EventHandler<EventArgs> handler = Hold;
+            EventHandler handler = Hold;
             if(handler != null)
                 handler.Invoke(this, e);
         }
 
         public void OnMinoLocked(EventArgs e)
         {
-            EventHandler<EventArgs> handler = MinoLocked;
+            EventHandler handler = MinoLocked;
             if(handler != null)
                 handler.Invoke(this, e);
         }
+
+        public void OnSoftDropped(EventArgs e)
+        {
+            EventHandler handler = SoftDropped;
+            if (handler != null)
+                handler.Invoke(this, e);
+        }
     }
+    /*
+    public class TetrisGameEventArgs
+    {
+        public bool softdropPressed;
+        public TetrisGameEventArgs()
+        {
+
+        }
+    }
+    */
 }

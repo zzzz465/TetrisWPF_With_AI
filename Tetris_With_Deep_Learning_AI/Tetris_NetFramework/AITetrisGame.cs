@@ -131,7 +131,8 @@ namespace Tetris
                             LastSoftDropTime = curTime;
                             LastUpdateTime = curTime;
                             Log.DebugAI("SoftDrop to bottom");
-                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
+                            _TetrisGameEvent.OnSoftDropped(new EventArgs());
+                            // _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
                         }
                         else
                         {
@@ -156,7 +157,8 @@ namespace Tetris
                             LastUpdateTime = curTime;
                             instructionSet.MoveNext();
                             Log.DebugAI("Softdrop Success");
-                            _TetrisGameEvent.OnCurMinoMoved(new EventArgs());
+                            _TetrisGameEvent.OnSoftDropped(new EventArgs());
+                            // _TetrisGameEvent.OnCurMinoMoved(new EventArgs()); // FIXME : EventArgs에 패러매터로 값을 넣어주고, 이벤트 자체는 활성화시키자
                         }
                         else
                         {
