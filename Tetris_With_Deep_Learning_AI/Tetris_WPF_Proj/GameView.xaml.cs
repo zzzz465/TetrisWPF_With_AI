@@ -49,7 +49,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(BackgroundBrushProperty, value); }
         }
 
-
         public static readonly DependencyProperty BackgroundBrushProperty =
             DependencyProperty.Register("BackgroundBrush", typeof(Brush), typeof(GameView), new PropertyMetadata(null));
 
@@ -83,9 +82,23 @@ namespace Tetris_WPF_Proj
 
         public void UpdateGameView()
         {
+            if (this.tetrisGame == null)
+                return;
+
             this.tetrisGrid.DrawGame();
+            DrawIncomingStat();
             NextTetrominos = tetrisGame.PeekBag();
             HoldTetromino = tetrisGame.HoldMinoType;
+        }
+
+        void DrawIncomingStat()
+        {
+            var canvas = IncomingDamageCanvas;
+            var width = canvas.ActualWidth;
+            var height = canvas.ActualHeight;
+            var game = tetrisGame;
+            var standardHeight = height / 20;
+            IncomingColorBar.Height = standardHeight * game.GarbageLine;
         }
 
         void RegisterEvents()

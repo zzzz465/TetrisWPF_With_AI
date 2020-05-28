@@ -60,6 +60,9 @@ namespace Tetris_WPF_Proj
             effectEventArgs.minoLocked = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_fixa.wav") { volume = 0.4f };
             effectEventArgs.minoRotated = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_rotate.wav") { volume = 0.7f };
 
+            GameView_1.tetrisGame = games[0];
+            GameView_2.tetrisGame = games.Count > 1 ? games[1] : null;
+
             SetSoundEffect(this, effectEventArgs);
         }
 
@@ -80,7 +83,7 @@ namespace Tetris_WPF_Proj
         }
 
         public void StartNewGame()
-        {
+        { // 여기서 이거 하면 안된다 -> 옮겨야함 FIXME
             foreach(var game in tetrisGames)
             {
                 game.ResetGame();
@@ -106,13 +109,12 @@ namespace Tetris_WPF_Proj
             {
                 game.UpdateGame(sw.Elapsed);
             }
-            /*
+
             if (tetrisGames.Count > 0)
-                TetrisGrid_1.DrawGame(tetrisGames[0]);
+                GameView_1.UpdateGameView();
 
             if (tetrisGames.Count > 1)
-                TetrisGrid_2.DrawGame(tetrisGames[1]);
-                */
+                GameView_2.UpdateGameView();
         }
     }
 }

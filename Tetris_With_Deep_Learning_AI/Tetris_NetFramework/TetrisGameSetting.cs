@@ -4,17 +4,14 @@ using System.Linq;
 
 namespace Tetris
 {
-    public class TetrisGameSetting
+    public struct TetrisGameSetting
     {
         public TimeSpan ARRDelay;
         public TimeSpan DASDelay;
         public TimeSpan minoSpawnDelay;
         public TimeSpan softDropDelay;
         public TimeSpan autoDropDelay;
-        private TetrisGameSetting()
-        {
-            
-        }
+
         public TetrisGameSetting(TimeSpan ARRDelay, TimeSpan DASDelay, TimeSpan minoSpawnDelay, TimeSpan softDropDelay, TimeSpan autoDropDelay)
         {
             this.ARRDelay = ARRDelay;

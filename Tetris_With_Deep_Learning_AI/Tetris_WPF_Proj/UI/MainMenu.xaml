@@ -31,9 +31,9 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <Button Content="Play" Grid.Column="0" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36"/>
-            <Button Content="Setting" Grid.Column="1" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36"/>
-            <Button Content="Quit" Grid.Column="2" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36"/>
+            <Button Content="Play" Grid.Column="0" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36" Click="OnNavigationButtonClick"/>
+            <Button Content="Setting" Grid.Column="1" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36" Click="OnNavigationButtonClick"/>
+            <Button Content="Quit" Grid.Column="2" Width="200" Height="100" Margin="10, 10, 10, 10" FontSize="36" Click="OnNavigationButtonClick"/>
         </Grid>
     </Grid>
 </UserControl>

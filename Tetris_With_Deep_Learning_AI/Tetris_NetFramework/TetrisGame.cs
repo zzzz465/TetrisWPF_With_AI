@@ -27,6 +27,7 @@ namespace Tetris
         public IEnumerable<Point> PosOfGhostMinoBlocks { get { return currentPiece?.GetExpectedHardDropPosOfBlocks(); } }
         public Tetromino curMinoType { get { return currentPiece?.minoType ?? Tetromino.None; } }
         public Tetromino HoldMinoType { get { return curHold?.minoType ?? Tetromino.None; } }
+        public int GarbageLine { get { return this._garbageLine; } }
         protected TetrominoBag tetrominoBag;
         protected readonly Point spawnOffset = new Point(4, 19);
 
@@ -60,10 +61,10 @@ namespace Tetris
         {
             get
             {
-                return GarbageLine > MaxGarbageLinePerBlockLock ? MaxGarbageLinePerBlockLock : GarbageLine;
+                return _garbageLine > MaxGarbageLinePerBlockLock ? MaxGarbageLinePerBlockLock : _garbageLine;
             }
         }
-        private int GarbageLine = 0;
+        private int _garbageLine = 0;
         protected int MaxGarbageLinePerBlockLock = 6;
         [Obsolete("Not implemented feature")]
         protected bool ProcessGarbageLineWhileCombo = false;
@@ -168,11 +169,11 @@ namespace Tetris
 
             int lineToSend = garbageLine;
 
-            if(GarbageLine > 0)
+            if(_garbageLine > 0)
             {
-                if(GarbageLine >= garbageLine)
+                if(_garbageLine >= garbageLine)
                 {
-                    GarbageLine -= garbageLine;
+                    _garbageLine -= garbageLine;
                     lineToSend = 0;
                 }
                 else
@@ -194,7 +195,7 @@ namespace Tetris
 
         void ReceiveDamage(int garbageLine)
         {
-            this.GarbageLine += garbageLine;
+            this._garbageLine += garbageLine;
         }
 
         void ProcessGridChange(GridUpdateResult gridUpdateResult)
@@ -233,24 +234,24 @@ namespace Tetris
 
         void ProcessIncomingGarbageLine()
         {
-            if(this.GarbageLine > 0)
+            if(this._garbageLine > 0)
             {
                 // if(ProcessGarbageLineWhileCombo == false && Combo <= 0)
                 //     return;
 
                 var x_index_of_garbage_line = garbageLineSelector.Next(0, 9);
 
-                if(GarbageLine > MaxGarbageLinePerBlockLock)
+                if(_garbageLine > MaxGarbageLinePerBlockLock)
                 {
                     tetrisGrid.AddGarbageLine(MaxGarbageLinePerBlockLock, x_index_of_garbage_line);
-                    GarbageLine -= MaxGarbageLinePerBlockLock;
-                    if(GarbageLine < 0)
-                        GarbageLine = 0;
+                    _garbageLine -= MaxGarbageLinePerBlockLock;
+                    if(_garbageLine < 0)
+                        _garbageLine = 0;
                 }
                 else
                 {
-                    tetrisGrid.AddGarbageLine(GarbageLine, x_index_of_garbage_line);
-                    GarbageLine = 0;
+                    tetrisGrid.AddGarbageLine(_garbageLine, x_index_of_garbage_line);
+                    _garbageLine = 0;
                 }
 
                 OnGarbageLineReceived();

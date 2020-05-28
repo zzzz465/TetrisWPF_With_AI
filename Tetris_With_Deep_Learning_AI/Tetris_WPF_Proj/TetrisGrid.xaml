@@ -7,6 +7,33 @@
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="800" 
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <DrawingBrush x:Key="HardDropImage">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Geometry>
+                            <RectangleGeometry Rect="0, 0, 1, 1"/>
+                        </GeometryDrawing.Geometry>
+                        <GeometryDrawing.Brush>
+                            <SolidColorBrush>
+                                <SolidColorBrush.Color>
+                                    <Color A="40" G="255" B="255" R="255"/>
+                                </SolidColorBrush.Color>
+                            </SolidColorBrush>
+                        </GeometryDrawing.Brush>
+                    </GeometryDrawing>
+                    <ImageDrawing Rect="0, 0, 1, 1" ImageSource="pack://application:,,,/Resources/Image/dropEffect_2.png">
+                    </ImageDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+        <ImageBrush x:Key="HardDropImage_2">
+            <ImageBrush.ImageSource>
+                <BitmapImage UriSource="pack://application:,,,/Resources/Image/dropEffect_2.png" />
+            </ImageBrush.ImageSource>
+        </ImageBrush>
+    </UserControl.Resources>
     <Viewbox>
         <Canvas x:Name="RootCanvas" Width="400" Height="800">
             <Rectangle x:Name="GridRectangle" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="1">
@@ -16,10 +43,10 @@
                             <DrawingGroup>
                                 <GeometryDrawing>
                                     <GeometryDrawing.Geometry>
-                                        <RectangleGeometry Rect="0, 0, 10, 20" />
+                                        <RectangleGeometry Rect="0, 0, 10, 20" /> <!-- 이러한 사각형이 있는데 -->
                                     </GeometryDrawing.Geometry>
                                     <GeometryDrawing.Brush>
-                                        <DrawingBrush Viewport="0, 0, 0.1, 0.05" TileMode="Tile">
+                                        <DrawingBrush Viewport="0, 0, 0.1, 0.05" TileMode="Tile"> <!-- 그 사각형을 0.1, 0.05 마다 채운다 -->
                                             <DrawingBrush.Drawing>
                                                 <GeometryDrawing>
                                                     <GeometryDrawing.Geometry>
@@ -44,6 +71,9 @@
             </Rectangle>
             <Rectangle x:Name="BackgroundRectangle" Width="{Binding ElementName=RootCanvas, Path=ActualWidth}" Height="{Binding ElementName=RootCanvas, Path=ActualHeight}" Panel.ZIndex="0" Fill="{Binding BackgroundBrush}">
             </Rectangle>
+                <!--
+            <Rectangle Fill="{StaticResource HardDropImage}" Width="40" Height="160"/>
+                -->
         </Canvas>
     </Viewbox>
 </UserControl>

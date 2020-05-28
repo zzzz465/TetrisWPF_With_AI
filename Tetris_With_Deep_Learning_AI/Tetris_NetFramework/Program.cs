@@ -25,14 +25,14 @@ namespace Tetris
         {
             var PlayerSetting = TetrisGameSetting.Default;
             var inputManager = new UserInputManager(InputSetting.Default);
-            var playerTetrisGame = new PlayerTetrisGame(inputManager, InputSetting.Default, PlayerSetting);
+            var playerTetrisGame = new PlayerTetrisGame(inputManager, PlayerSetting);
             var renderer = new BoardRenderer(playerTetrisGame, null, inputManager);
             renderer.syncUpdateLoop();
         }
 
         static void AIVersusTest()
         {
-            var FastAISetting = new AIGameSetting(TimeSpan.FromMilliseconds(8), TimeSpan.FromMilliseconds(16), TimeSpan.FromMilliseconds(80), TimeSpan.FromMilliseconds(14));
+            var FastAISetting = TetrisGameSetting.Default;
             var AIPlayer_1 = new AITetrisGame(ColdClear.ColdClearAI.CreateInstance(), FastAISetting);
             var AIPlayer_2 = new AITetrisGame(ColdClear.ColdClearAI.CreateInstance(), FastAISetting);
             AIPlayer_1.SetApponent(AIPlayer_2);

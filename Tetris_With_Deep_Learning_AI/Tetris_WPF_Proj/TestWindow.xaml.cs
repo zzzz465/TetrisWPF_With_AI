@@ -37,11 +37,6 @@ namespace Tetris_WPF_Proj
             set { _lastClicked = value < tetrominos.Length ? value : 0; }
         }
 
-        void TetrominoPreviewClick(object sender, EventArgs e)
-        {
-            TetrominoPreview.CurTetromino = tetrominos[lastClicked++];
-        }
-
         List<EventHandler> updateEventHandlers = new List<EventHandler>();
         List<EventHandler> soundEventHandlers = new List<EventHandler>();
 
@@ -49,7 +44,7 @@ namespace Tetris_WPF_Proj
         {
             //GameView.tetrisGame = new AITetrisGame(ColdClearAI.CreateInstance(), AIGameSetting.Default);
             var userInputProvider = new UserInputManager(InputSetting.Default);
-            GameView.tetrisGame = new PlayerTetrisGame(userInputProvider, InputSetting.Default, TetrisGameSetting.Default);
+            GameView.tetrisGame = new PlayerTetrisGame(userInputProvider, TetrisGameSetting.Default);
             GameView.tetrisGame.InitializeGame();
             GameView.tetrisGame.StartGame();
 
@@ -84,7 +79,7 @@ namespace Tetris_WPF_Proj
             }
             updateEventHandlers.Clear();
 
-            GameView.tetrisGame = new AITetrisGame(ColdClearAI.CreateInstance(), AIGameSetting.Default);
+            GameView.tetrisGame = new AITetrisGame(ColdClearAI.CreateInstance(), TetrisGameSetting.Default);
             GameView.tetrisGame.InitializeGame();
             GameView.tetrisGame.StartGame();
 
@@ -131,6 +126,23 @@ namespace Tetris_WPF_Proj
         private void GameView_HardDrop(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        void StartNewAIVersusGame(object sender, RoutedEventArgs e)
+        {
+            var game1 = new AITetrisGame(ColdClearAI.CreateInstance(), TetrisGameSetting.Default);
+            var game2 = new AITetrisGame(ColdClearAI.CreateInstance(), TetrisGameSetting.Default);
+
+            game1.SetApponent(game2);
+            game2.SetApponent(game1);
+
+            TetrisGameView.SetTetrisGame(new List<TetrisGame>() { game1, game2 }, new List<iInputProvider>());
+            TetrisGameView.StartNewGame();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            return;
         }
     }
 }

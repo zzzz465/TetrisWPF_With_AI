@@ -10,11 +10,9 @@ namespace Tetris
     {
         protected override ILog Log { get; set; } = LogManager.GetLogger("PlayerTetrisGame");
         iInputProvider inputProvider;
-        InputSetting inputSetting;
-        public PlayerTetrisGame(iInputProvider inputProvider, InputSetting keySetting, TetrisGameSetting gameSetting) : base(gameSetting)
+        public PlayerTetrisGame(iInputProvider inputProvider, TetrisGameSetting gameSetting) : base(gameSetting)
         {
             this.inputProvider = inputProvider;
-            this.inputSetting = keySetting;
         }
 
         public override void InitializeGame()
@@ -80,8 +78,8 @@ namespace Tetris
                 
                 LastSoftDropTime = curTime;
                 lastMinoPlaced = curTime;
+                _TetrisGameEvent.OnCurMinoHardDropped(new HardDropEventArgs(currentPiece.GetPosOfBlocks()));
                 lockCurrentMinoToPlace(curTime);
-                _TetrisGameEvent.OnCurMinoHardDropped(new EventArgs());
             }
             else
             {

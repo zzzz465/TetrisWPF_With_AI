@@ -95,7 +95,6 @@
     <Compile Include="AudioModule\CachedSound.cs" />
     <Compile Include="GarbageLineCalculator.cs" />
     <Compile Include="log4netExtension.cs" />
-    <Compile Include="AIGameSetting.cs" />
     <Compile Include="AITetrisGame.cs" />
     <Compile Include="Bag.cs" />
     <Compile Include="ColdClearAI.cs" />

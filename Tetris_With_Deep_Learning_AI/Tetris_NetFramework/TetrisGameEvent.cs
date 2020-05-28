@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 using log4net;
+using OpenCvSharp;
+using System.Windows.Media;
 
 namespace Tetris
 {
@@ -53,7 +56,7 @@ namespace Tetris
                 handler.Invoke(this, e);
         }
 
-        public void OnCurMinoHardDropped(EventArgs e)
+        public void OnCurMinoHardDropped(HardDropEventArgs e)
         {
             EventHandler handler = CurMinoHardDropped;
             if(handler != null)
@@ -79,6 +82,15 @@ namespace Tetris
             EventHandler handler = SoftDropped;
             if (handler != null)
                 handler.Invoke(this, e);
+        }
+    }
+
+    public class HardDropEventArgs : EventArgs
+    {
+        public IEnumerable<System.Drawing.Point> hardDropPos;
+        public HardDropEventArgs(IEnumerable<System.Drawing.Point> hardDropPos) : base()
+        {
+            this.hardDropPos = hardDropPos;
         }
     }
     /*

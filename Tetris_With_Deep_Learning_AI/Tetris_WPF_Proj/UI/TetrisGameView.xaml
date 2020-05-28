@@ -9,7 +9,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="DefaultTetrominoStyles.xaml"/>
+                <ResourceDictionary Source="../DefaultTetrominoStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -21,13 +21,13 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
-                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="0.5*"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
-            <local:GameView Grid.Column="0" />
+            <local:GameView x:Name="GameView_1" Grid.Column="0" Margin="30,0,0,0" BackgroundBrush="Black" MinoStyles="{StaticResource DefaultImageTetrominoStyles}" />
             <Rectangle Grid.Column="1" />
-            <local:GameView Grid.Column="2" />
+            <local:GameView x:Name="GameView_2" Grid.Column="2" Margin="0,0,30,0" BackgroundBrush="Black" MinoStyles="{StaticResource DefaultImageTetrominoStyles}" />
         </Grid>
         <Grid x:Name="Overlay" Panel.ZIndex="1">
             

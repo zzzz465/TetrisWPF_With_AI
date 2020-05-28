@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Tetris_WPF_Proj"
         mc:Ignorable="d"
-        Title="TestWindow" Height="1000" Width="1000">
+        Title="TestWindow" Height="1000" Width="1600">
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -21,26 +21,26 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
             <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-
-        <local:TetrominoPreview Width="100" Height="100" x:Name="TetrominoPreview" MinoStyles="{StaticResource DefaultImageTetrominoStyles}" Canvas.Left="100" Canvas.Top="30" CurTetromino="O" />
-        <Button Click="TetrominoPreviewClick" Content="Change Tetromino_TetrominoPreview"/>
-
-        <local:Cell MinoStyles="{StaticResource DefaultImageTetrominoStyles}" curTetromino="O" Width="100" Height="100" Canvas.Bottom="10" Canvas.Left="10"/>
-        <Grid Grid.Row="0" Grid.Column="1">
-            <StackPanel>
-                <TextBox x:Name="SourceTextBox" Width="100" Height="50" Background="Yellow" />
-                <TextBlock x:Name="NestedTestBox" Text="{Binding ElementName=SourceTextBox, Path=Text}" Width="50" Height="50" Background="Red"/>
-                <TextBlock Text="{Binding ElementName=NestedTestBox, Path=Text}" Width="50" Height="50" Background="Orange"/>
-                <TextBlock Text="{Binding ElementName=GameView, Path=MinoStyles}" Width="300" Height="50" Background="Blue" />
-            </StackPanel>
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2">
+            <local:TetrisGameView x:Name="TetrisGameView"/>
         </Grid>
-        <Grid Grid.Row="1" Grid.Column="1">
+
+        <Grid Grid.Row="1" Grid.Column="0">
+            <Button Content="Start New AI Versus" Click="StartNewAIVersusGame"/>
+        </Grid>
+
+        <local:SettingControl Grid.Row="0" Grid.Column="2"/>
+        <local:KeyScanner x:Name="keyScanner" Grid.Row="1" Grid.Column="1" />
+        <Label Grid.Row="1" Grid.Column="1" Content="{Binding ElementName=keyScanner, Path=SelectedKey, Mode=OneWay}" Background="Red" Width="40" Height="40"/>
+
+        <Grid Grid.Row="1" Grid.Column="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="4*"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <local:GameView x:Name="GameView" MinoStyles="{StaticResource DefaultImageTetrominoStyles}">
+            <local:GameView x:Name="GameView" MinoStyles="{StaticResource DefaultImageTetrominoStyles}" Background="Black">
             </local:GameView>
             <StackPanel Orientation="Horizontal" Grid.Row="1" HorizontalAlignment="Center">
                 <StackPanel.Resources>

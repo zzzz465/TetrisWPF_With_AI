@@ -11,6 +11,7 @@ using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
@@ -229,8 +230,40 @@ namespace Tetris_WPF_Proj
 
         void RegisterEvents()
         {
+            List<Rectangle> cache = new List<Rectangle>();
+            var dropEffectBrush = Resources["HardDropImage"] as Brush;
             var gameEvent = tetrisGame.TetrisGameEvent;
-            gameEvent.CurMinoHardDropped += (obj, e) => RaiseEvent(new RoutedEventArgs(HardDropEvent, e));
+            gameEvent.CurMinoHardDropped += (obj, e) =>
+            { // 개판, RoutedEvent가 작동하지 않아서 그럼
+                var hardDropEventArgs = e as HardDropEventArgs;
+                var ExpectedHardDropPos = hardDropEventArgs.hardDropPos.ToList();
+                foreach(var p in ExpectedHardDropPos)
+                {
+                    if((from pos in ExpectedHardDropPos where pos.X == p.X && pos != p && pos.Y > p.Y select pos).Count() > 0)
+                        continue; // 자신보다 위에 블럭이 있을경우 얘는 드로우 안해도됨
+
+                    DoubleAnimation doubleAnimation = new DoubleAnimation();
+                    var rectangle = new Rectangle();
+                    rectangle.Fill = dropEffectBrush;
+                    rectangle.Width = 40;
+                    rectangle.Height = 200;
+                    RootCanvas.Children.Add(rectangle);
+                    cache.Add(rectangle);
+                    Canvas.SetBottom(rectangle, p.Y * 40);
+                    Canvas.SetLeft(rectangle, p.X * 40);
+                    doubleAnimation.From = 0;
+                    doubleAnimation.To = -200;
+                    doubleAnimation.Duration = new Duration(TimeSpan.FromMilliseconds(100));
+                    doubleAnimation.Completed += (_, __) =>
+                    {
+                        RootCanvas.Children.Remove(rectangle);
+                        cache.Remove(rectangle);
+                    };
+                    TranslateTransform translateTransform = new TranslateTransform(0, 0);
+                    rectangle.RenderTransform = translateTransform;
+                    translateTransform.BeginAnimation(TranslateTransform.YProperty, doubleAnimation);
+                }
+            };
         }
 
         void DeRegisterEvents()

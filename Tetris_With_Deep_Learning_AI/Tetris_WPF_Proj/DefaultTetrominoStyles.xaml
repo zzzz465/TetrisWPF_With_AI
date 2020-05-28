@@ -44,6 +44,11 @@
                 <Color A="0"/>
             </SolidColorBrush.Color>
         </SolidColorBrush>
+        <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.Garbage}">
+            <SolidColorBrush.Color>
+                <Color A="255" G="170" B="170" R="170"/>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
     </ResourceDictionary>
     <ResourceDictionary x:Key="DefaultImageTetrominoStyles">
         <ImageBrush x:Key="{x:Static Tetris:Tetromino.I}">
@@ -84,6 +89,11 @@
         <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.None}">
             <SolidColorBrush.Color>
                 <Color A="0"/>
+            </SolidColorBrush.Color>
+        </SolidColorBrush>
+        <SolidColorBrush x:Key="{x:Static Tetris:Tetromino.Garbage}">
+            <SolidColorBrush.Color>
+                <Color A="255" G="170" B="170" R="170"/>
             </SolidColorBrush.Color>
         </SolidColorBrush>
     </ResourceDictionary>

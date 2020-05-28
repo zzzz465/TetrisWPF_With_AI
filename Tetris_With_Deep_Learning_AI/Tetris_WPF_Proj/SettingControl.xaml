@@ -1,0 +1,64 @@
+﻿<UserControl x:Class="Tetris_WPF_Proj.SettingControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Tetris_WPF_Proj"
+             xmlns:Tetris="clr-namespace:Tetris;assembly=Tetris_NetFramework"
+             mc:Ignorable="d" 
+             d:DesignHeight="600" d:DesignWidth="250"
+             x:Name="_Root"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="0.2*"/>
+            <RowDefinition/>
+            <RowDefinition Height="0.2*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+        </Grid.ColumnDefinitions>
+        <ComboBox Grid.Row="0" Margin="5,5,5,10" Height="40" SelectionChanged="OnSelectionChanged" x:Name="PlayerSelectionComboBox">
+            <ComboBoxItem Content="Player" Tag="Player:Player"/>
+            <ComboBoxItem Content="Cold Clear" Tag="AI:ColdClear"/>
+        </ComboBox>
+        <Grid Grid.Row="1" Background="White">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="1.5*" />
+            </Grid.RowDefinitions>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <local:InputBox Grid.Row="0" LabelContent="ARR Delay" Value="{Binding ARRDelay}"/>
+                <local:InputBox Grid.Row="1" LabelContent="DAS Delay" Value="{Binding DASDelay}"/>
+                <local:InputBox Grid.Row="2" LabelContent="Mino Spawn Delay" Value="{Binding MinoSpawnDelay}"/>
+                <local:InputBox Grid.Row="3" LabelContent="Soft Drop Delay" Value="{Binding SoftDropDelay}"/>
+                <local:InputBox Grid.Row="4" LabelContent="Auto Drop Delay" Value="{Binding AutoDropDelay}"/>
+            </Grid>
+            <Grid x:Name="InputSettingGrid" Grid.Row="1" Background="Gray">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions> <!-- L, R, CCW, CW, HD, SD, Hold-->
+                <local:KeyScanner Grid.Row="0" LabelContent="HardDropKey" x:Name="HardDropKeyScanner" />
+                <local:KeyScanner Grid.Row="1" LabelContent="SoftDropKey" x:Name="SoftDropKeyScanner" />
+                <local:KeyScanner Grid.Row="2" LabelContent="LeftKey" x:Name="LeftScanner" />
+                <local:KeyScanner Grid.Row="3" LabelContent="RightKey" x:Name="RightScanner" />
+                <local:KeyScanner Grid.Row="4" LabelContent="CCWKey" x:Name="CCWScanner" />
+                <local:KeyScanner Grid.Row="5" LabelContent="CWKey" x:Name="CWScanner" />
+                <local:KeyScanner Grid.Row="6" LabelContent="HoldKey" x:Name="HoldScanner" />
+            </Grid>
+        </Grid>
+        <Button Grid.Row="2" Content="Apply" Margin="5" Click="OnApplyButtonClick"/>
+    </Grid>
+</UserControl>

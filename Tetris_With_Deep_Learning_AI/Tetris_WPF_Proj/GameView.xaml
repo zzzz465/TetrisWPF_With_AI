@@ -22,7 +22,7 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*" />
-                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="2.125*" />
                 <ColumnDefinition Width="1*" />
             </Grid.ColumnDefinitions>
             <Grid Grid.Column="0">
@@ -34,7 +34,10 @@
                         HOLD
                     </Label>
                     <Viewbox>
-                        <local:TetrominoPreview Width="100" Height="100" CurTetromino="{Binding ElementName=_GameView, Path=HoldTetromino}" MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <local:TetrominoPreview Width="100" Height="100" 
+                                                CurTetromino="{Binding ElementName=_GameView, Path=HoldTetromino}" 
+                                                MinoStyles="{Binding ElementName=_GameView, Path=MinoStyles}" 
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
                             <local:TetrominoPreview.Background>
                                 <DrawingBrush>
                                     <DrawingBrush.Drawing>
@@ -42,6 +45,9 @@
                                             <GeometryDrawing.Geometry>
                                                 <RectangleGeometry Rect="0, 0, 1, 1"/>
                                             </GeometryDrawing.Geometry>
+                                            <GeometryDrawing.Brush>
+                                                <SolidColorBrush Color="Black"/>
+                                            </GeometryDrawing.Brush>
                                             <GeometryDrawing.Pen>
                                                 <Pen Thickness="0.01">
                                                     <Pen.Brush>
@@ -59,24 +65,40 @@
             </Grid>
 
             <Grid Grid.Column="1">
-                <Grid.Triggers>
-                    <EventTrigger RoutedEvent="local:TetrisGrid.HardDrop">
-                        
-                    </EventTrigger>
-                </Grid.Triggers>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*"/>
                     <RowDefinition Height="15*"/>
                 </Grid.RowDefinitions>
-                <Label Grid.Row="0" Foreground="White" HorizontalAlignment="Center" Padding="0" Margin="0,2,0,5">Player</Label>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="0.1*"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Row="0" Grid.Column="1" Foreground="White" HorizontalAlignment="Center" Padding="0" Margin="0,2,0,5">Player</Label>
+                <Canvas Grid.Row="1" Grid.Column="0" Margin="2,0" x:Name="IncomingDamageCanvas">
+                    <!--
+                    <Rectangle DataContext="{Binding Mode=OneWay, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Canvas}}}"
+                               Width="{Binding ActualWidth}" Height="{Binding ActualHeight}">
+                        <Rectangle.Fill>
+                            <DrawingBrush Viewport="0, 0, 1, 0.05" TileMode="Tile">
+                                <DrawingBrush.Drawing>
+                                    <GeometryDrawing>
+                                        <GeometryDrawing.Geometry>
+                                            <RectangleGeometry Rect="0, 0, 1, 2"/>
+                                        </GeometryDrawing.Geometry>
+                                        <GeometryDrawing.Pen>
+                                            <Pen Brush="Gray" Thickness="0.1"/>
+                                        </GeometryDrawing.Pen>
+                                    </GeometryDrawing>
+                                </DrawingBrush.Drawing>
+                            </DrawingBrush>
+                        </Rectangle.Fill>
+                    </Rectangle>
+                    -->
+                    <!-- WPF는 View에서 계산하는 것을 지원하지 않음 -> Node js 와는 다르게... -->
+                    <Rectangle x:Name="IncomingColorBar" Width="{Binding ElementName=IncomingDamageCanvas, Path=ActualWidth}" Height="100" Canvas.Bottom="0" Fill="DarkRed"/>
+                </Canvas>
                 <!-- <Canvas x:Name="GridContainerCanvas" Grid.Row="1"> -->
-                <local:TetrisGrid Grid.Row="1" x:Name="tetrisGrid" CellStyles="{Binding ElementName=_GameView, Path=MinoStyles}" BackgroundBrush="Black" RenderTransformOrigin="0.5,0.5">
-                    <local:TetrisGrid.Triggers>
-                        <EventTrigger>
-                            
-                        </EventTrigger>
-                    </local:TetrisGrid.Triggers>
-                </local:TetrisGrid>
+                <local:TetrisGrid Grid.Row="1" Grid.Column="1" x:Name="tetrisGrid" CellStyles="{Binding ElementName=_GameView, Path=MinoStyles}" BackgroundBrush="Black" RenderTransformOrigin="0.5,0.5" />
                 <!-- </Canvas> -->
             </Grid>
 

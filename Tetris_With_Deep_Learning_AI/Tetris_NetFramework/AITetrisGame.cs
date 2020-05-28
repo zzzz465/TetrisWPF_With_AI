@@ -12,11 +12,10 @@ namespace Tetris
         AI ai;
         InstructionSet instructionSet;
         TimeSpan LastUpdateTime = TimeSpan.Zero;
-        TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(16);
+        TimeSpan UpdateDelay = TimeSpan.FromMilliseconds(5);
         public IEnumerable<Point> expectedMinoEndPoints { get { return instructionSet?.expectedPoints; } }
-        public AITetrisGame(AI ai, AIGameSetting AIGameSetting) : base(AIGameSetting)
+        public AITetrisGame(AI ai, TetrisGameSetting gameSetting) : base(gameSetting)
         {
-            this.UpdateDelay = AIGameSetting.UpdateDelay;
             this.ai = ai;
             Log = LogManager.GetLogger("AITetrisGame");
         }
@@ -118,7 +117,7 @@ namespace Tetris
                     while(currentPiece.TryShift(new Point(0, -1)));
                     LastUpdateTime = curTime;
                     instructionSet.MoveNext();
-                    _TetrisGameEvent.OnCurMinoHardDropped(new EventArgs());
+                    _TetrisGameEvent.OnCurMinoHardDropped(new HardDropEventArgs(currentPiece.GetPosOfBlocks()));
                     break;
                 }
 
