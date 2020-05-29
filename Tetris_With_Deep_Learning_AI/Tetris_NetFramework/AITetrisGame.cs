@@ -295,7 +295,7 @@ namespace Tetris
 
         public override IEnumerable<Tetromino> PeekBag()
         {
-            return tetrominoBag.PeekMany(5);
+            return tetrominoBag?.PeekMany(5) ?? Enumerable.Repeat(Tetromino.None, 5);
         }
     }
 

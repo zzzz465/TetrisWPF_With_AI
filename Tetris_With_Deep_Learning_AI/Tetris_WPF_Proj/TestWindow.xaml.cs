@@ -136,7 +136,9 @@ namespace Tetris_WPF_Proj
             game1.SetApponent(game2);
             game2.SetApponent(game1);
 
-            TetrisGameView.SetTetrisGame(new List<TetrisGame>() { game1, game2 }, new List<iInputProvider>());
+            TetrisGameView.player1 = game1;
+            TetrisGameView.player2 = game2;
+
             TetrisGameView.StartNewGame();
         }
 

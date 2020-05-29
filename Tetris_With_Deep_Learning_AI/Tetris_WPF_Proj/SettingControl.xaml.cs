@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Drawing.Design;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,9 +37,18 @@ namespace Tetris_WPF_Proj
             set { SetValue(PlayerSettingInstanceProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PlayerSettingInstance.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PlayerSettingInstanceProperty =
             DependencyProperty.Register("PlayerSettingInstance", typeof(GlobalSetting.PlayerSetting), typeof(SettingControl), new PropertyMetadata(null));
+
+        public PlayerType playerType
+        {
+            get { return (PlayerType)GetValue(playerTypeProperty); }
+            set { SetValue(playerTypeProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for playerType.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty playerTypeProperty =
+            DependencyProperty.Register("playerType", typeof(PlayerType), typeof(SettingControl), new PropertyMetadata(PlayerType.AI));
 
         public int AutoDropDelay
         {
@@ -46,7 +56,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(AutoDropDelayProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for AutoDropDelay.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AutoDropDelayProperty =
             DependencyProperty.Register("AutoDropDelay", typeof(int), typeof(SettingControl), new PropertyMetadata(80));
 
@@ -56,7 +65,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(SoftDropDelayProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SoftDropDelay.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SoftDropDelayProperty =
             DependencyProperty.Register("SoftDropDelay", typeof(int), typeof(SettingControl), new PropertyMetadata(22));
 
@@ -66,7 +74,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(MinoSpawnDelayProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for MinoSpawnDelay.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty MinoSpawnDelayProperty =
             DependencyProperty.Register("MinoSpawnDelay", typeof(int), typeof(SettingControl), new PropertyMetadata(50));
 
@@ -76,7 +83,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(DASDelayProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for DASDelay.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty DASDelayProperty =
             DependencyProperty.Register("DASDelay", typeof(int), typeof(SettingControl), new PropertyMetadata(16));
 
@@ -86,7 +92,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(ARRDelayProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ARRDelay.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ARRDelayProperty =
             DependencyProperty.Register("ARRDelay", typeof(int), typeof(SettingControl), new PropertyMetadata(26));
 
@@ -97,74 +102,76 @@ namespace Tetris_WPF_Proj
             set { SetValue(SelectedPlayerTypeProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for SelectedPlayerType.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedPlayerTypeProperty =
             DependencyProperty.Register("SelectedPlayerType", typeof(PlayerType), typeof(SettingControl), new PropertyMetadata(PlayerType.AI));
-
         #endregion
 
         public SettingControl()
         {
+            this.DataContext = this;
             InitializeComponent();
         }
 
         private void OnApplyButtonClick(object sender, RoutedEventArgs e)
         {
-            Action<string> Message = (str) => MessageBox.Show(str);
-            if (this.PlayerSettingInstance == null)
+            if(PlayerSettingInstance == null)
             {
-                MessageBox.Show("PlayerSettingInstance is not applied");
+                MessageBox.Show("플레이어 또는 AI를 선택하지 않았습니다!");
                 return;
             }
 
-            var setting = PlayerSettingInstance;
-            ref var gameSetting = ref setting.PlayerGameSetting;
+            ApplyGameSetting();
+
+            bool isPlayer = Regex.IsMatch((PlayerSelectionComboBox.SelectedItem as ComboBoxItem).Tag.ToString(), "Player");
+            if (isPlayer)
+                ApplyPlayerInputSetting();
+
+            var tagString = (PlayerSelectionComboBox.SelectedItem as ComboBoxItem).Tag.ToString();
+            if (tagString.Contains("Player"))
+                ApplyPlayerInputSetting();
+            else
+                ApplyAISetting(tagString);
+        }
+
+        void ApplyGameSetting()
+        {
+            ref var gameSetting = ref this.PlayerSettingInstance.PlayerGameSetting;
             gameSetting.ARRDelay = TimeSpan.FromMilliseconds(ARRDelay);
             gameSetting.DASDelay = TimeSpan.FromMilliseconds(DASDelay);
             gameSetting.minoSpawnDelay = TimeSpan.FromMilliseconds(MinoSpawnDelay);
             gameSetting.softDropDelay = TimeSpan.FromMilliseconds(SoftDropDelay);
             gameSetting.autoDropDelay = TimeSpan.FromMilliseconds(AutoDropDelay);
+        }
 
-            var tagString = (PlayerSelectionComboBox.SelectedItem as ComboBoxItem).Tag.ToString();
-            if(tagString.Contains("Player"))
-            {
-                
-                PlayerSettingInstance.ai = null;
-                ref var inputsetting = ref PlayerSettingInstance.playerInputSetting;
-                inputsetting.HardDrop = HardDropKeyScanner.SelectedKey;
-                inputsetting.SoftDrop = SoftDropKeyScanner.SelectedKey;
-                inputsetting.Hold = HoldScanner.SelectedKey;
-                inputsetting.Left = LeftScanner.SelectedKey;
-                inputsetting.Right = RightScanner.SelectedKey;
-                inputsetting.CCW = CCWScanner.SelectedKey;
-                inputsetting.CW = CWScanner.SelectedKey;
-                
-            }
+        void ApplyPlayerInputSetting()
+        {
+            ref var inputsetting = ref PlayerSettingInstance.playerInputSetting;
+            inputsetting.HardDrop = HardDropKeyScanner.SelectedKey;
+            inputsetting.SoftDrop = SoftDropKeyScanner.SelectedKey;
+            inputsetting.Hold = HoldScanner.SelectedKey;
+            inputsetting.Left = LeftScanner.SelectedKey;
+            inputsetting.Right = RightScanner.SelectedKey;
+            inputsetting.CCW = CCWScanner.SelectedKey;
+            inputsetting.CW = CWScanner.SelectedKey;
+        }
+
+        void ApplyAISetting(string tag)
+        {
+            if (Regex.IsMatch(tag, "ColdClear"))
+                PlayerSettingInstance.ai = ColdClearAI.CreateInstance();
         }
 
         private void OnSelectionChanged(object sender, RoutedEventArgs e)
         {
-            if(sender is ComboBox comboBox)
-            {
-                if(comboBox.SelectedItem is ComboBoxItem selectedItem)
-                {
-                    var TagString = selectedItem.Tag.ToString();
-                    if(TagString.Contains("AI"))
-                    {
-                        InputSettingGrid.Visibility = Visibility.Hidden;
-                        
-                        if (TagString.Contains("ColdClear"))
-                        {
-                            this.PlayerSettingInstance.ai = ColdClearAI.CreateInstance();
-                        }
-                        
-                    }
-                    else if(TagString.Contains("Player"))
-                    {
-                        InputSettingGrid.Visibility = Visibility.Visible;
-                    }
-                }
-            }
+            var selectedItem = (sender as ComboBox)?.SelectedItem as ComboBoxItem;
+            if (selectedItem == null)
+                return;
+
+            var TagString = selectedItem.Tag.ToString();
+            if (Regex.IsMatch(TagString, "AI"))
+                this.playerType = PlayerType.AI;
+            else if(Regex.IsMatch(TagString, "Player"))
+                this.playerType = PlayerType.Player;
         }
     }
 }

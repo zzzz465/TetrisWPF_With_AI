@@ -34,7 +34,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(ValueProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty ValueProperty =
             DependencyProperty.Register("Value", typeof(int), typeof(InputBox), new PropertyMetadata(0, null, ValidateValue));
 
@@ -44,7 +43,6 @@ namespace Tetris_WPF_Proj
             set { SetValue(ContentProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for LabelContent.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LabelContentProperty =
             DependencyProperty.Register("LabelContent", typeof(string), typeof(InputBox), new PropertyMetadata(string.Empty));
 
@@ -52,7 +50,6 @@ namespace Tetris_WPF_Proj
         public InputBox()
         {
             InitializeComponent();
-            this.DataContext = this;
         }
 
         private static object ValidateValue(DependencyObject d, object baseValue)

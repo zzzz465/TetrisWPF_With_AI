@@ -99,14 +99,12 @@ namespace Tetris_WPF_Proj
                 }
                 else
                 {
-                    /*
                     foreach (var cell in preview.cells)
                         cell.Visibility = Visibility.Hidden;
-                        */
                 }
             }
             else
-                throw new Exception();
+                throw new Exception("Unexpected behaviour");
         }
 
         static void OnMinoStylesChangedCallback(DependencyObject obj, DependencyPropertyChangedEventArgs e)

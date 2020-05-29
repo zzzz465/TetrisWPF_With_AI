@@ -9,6 +9,18 @@
              d:DesignHeight="600" d:DesignWidth="250"
              x:Name="_Root"
              DataContext="{Binding RelativeSource={RelativeSource Self}}">
+    <UserControl.Resources>
+        <Style TargetType="Grid" x:Key="KeyInputGrid">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding ElementName=_Root, Path=playerType}" Value="{x:Static local:PlayerType.AI}">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding ElementName=_Root, Path=playerType}" Value="{x:Static local:PlayerType.Player}">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="0.2*"/>
@@ -17,7 +29,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
-        <ComboBox Grid.Row="0" Margin="5,5,5,10" Height="40" SelectionChanged="OnSelectionChanged" x:Name="PlayerSelectionComboBox">
+        <ComboBox Grid.Row="0" Margin="5,5,5,10" Height="40" SelectionChanged="OnSelectionChanged" x:Name="PlayerSelectionComboBox" SelectedIndex="1">
             <ComboBoxItem Content="Player" Tag="Player:Player"/>
             <ComboBoxItem Content="Cold Clear" Tag="AI:ColdClear"/>
         </ComboBox>
@@ -34,13 +46,13 @@
                     <RowDefinition />
                     <RowDefinition />
                 </Grid.RowDefinitions>
-                <local:InputBox Grid.Row="0" LabelContent="ARR Delay" Value="{Binding ARRDelay}"/>
-                <local:InputBox Grid.Row="1" LabelContent="DAS Delay" Value="{Binding DASDelay}"/>
-                <local:InputBox Grid.Row="2" LabelContent="Mino Spawn Delay" Value="{Binding MinoSpawnDelay}"/>
-                <local:InputBox Grid.Row="3" LabelContent="Soft Drop Delay" Value="{Binding SoftDropDelay}"/>
-                <local:InputBox Grid.Row="4" LabelContent="Auto Drop Delay" Value="{Binding AutoDropDelay}"/>
+                <local:InputBox Grid.Row="0" LabelContent="ARR Delay" Value="{Binding ARRDelay, Mode=TwoWay}"/>
+                <local:InputBox Grid.Row="1" LabelContent="DAS Delay" Value="{Binding DASDelay, Mode=TwoWay}"/>
+                <local:InputBox  Grid.Row="2" LabelContent="Mino Spawn Delay" Value="{Binding MinoSpawnDelay, Mode=TwoWay}"/>
+                <local:InputBox Grid.Row="3" LabelContent="Soft Drop Delay" Value="{Binding SoftDropDelay, Mode=TwoWay}"/>
+                <local:InputBox Grid.Row="4" LabelContent="Auto Drop Delay" Value="{Binding AutoDropDelay, Mode=TwoWay}"/>
             </Grid>
-            <Grid x:Name="InputSettingGrid" Grid.Row="1" Background="Gray">
+            <Grid x:Name="InputSettingGrid" Grid.Row="1" Background="Gray" Style="{StaticResource KeyInputGrid}">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition/>

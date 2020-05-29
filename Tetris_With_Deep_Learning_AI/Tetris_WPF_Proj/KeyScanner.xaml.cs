@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,7 @@ namespace Tetris_WPF_Proj
     /// </summary>
     public partial class KeyScanner : UserControl
     {
+        #region PROPDP
         public Key SelectedKey
         {
             get { return (Key)GetValue(SelectedKeyProperty); }
@@ -39,26 +41,33 @@ namespace Tetris_WPF_Proj
         // Using a DependencyProperty as the backing store for LabelContent.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty LabelContentProperty =
             DependencyProperty.Register("LabelContent", typeof(string), typeof(KeyScanner), new PropertyMetadata("KeySetting"));
-
+        #endregion
+        bool isSelecting = false;
 
         public KeyScanner()
         {
             InitializeComponent();
+            if (SelectedKey == Key.None)
+                btn.Content = "Click here to configure key";
+            else
+                btn.Content = $"Key : {SelectedKey}";
         }
 
         private void OnClick(object sender, EventArgs e)
         {
             btn.Content = "Press any key...";
+            isSelecting = true;
         }
 
         private void OnKeyDown(object sender, EventArgs e)
         {
             if(e is KeyEventArgs kd)
             {
-                if(kd.IsDown)
+                if(kd.IsDown && isSelecting)
                 {
                     SelectedKey = kd.Key;
                     btn.Content = $"Key : {kd.Key}";
+                    isSelecting = false;
                 }
             }
         }

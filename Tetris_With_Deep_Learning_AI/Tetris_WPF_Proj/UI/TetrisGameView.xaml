@@ -4,8 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Tetris_WPF_Proj"
+             xmlns:local_UI="clr-namespace:Tetris_WPF_Proj.UI"
              mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1600">
+             d:DesignHeight="900" d:DesignWidth="1600"
+             DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -13,7 +15,7 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    
+
     <Grid>
         <Grid Panel.ZIndex="0">
             <Grid.RowDefinitions>
@@ -30,7 +32,6 @@
             <local:GameView x:Name="GameView_2" Grid.Column="2" Margin="0,0,30,0" BackgroundBrush="Black" MinoStyles="{StaticResource DefaultImageTetrominoStyles}" />
         </Grid>
         <Grid x:Name="Overlay" Panel.ZIndex="1">
-            
         </Grid>
     </Grid>
 </UserControl>

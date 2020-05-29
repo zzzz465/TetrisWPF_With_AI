@@ -42,7 +42,6 @@ namespace Tetris_WPF_Proj.UI
             }
             else if(str.Contains("play"))
             {
-                var tetrisGameView = new TetrisGameView();
                 var globalSetting = GlobalSetting.Instance;
                 (var p1, var p1_InputProvider) = CreateGame(globalSetting.Player1Setting);
                 (var p2, var p2_InputProvider) = CreateGame(globalSetting.Player2Setting);
@@ -51,7 +50,7 @@ namespace Tetris_WPF_Proj.UI
                     inputs.Add(p2_InputProvider);
                 if (p1_InputProvider != null)
                     inputs.Add(p1_InputProvider);
-                tetrisGameView.SetTetrisGame(new List<TetrisGame>() { p1, p2 }, inputs);
+                var tetrisGameView = new TetrisGameView(p1, p2, inputs);
                 mainWindowInstance.OpenWindow(tetrisGameView);
                 tetrisGameView.StartNewGame();
             }

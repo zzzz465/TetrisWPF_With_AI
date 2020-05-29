@@ -21,38 +21,45 @@ using log4net;
 using System.IO;
 using SharpDX;
 using SharpDX.XAudio2;
+using System.Diagnostics;
 
 namespace Tetris_WPF_Proj
 {
     /// <summary>
     /// TetrisGame.xaml에 대한 상호 작용 논리
     /// </summary>
-    public partial class TetrisGameView : UserControl
+    public enum State
     {
+        Playing,
+        Paused
+    }
+
+    public partial class TetrisGameView : UserControl
+    { // 뷰모델과 모델이 결합했다...
         ILog Log = LogManager.GetLogger("TetrisGameUserControl");
 
         Stopwatch sw = new Stopwatch();
-        List<TetrisGame> tetrisGames;
-        List<iInputProvider> inputProviders;
-        byte[] dontremove;
+        TetrisGame _p1;
+        TetrisGame _p2;
+        public TetrisGame player1 { get { return _p1; } set { _p1 = value; GameView_1.tetrisGame = value; } }
+        public TetrisGame player2 { get { return _p2; } set { _p2 = value; GameView_2.tetrisGame = value; } }
+        public List<iInputProvider> inputProviders { get; set; }
+
+
+        public State gameState
+        {
+            get { return (State)GetValue(gameStateProperty); }
+            set { SetValue(gameStateProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for gameState.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty gameStateProperty =
+            DependencyProperty.Register("gameState", typeof(State), typeof(TetrisGameView), new PropertyMetadata(State.Playing));
 
         public TetrisGameView()
         {
             InitializeComponent();
-            sw.Reset();
-        }
 
-        public void SetTetrisGame(List<TetrisGame> games, List<iInputProvider> inputProviders)
-        {
-            games = games ?? new List<TetrisGame>();
-            inputProviders = inputProviders ?? new List<iInputProvider>();
-            this.tetrisGames = games;
-            this.inputProviders = inputProviders;
-
-            if (games.Count > 2 || inputProviders.Count > 2 || games.Count == 0)
-                throw new Exception();
-
-            //DEBUG
             var effectEventArgs = new EffectEventArgs();
             effectEventArgs.minoMoved = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_move.wav");
             effectEventArgs.minoHold = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_hold.wav") { volume = 0.5f };
@@ -60,13 +67,20 @@ namespace Tetris_WPF_Proj
             effectEventArgs.minoLocked = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_fixa.wav") { volume = 0.4f };
             effectEventArgs.minoRotated = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_rotate.wav") { volume = 0.7f };
 
-            GameView_1.tetrisGame = games[0];
-            GameView_2.tetrisGame = games.Count > 1 ? games[1] : null;
-
             SetSoundEffect(this, effectEventArgs);
+            CompositionTarget.Rendering += this.OnUpdate;
         }
 
-        List<SoundPlayer> players = new List<SoundPlayer>();
+        public TetrisGameView(TetrisGame player1, TetrisGame player2, List<iInputProvider> inputProviders) : this()
+        {
+            Debug.Assert(player1 != null || player2 != null, "Player 1 and Player 2 is all null");
+
+            // initialize userControl
+            this.player1 = player1;
+            this.player2 = player2;
+
+            this.inputProviders = inputProviders;
+        }
 
         public void SetSoundEffect(object sender, EventArgs e)
         {
@@ -75,46 +89,68 @@ namespace Tetris_WPF_Proj
                 return;
 
             var SoundEffect = effectEventArgs;
-
-            foreach(var game in tetrisGames)
-            {
-                SoundEffect.Subscribe(game.TetrisGameEvent);
-            }
+            if(player1 != null)
+                SoundEffect.Subscribe(player1.TetrisGameEvent);
+            if(player2 != null)
+                SoundEffect.Subscribe(player2.TetrisGameEvent);
         }
 
         public void StartNewGame()
         { // 여기서 이거 하면 안된다 -> 옮겨야함 FIXME
-            foreach(var game in tetrisGames)
+            Action<TetrisGame> doGame = (game) =>
             {
                 game.ResetGame();
                 game.InitializeGame();
                 game.StartGame();
-            }
+            };
+
+            if (player1 != null)
+                doGame(player1);
+            if (player2 != null)
+                doGame(player2);
+
             sw.Start();
-            CompositionTarget.Rendering += OnUpdate;
         }
 
-        public void PauseGame()
+        public void TogglePause()
         {
-            sw.Stop();
-            CompositionTarget.Rendering -= OnUpdate;
+            if(gameState == State.Playing)
+            {
+                sw.Stop();
+                this.gameState = State.Paused;
+            }
+            else
+            {
+                sw.Start();
+                this.gameState = State.Playing;
+            }
         }
 
         void OnUpdate(object sender, EventArgs e)
         {
-            foreach (var inputProvider in inputProviders)
-                inputProvider.Update();
+            if(Keyboard.IsKeyDown(Key.Escape))
+                TogglePause();
 
-            foreach(var game in tetrisGames)
+            if (this.gameState != State.Playing)
+                return;
+
+            if(inputProviders != null)
+                foreach (var inputProvider in inputProviders)
+                    inputProvider.Update();
+
+            var elapsed = sw.Elapsed;
+
+            if (player1 != null)
             {
-                game.UpdateGame(sw.Elapsed);
+                player1.UpdateGame(elapsed);
+                GameView_1.UpdateGameView();
             }
 
-            if (tetrisGames.Count > 0)
-                GameView_1.UpdateGameView();
-
-            if (tetrisGames.Count > 1)
+            if(player2 != null)
+            {
+                player2.UpdateGame(elapsed);
                 GameView_2.UpdateGameView();
+            }
         }
     }
 }
