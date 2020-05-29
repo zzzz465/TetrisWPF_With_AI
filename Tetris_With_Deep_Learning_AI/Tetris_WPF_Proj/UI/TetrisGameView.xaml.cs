@@ -41,9 +41,33 @@ namespace Tetris_WPF_Proj
         Stopwatch sw = new Stopwatch();
         TetrisGame _p1;
         TetrisGame _p2;
-        public TetrisGame player1 { get { return _p1; } set { _p1 = value; GameView_1.tetrisGame = value; } }
-        public TetrisGame player2 { get { return _p2; } set { _p2 = value; GameView_2.tetrisGame = value; } }
+        public TetrisGame player1 { 
+            get 
+            { 
+                return _p1; 
+            } 
+            set 
+            { 
+                _p1 = value; 
+                GameView_1.tetrisGame = value; 
+                GlobalSetting.Instance.soundEffects.Subscribe(value.TetrisGameEvent); 
+            } 
+        }
+        public TetrisGame player2 
+        { 
+            get 
+            { 
+                return _p2; 
+            } 
+            set 
+            { 
+                _p2 = value;
+                GameView_2.tetrisGame = value;
+                GlobalSetting.Instance.soundEffects.Subscribe(value.TetrisGameEvent);
+            } 
+        }
         public List<iInputProvider> inputProviders { get; set; }
+        UserInputManager InputManager;
 
 
         public State gameState
@@ -59,16 +83,13 @@ namespace Tetris_WPF_Proj
         public TetrisGameView()
         {
             InitializeComponent();
-
-            var effectEventArgs = new EffectEventArgs();
-            effectEventArgs.minoMoved = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_move.wav");
-            effectEventArgs.minoHold = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_hold.wav") { volume = 0.5f };
-            effectEventArgs.minoHardDropped = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_harddrop.wav") { volume = 0.3f };
-            effectEventArgs.minoLocked = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_fixa.wav") { volume = 0.4f };
-            effectEventArgs.minoRotated = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_rotate.wav") { volume = 0.7f };
-
-            SetSoundEffect(this, effectEventArgs);
             CompositionTarget.Rendering += this.OnUpdate;
+
+            Key[] keysToObserve = new Key[]
+            {
+                Key.Escape // Pause
+            };
+            InputManager = new UserInputManager(keysToObserve);
         }
 
         public TetrisGameView(TetrisGame player1, TetrisGame player2, List<iInputProvider> inputProviders) : this()
@@ -80,19 +101,6 @@ namespace Tetris_WPF_Proj
             this.player2 = player2;
 
             this.inputProviders = inputProviders;
-        }
-
-        public void SetSoundEffect(object sender, EventArgs e)
-        {
-            var effectEventArgs = e as EffectEventArgs;
-            if (effectEventArgs == null)
-                return;
-
-            var SoundEffect = effectEventArgs;
-            if(player1 != null)
-                SoundEffect.Subscribe(player1.TetrisGameEvent);
-            if(player2 != null)
-                SoundEffect.Subscribe(player2.TetrisGameEvent);
         }
 
         public void StartNewGame()
@@ -128,7 +136,8 @@ namespace Tetris_WPF_Proj
 
         void OnUpdate(object sender, EventArgs e)
         {
-            if(Keyboard.IsKeyDown(Key.Escape))
+            InputManager.Update();
+            if (InputManager.GetState(Key.Escape) == KeyState.ToggledDown)
                 TogglePause();
 
             if (this.gameState != State.Playing)

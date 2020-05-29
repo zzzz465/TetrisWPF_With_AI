@@ -1,18 +1,28 @@
 using System;
 using Tetris.AudioModule;
 using Tetris;
+using System.Collections.Generic;
 
 namespace Tetris_WPF_Proj
 {
-    public class EffectEventArgs : EventArgs
+    public class SoundEffects : EventArgs
     {
+        public readonly static SoundEffects Default = new SoundEffects()
+        {
+            minoMoved = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_move.wav"),
+            minoHold = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_hold.wav") { volume = 0.5f },
+            minoHardDropped = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_harddrop.wav") { volume = 0.3f },
+            minoLocked = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_fixa.wav") { volume = 0.4f },
+            minoRotated = new CachedSound("./Resources/SoundEffect/Tetris99/se_game_rotate.wav") { volume = 0.7f }
+        };
+
         public CachedSound minoMoved;
         public CachedSound minoHold;
         public CachedSound minoHardDropped;
         public CachedSound minoLocked;
         public CachedSound minoRotated;
-        public EffectEventArgs()
-        {
+        public SoundEffects()
+        { // default value
 
         }
 

@@ -13,11 +13,22 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../DefaultTetrominoStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <Style TargetType="Grid" x:Key="GameViewStyle">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding gameState}" Value="{x:Static local:State.Paused}">
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <BlurEffect Radius="30"/>
+                            </Setter.Value>
+                        </Setter>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
         </ResourceDictionary>
     </UserControl.Resources>
 
     <Grid>
-        <Grid Panel.ZIndex="0">
+        <Grid Panel.ZIndex="0" Style="{StaticResource GameViewStyle}">
             <Grid.RowDefinitions>
                 <RowDefinition/>
             </Grid.RowDefinitions>

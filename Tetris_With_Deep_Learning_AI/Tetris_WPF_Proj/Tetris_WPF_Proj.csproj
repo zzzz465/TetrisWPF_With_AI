@@ -71,7 +71,7 @@
     </Compile>
     <Compile Include="CellColorSet.cs" />
     <Compile Include="CharToMinoConverter.cs" />
-    <Compile Include="EffectEventArgs.cs" />
+    <Compile Include="EffectSoundModule.cs" />
     <Compile Include="GameView.xaml.cs">
       <DependentUpon>GameView.xaml</DependentUpon>
     </Compile>

@@ -23,6 +23,11 @@ namespace Tetris
         Dictionary<Key, KeyState> currentKeyState = new Dictionary<Key, KeyState>();
         HashSet<Key> ObservedKeys = new HashSet<Key>();
         InputSetting inputSetting;
+        public UserInputManager(params Key[] keys)
+        {
+            ObserveKey(keys);
+        }
+
         public UserInputManager(InputSetting inputSetting)
         {
             ObserveKey(
@@ -85,9 +90,17 @@ namespace Tetris
         }
 
         public KeyState GetState(InputType inputType)
-        {
+        { // TODO : S, O 위배, 분리 후 InputManager 의 Wrapper 형식으로 기능을 만들어야함...
             if (currentKeyState.TryGetValue(inputSetting.ConvertInputToKey(inputType), out var value))
                 return value;
+            else
+                return KeyState.NotAvailable;
+        }
+
+        public KeyState GetState(Key key)
+        {
+            if (currentKeyState.TryGetValue(key, out var result))
+                return result;
             else
                 return KeyState.NotAvailable;
         }

@@ -21,6 +21,7 @@ namespace Tetris_WPF_Proj
         public static GlobalSetting Instance { get; } = new GlobalSetting(); // SINGLETON
         public PlayerSetting Player1Setting { get; private set; }
         public PlayerSetting Player2Setting { get; private set; }
+        public SoundEffects soundEffects { get; private set; }
 
         private GlobalSetting()
         {
@@ -30,6 +31,8 @@ namespace Tetris_WPF_Proj
             Player2Setting = new PlayerSetting();
             Player2Setting.playerType = PlayerType.AI;
             Player2Setting.ai = ColdClearAI.CreateInstance();
+
+            soundEffects = SoundEffects.Default;
         }
     }
 }
