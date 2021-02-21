@@ -1,1 +1,5 @@
-# C# Tetris With various AI Support, WPF Project
+## C# WPF 만으로 구현한 테트리스 그런데 AI를 넣은...
+
+2020-1학기 윈도우즈프로그래밍 학교 프로젝트로 만든 테트리스 프로젝트입니다.
+WPF만으로 구현하였으며, 추가적으로 AI 프로그램을 사용하기 위해 C 바인딩 코드가 작성되었습니다.
+[gist 링크](https://gist.github.com/zzzz465/8590b691dd3ebb57050e9d04259ebbd4)
